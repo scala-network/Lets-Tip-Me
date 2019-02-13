@@ -1,0 +1,36 @@
+body{
+  background-color: #11141b !important;
+}
+.stellite-darker-background {
+  background-color: #11141b !important;
+}
+.stellite-lighter-background {
+  background-color: #151b29 !important;
+}
+.stellite-bright-text-background {
+  background-color: #daddff !important;
+}
+.stellite-simple-blue-background {
+  background-color: #004ee1 !important;
+}
+.stellite-main-color-background {
+  background-color: #ff1468 !important;
+}
+
+html {
+  font-family: GillSans, Calibri, Trebuchet, sans-serif;
+}
+
+a {
+  color: #3472FF;
+  text-decoration: none;
+}
+
+nav .brand-logo {
+  padding-left: 10px;
+}
+
+.menu-icons-fas {
+  vertical-align: bottom;
+  font-size:14px;
+}
