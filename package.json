@@ -1,0 +1,22 @@
+{
+  "name": "stellite-funding-platform",
+  "version": "1.0.0",
+  "description": "Donation platform for the financial needs of Stellite.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oxhak/Stellite-Funding-Platform.git"
+  },
+  "author": "oxhak",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/oxhak/Stellite-Funding-Platform/issues"
+  },
+  "homepage": "https://github.com/oxhak/Stellite-Funding-Platform#readme",
+  "dependencies": {
+    "express": "^4.16.4"
+  }
+}
