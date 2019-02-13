@@ -2,4 +2,4 @@
 
 Donation platform for the financial needs of Stellite.
 
-In the futur it can extend to all types of projects and be connected to StellitePay.
+In the futur it can extend to all types of projects and connect to StellitePay.
