@@ -5,6 +5,9 @@ var app = express();
 app.get('/', function(req, res) {
     res.sendFile(__dirname + '/index.html');
 });
+app.get('/login', function(req, res) {
+    res.sendFile(__dirname + '/index.html');
+});
 app.get('/about', function(req, res) {
     res.sendFile(__dirname + '/index.html');
 });

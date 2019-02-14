@@ -2,43 +2,40 @@
 <html>
   <head>
     <link type="text/css" rel="stylesheet" href="font-awesome/css/all.css"  media="screen,projection"/>
-    <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="css/bootstrap.min.css"  media="screen,projection"/>
     <link type="text/css" rel="stylesheet" href="css/stellite-funding.css"  media="screen,projection"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Stellite Funding Platform</title>
   </head>
 
   <body>
-    <nav>
-      <div class="nav-wrapper stellite-lighter-background">
-        <a href="/" class="brand-logo"><img src="img/logo.svg" width="100" height="30"></a></a>
-        <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="fas fa-bars"></i></a>
-        <ul class="right hide-on-med-and-down">
-          <li><a href="/"><i class="menu-icons-fas fas fa-sign-in-alt"></i> Login</a></li>
-          <li><a href="/about"><i class="menu-icons-fas fas fa-info-circle"></i> About</a></li>
-          <li><a target="_blank" href="https://www.stellite.cash/support"><i class="menu-icons-fas fas fa-heart"></i> Support Stellite</a></li>
-        </ul>
-      </div>
-    </nav>
-    <ul class="sidenav" id="mobile-demo">
-      <li><a href="/"><i class="fas fa-sign-in-alt"></i> Login</a></li>
-      <li><a href="/about"><i class="fas fa-info-circle"></i> About</a></li>
-      <li><a target="_blank" href="https://www.stellite.cash/support"><i class="fas fa-heart"></i> Support Stellite</a></li>
-    </ul>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="/"><img src="img/logo.svg" width="100" height="30"></a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse navbar-right" id="navbarNavAltMarkup">
+    <div class="navbar-nav  ml-auto">
+      <a class="nav-item nav-link nav-over" href="/login"><i class="fas fa-sign-in-alt"></i> Login</a>
+      <a class="nav-item nav-link nav-over" href="/about"><i class="fas fa-info-circle"></i> About</a>
+      <a class="nav-item nav-link nav-over" target="_blank" href="https://www.stellite.cash/support"><i class="fas fa-heart"></i> Support Stellite</a>
+    </div>
+  </div>
+</nav>
 
-    <div id="body-load" class="container center-align"></div>
+
+    <div id="body-load" class="container body-load"></div>
 
     <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
     <script type="text/javascript" src="js/jquery-stellite-funding.js"></script>
-    <script type="text/javascript" src="js/materialize.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
 
   </body>
-  <footer class="page-footer stellite-darker-background">
-  <div class="footer-copyright stellite-lighter-background">
-    <div class="container center-align">
+  <footer class="footer">
+    <div class="container">
+    <p class="text-muted text-center">
     stellite-funding-platform 1.0.0
-    <a href="https://github.com/oxhak/Stellite-Funding-Platform" target="_blank"><i class="fab fa-github"></i></a>
+<a href="https://github.com/oxhak/Stellite-Funding-Platform" target="_blank"><i class="fab fa-github"></i></a></p>
     </div>
-  </div>
-</footer>
+  </footer>
 </html>
