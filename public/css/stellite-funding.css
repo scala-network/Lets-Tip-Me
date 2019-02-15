@@ -58,7 +58,7 @@ a:hover {
 }
 
  .body-load{
-   width: 50%;
+   width: 100%;
    margin: 0 auto;
    margin-top: 2%;
    text-align:center;
@@ -66,8 +66,8 @@ a:hover {
  .page-title{
    padding-bottom:25px;
  }
- .set-inputs-width {
-   width: 40%!important;
+ .set-inputs-login-width {
+   width: 250px!important;
    margin: 0 auto;
  }
  .set-margin-auto{
