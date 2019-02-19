@@ -73,3 +73,7 @@ a:hover {
  .set-margin-auto{
    margin: 0 auto;
  }
+
+ .starthidden {
+  display: none;
+}
