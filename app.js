@@ -11,35 +11,24 @@ const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
 
-// Connection URL
 const url = 'mongodb://localhost:27017';
-
-// Database Name
 const dbName = 'stellite-funding-platform';
 
-// Configure passport.js to use the local strategy
 passport.use(new LocalStrategy(
   { usernameField: 'email' },
   (email, password, done) => {
-    //Inside local strategy callback
-    // Use connect method to connect to the server
     const checkLogin = function(db, callback) {
-      // Get the documents collection
       const collection = db.collection('users');
-      // Find some documents
       collection.find({'email': email}).toArray(function(err, data) {
         assert.equal(err, null);
         const user = data[0];
         if(email === user.email && password === user.password) {
-          //Local strategy returned true
           return done(null, user);
         }
       });
     }
-
     MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
       assert.equal(null, err);
-      //Connected successfully to MongoDB server
       const db = client.db(dbName);
       checkLogin(db, function() {
         client.close();
@@ -48,37 +37,30 @@ passport.use(new LocalStrategy(
   }
 ));
 
-// Tell passport how to serialize the user
 passport.serializeUser((user, done) => {
-  //Inside serializeUser callback. User id is save to the session file store here
   done(null, user._id);
 });
 
 passport.deserializeUser((_id, done) => {
-  //Inside deserializeUser callback
-  //The user id passport saved in the session file store is: _id
-  // const user = users[0].id === id ? users[0] : false;
   done(null, _id);
-  // console.log(actual_user);
 });
 
 
-// Add & configure middleware
-app.use( bodyParser.json() );       // to support JSON-encoded bodies
-app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+app.use( bodyParser.json() );
+app.use(bodyParser.urlencoded({
   extended: true
 }));
+
 app.use(session({
   genid: (req) => {
-    //Inside session middleware genid function
-    //Request object sessionID from client: ${req.sessionID}
-    return uuid(); // Use UUIDs for session IDs
+    return uuid();
   },
   store: new FileStore(),
   secret: 'a secret random string',
   resave: false,
   saveUninitialized: true
 }));
+
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -100,18 +82,14 @@ app.get('/about', function(req, res) {
 app.get('/logged', function(req, res) {
   if(req.isAuthenticated()) {
     const checkLogged = function(db, callback) {
-      // Get the documents collection
       const collection = db.collection('users');
-      // Find some documents
       collection.find(ObjectId(req.user)).toArray(function(err, data) {
         assert.equal(err, null);
         res.send({ user_username: data[0].username });
       });
     }
-
     MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
       assert.equal(null, err);
-      //Connected successfully to MongoDB server
       const db = client.db(dbName);
       checkLogged(db, function() {
         client.close();
@@ -122,7 +100,7 @@ app.get('/logged', function(req, res) {
   }
 });
 
-// Usefull for later code
+// Useful for later code
 //
 // app.post('/login', (req, res) => {
 //   var email = req.body.email, password = req.body.password;
@@ -135,7 +113,6 @@ passport.authenticate('local', { failureRedirect: '/login' }),
 function(req, res) {
   res.send('Logged');
 });
-
 app.get('/logout', function (req, res){
   req.session.destroy(function (err) {
     res.redirect('/login');
