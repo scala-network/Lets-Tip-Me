@@ -7,15 +7,15 @@ In the future it can extend to all types of projects and connect to StellitePay.
 
 # How To (Temporary)
 
-Install and run MongoDB locally on port 27017 and with MongoDB Shell (mongo) insert an user
+Install and run MongoDB locally on port 27017 and with MongoDB Shell (mongo) insert an user :
 
 `use stellite-funding-platform`
 
 `db.users.insertOne( { username: "your_username", email: "your@email.com", password: "test" } );`
 
-Clone this repository
+Clone this repository :
 `git clone https://github.com/oxhak/Stellite-Funding-Platform`
 
-Run app.js with Node.js `node app.js`
+Run app.js with Node.js : `node app.js`
 
-Open your web browser and go to http://127.0.0.1:3000 and try to Login
+Open your web browser and go to http://127.0.0.1:3000 and try to Login.
