@@ -17,8 +17,6 @@ const url = 'mongodb://localhost:27017';
 // Database Name
 const dbName = 'stellite-funding-platform';
 
-var user_id;
-
 // Configure passport.js to use the local strategy
 passport.use(new LocalStrategy(
   { usernameField: 'email' },
@@ -60,7 +58,6 @@ passport.deserializeUser((_id, done) => {
   //Inside deserializeUser callback
   //The user id passport saved in the session file store is: _id
   // const user = users[0].id === id ? users[0] : false;
-  user_id=_id;
   done(null, _id);
   // console.log(actual_user);
 });
@@ -106,9 +103,9 @@ app.get('/logged', function(req, res) {
       // Get the documents collection
       const collection = db.collection('users');
       // Find some documents
-      collection.find(ObjectId(user_id)).toArray(function(err, data) {
+      collection.find(ObjectId(req.user)).toArray(function(err, data) {
         assert.equal(err, null);
-        res.send({ user_id: user_id, user_username: data[0].username });
+        res.send({ user_id: req.user, user_username: data[0].username });
       });
     }
 
