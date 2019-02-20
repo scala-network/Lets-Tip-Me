@@ -47,8 +47,6 @@ passport.use(new LocalStrategy(
 
     var loginCallback = function(data) {
       const user = data[0];
-      user_id=user._id;
-      user_username=user.username;
       if(email === user.email && password === user.password) {
         //Local strategy returned true
         return done(null, user);
@@ -130,9 +128,8 @@ app.get('/logged', function(req, res) {
 
     var loggedCallback = function(data) {
       user_username=data[0].username;
+      res.send({ user_id: user_id, user_username: user_username });
     };
-
-    res.send({ user_id: user_id, user_username: user_username });
   } else {
     res.send('false')
   }
