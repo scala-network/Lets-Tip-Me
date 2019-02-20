@@ -32,7 +32,11 @@ passport.use(new LocalStrategy(
       // Find some documents
       collection.find({'email': email}).toArray(function(err, data) {
         assert.equal(err, null);
-        loginCallback(data);
+        const user = data[0];
+        if(email === user.email && password === user.password) {
+          //Local strategy returned true
+          return done(null, user);
+        }
       });
     }
 
@@ -44,14 +48,6 @@ passport.use(new LocalStrategy(
         client.close();
       });
     });
-
-    var loginCallback = function(data) {
-      const user = data[0];
-      if(email === user.email && password === user.password) {
-        //Local strategy returned true
-        return done(null, user);
-      }
-    };
   }
 ));
 
@@ -113,7 +109,8 @@ app.get('/logged', function(req, res) {
       // Find some documents
       collection.find(ObjectId(user_id)).toArray(function(err, data) {
         assert.equal(err, null);
-        loggedCallback(data);
+        user_username=data[0].username;
+        res.send({ user_id: user_id, user_username: user_username });
       });
     }
 
@@ -125,11 +122,6 @@ app.get('/logged', function(req, res) {
         client.close();
       });
     });
-
-    var loggedCallback = function(data) {
-      user_username=data[0].username;
-      res.send({ user_id: user_id, user_username: user_username });
-    };
   } else {
     res.send('false')
   }
