@@ -7,7 +7,7 @@ In the future it can extend to all types of projects and connect to StellitePay.
 
 # How To (Temporary)
 
-Install and run mongodb locally on port 27017 and with mongodb shell (mongo) insert an user
+Install and run MongoDB locally on port 27017 and with MongoDB Shell (mongo) insert an user
 
 `use stellite-funding-platform`
 
