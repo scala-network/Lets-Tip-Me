@@ -9,7 +9,7 @@ In the future it can extend to all types of projects and connect to StellitePay.
 
 install and run mongodb locally on port 27017 and with mongodb shell (mongo) insert an user
 
-use stellite-funding-platform
+use stellite-funding-platform\n
 db.users.insertOne( { username: "your_username", email: "your@email.com", password: "test" } );
 
 clone this repository
