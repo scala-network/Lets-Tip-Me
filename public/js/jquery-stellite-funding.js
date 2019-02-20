@@ -10,11 +10,13 @@ $( document ).ready(function() {
       if ( data != "false" ) {
         $("#menuloginlink").hide();
         $("#menulogoutlink").show();
-      // alert( data.userid );
+        $("#menu_username").text(data.user_username);
+        $("#menuuserlink").show();
       }
       else {
         $("#menuloginlink").show();
         $("#menulogoutlink").hide();
+        $("#menuuserlink").hide();
       }
     });
 // login
@@ -23,7 +25,9 @@ $( document ).on( 'click', '#Login', function () {
   email=$("#email").val();
   password=$("#password").val();
   $.post("/login",{email: email,password: password}, function(data){
-        $(location).attr('href', '/')
+    if ( data == "Logged" ) {
+        $(location).attr('href', '/');
+    }
   });
      });
 });
