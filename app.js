@@ -105,7 +105,7 @@ app.get('/logged', function(req, res) {
       // Find some documents
       collection.find(ObjectId(req.user)).toArray(function(err, data) {
         assert.equal(err, null);
-        res.send({ user_id: req.user, user_username: data[0].username });
+        res.send({ user_username: data[0].username });
       });
     }
 
