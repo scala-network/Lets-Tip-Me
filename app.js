@@ -29,10 +29,17 @@ passport.use(new LocalStrategy(
       // Find some documents
       collection.find({'email': email}).toArray(function(err, data) {
         assert.equal(err, null);
-        const user = data[0];
-        if(email === user.email && password === user.password) {
-          //Local strategy returned true
-          return done(null, user);
+        if (data[0]){
+          const user = data[0];
+          if(email === user.email && password === user.password) {
+            //Local strategy returned true
+            return done(null, user);
+          }
+          else {
+            return done(null, false, "Wrong password");
+          }
+        } else {
+        return done(null, false, "Email not found");
         }
       });
     }
@@ -128,10 +135,15 @@ app.get('/logged', function(req, res) {
 //   console.log(req.sessionID);
 // });
 
-app.post('/login',
-passport.authenticate('local', { failureRedirect: '/login' }),
-function(req, res) {
-  res.send('Logged');
+app.post('/login', function(req, res, next) {
+  passport.authenticate('local', function(err, user, info) {
+    if (err) { return next(err); }
+    if (!user) { return res.send(info); }
+    req.logIn(user, function(err) {
+      if (err) { return next(err); }
+      return res.send('Logged');
+    });
+  })(req, res, next);
 });
 
 app.get('/logout', function (req, res){

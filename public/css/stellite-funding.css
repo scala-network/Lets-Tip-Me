@@ -70,6 +70,12 @@ a:hover {
    width: 250px!important;
    margin: 0 auto;
  }
+ .set-alerts-login-width {
+   width: 250px!important;
+   margin: 0 auto;
+   padding: 5px;
+   margin-bottom:15px;
+ }
  .set-margin-auto{
    margin: 0 auto;
  }

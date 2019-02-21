@@ -22,12 +22,20 @@ $( document ).ready(function() {
 // login
 var email,password;
 $( document ).on( 'click', '#Login', function () {
-  email=$("#email").val();
-  password=$("#password").val();
-  $.post("/login",{email: email,password: password}, function(data){
-    if ( data == "Logged" ) {
+  $("#LoginError").hide();
+  if( $('#email').val() && $('#password').val() ) {
+    email=$("#email").val();
+    password=$("#password").val();
+    $.post("/login",{email: email,password: password}, function(data){
+      if ( data == "Logged" ) {
         $(location).attr('href', '/');
-    }
-  });
-     });
+      }
+      else {
+        $("#LoginError").text(data +"!");
+        $("#LoginError").show();
+      }
+    });
+  }
+});
+
 });
