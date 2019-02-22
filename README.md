@@ -14,4 +14,4 @@ In the future it can extend to all types of projects and connect to StellitePay.
 
 3. Run app.js with Node.js : `node app.js`
 
-4. Open your web browser, go to http://127.0.0.1:3000 and try to Login.
+4. Open your web browser, go to http://127.0.0.1:3000, register and try to Login.
