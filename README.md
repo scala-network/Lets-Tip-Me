@@ -2,7 +2,7 @@
 
 Funding platform for the Stellite Blockchain.
 
-In the future it can extend to all types of projects and connect to StellitePay.
+In the future it can extend to all types of funding and connect to StellitePay.
 
 
 # How To (Temporary)
