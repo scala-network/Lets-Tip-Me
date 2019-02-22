@@ -11,7 +11,9 @@ In the future it can extend to all types of projects and connect to StellitePay.
 
 `use stellite-funding-platform`
 
-`db.users.insertOne( { username: "your_username", email: "your@email.com", password: "test" } );`
+`db.users.insertOne( { username: "your_username", email: "your@email.com", password: "$2b$10$YFDBYNu0Pp0.yLarktEQhudQXQLfdrkNFmRYHy1wHMn04H4kXo8ja" } );`
+
+Your user password is `test`
 
 2. Clone this repository :
 `git clone https://github.com/oxhak/Stellite-Funding-Platform`

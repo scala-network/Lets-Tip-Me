@@ -34,6 +34,7 @@ passport.use(new LocalStrategy(
         if (data[0]){
           const user = data[0];
           if(email === user.email) {
+            // Check password
             bcrypt.compare(password, user.password, function(err, res) {
                 if(res === true) {
                 //Local strategy returned true
@@ -131,14 +132,6 @@ app.get('/logged', function(req, res) {
     res.send('false')
   }
 });
-
-// Useful for later code
-//
-// app.post('/login', (req, res) => {
-//   var email = req.body.email, password = req.body.password;
-//   res.send("You posted email: "+ email +" & password: "+ password +" to the login page!\n");
-//   console.log(req.sessionID);
-// });
 
 app.post('/login', function(req, res, next) {
   passport.authenticate('local', function(err, user, info) {
