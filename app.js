@@ -10,6 +10,8 @@ const LocalStrategy = require('passport-local').Strategy;
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 // Connection URL
 const url = 'mongodb://localhost:27017';
@@ -31,12 +33,15 @@ passport.use(new LocalStrategy(
         assert.equal(err, null);
         if (data[0]){
           const user = data[0];
-          if(email === user.email && password === user.password) {
-            //Local strategy returned true
-            return done(null, user);
-          }
-          else {
-            return done(null, false, "Wrong password");
+          if(email === user.email) {
+            bcrypt.compare(password, user.password, function(err, res) {
+                if(res === true) {
+                //Local strategy returned true
+                return done(null, user);
+                } else if(res === false) {
+                return done(null, false, "Wrong password");
+                }
+            });
           }
         } else {
         return done(null, false, "Email not found");
