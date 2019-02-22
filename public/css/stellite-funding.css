@@ -15,9 +15,15 @@
 }
 
 a {
-  color: #3472FF;
   text-decoration: none;
+  color:#fff!important;
+  font-weight: bold;
 }
+a:hover {
+  text-decoration: none;
+  color:#e5e5e5!important;
+}
+
  html {
    position: relative;
    min-height: 100%;
@@ -46,11 +52,12 @@ a {
  .navbar-dark .navbar-nav .nav-link {
      color: #e5e5e5;
      margin-left:5px;
+     font-weight: normal;
  }
 
 a.nav-over:hover {
   text-decoration: none;
-  color:#fff!important;
+  color:#e5e5e5!important;
 }
 
 a:hover {

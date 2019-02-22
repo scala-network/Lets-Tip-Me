@@ -1,8 +1,11 @@
 
-var express = require('express');
-const uuid = require('uuid/v4');
+var Ddos = require('ddos')
+var express = require('express')
+var ddos = new Ddos({burst:50, limit:55});
 var app = express();
+app.use(ddos.express)
 const session = require('express-session');
+const uuid = require('uuid/v4');
 const FileStore = require('session-file-store')(session);
 var bodyParser = require('body-parser');
 const passport = require('passport');
@@ -103,10 +106,78 @@ app.get('/login', function(req, res) {
     res.sendFile(__dirname + '/index.html');
   }
 });
+app.get('/register', function(req, res) {
+  if(req.isAuthenticated()) {
+    res.send('Logged');
+  } else {
+    res.sendFile(__dirname + '/index.html');
+  }
+});
 app.get('/about', function(req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
+app.post('/register', function (req, res) {
+  function ValidateEmail(inputText)
+  {
+    var mailformat = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+    if(inputText.match(mailformat))
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+  function ValidateUsername(inputText)
+  {
+    var usernameformat = /^([a-zA-Z0-9_-]+)$/;
+    if(inputText.match(usernameformat))
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+  if(req.isAuthenticated()) {
+    res.send('Logged');
+  } else {
+    var username = req.body.username, email = req.body.email, password = req.body.password, passwordcheck = req.body.passwordcheck;
+    if(password!=passwordcheck){
+    res.send("Different passwords");
+    } else if(ValidateEmail(email)==false){
+    res.send("Invalid email address");
+    } else if(ValidateUsername(username)==false){
+      res.send("Invalid username, allowed: a-z, A-Z, 0-9, underscore and dash");
+    } else if(username.lenght>20){
+      res.send("Too long username");
+    } else if(email.lenght>320){
+      res.send("Too long email address");
+    } else if(password.lenght>256){
+      res.send("Too long password");
+    } else {
+    const insertDCreatedAccount = function(db, callback) {
+      const collection = db.collection('users');
+      bcrypt.hash(password, saltRounds, function(err, hash) {
+        collection.insertOne( { username: username, email: email, password: hash }, function(err, result) {
+          assert.equal(err, null);
+          res.send("Registered");
+        });
+      });
+    }
+    MongoClient.connect(url,  { useNewUrlParser: true }, function(err, client) {
+      assert.equal(null, err);
+      const db = client.db(dbName);
+      insertDCreatedAccount(db, function() {
+        client.close();
+      });
+    });
+    }
+  }
+});
 
 app.get('/logged', function(req, res) {
   if(req.isAuthenticated()) {
