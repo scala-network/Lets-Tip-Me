@@ -49,31 +49,6 @@ function ValidateUsername(inputText)
   }
 }
 
-
-function UsernameExist(inputText, next) {
-  const checkIfUsernameExist = function(db, callback) {
-    // Get the documents collection
-    const collection = db.collection('users');
-    // Find some documents
-    collection.find({'username': inputText}).toArray(function(err, data) {
-      assert.equal(err, null);
-      if (data[0]){
-        return insertUsername(true);
-      } else {
-        return insertUsername(false);
-      }
-    });
-  }
-  MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
-    assert.equal(null, err);
-    //Connected successfully to MongoDB server
-    const db = client.db(dbName);
-    checkIfUsernameExist(db, function() {
-      client.close();
-    });
-  });
-}
-
 // Configure passport.js to use the local strategy
 passport.use(new LocalStrategy(
   { usernameField: 'email' },

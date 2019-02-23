@@ -46,6 +46,7 @@ $(location).attr('href', '/register');
 
 // register
 $( document ).on( 'focusout', '#Register_username', function () {
+  if( $(this).val().length != 0 ) {
   $("#RegisterError").hide();
   $.post("/check_username",{username: $(this).val()}, function(data){
     if(data != "Available") {
@@ -53,9 +54,11 @@ $( document ).on( 'focusout', '#Register_username', function () {
       $("#RegisterError").show();
     }
   });
+  }
 });
 
 $( document ).on( 'focusout', '#Register_email', function () {
+  if( $(this).val().length != 0 ) {
   $("#RegisterError").hide();
   $.post("/check_email",{email: $(this).val()}, function(data){
     if(data != "Available") {
@@ -63,6 +66,7 @@ $( document ).on( 'focusout', '#Register_email', function () {
       $("#RegisterError").show();
     }
   });
+  }
 });
 
 $( document ).on( 'click', '#Register', function () {
@@ -79,6 +83,5 @@ $( document ).on( 'click', '#Register', function () {
     });
   }
 });
-
 
 });
