@@ -1,7 +1,7 @@
 {
   "name": "stellite-funding-platform",
   "version": "1.0.0",
-  "description": "Donation platform for the financial needs of Stellite.",
+  "description": "Funding platform for the Stellite Blockchain.",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

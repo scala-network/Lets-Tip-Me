@@ -16,6 +16,32 @@ var ObjectId = require('mongodb').ObjectID;
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
+//Inputs validators
+function ValidateEmail(inputText)
+{
+  var mailformat = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+  if(inputText.match(mailformat))
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+function ValidateUsername(inputText)
+{
+  var usernameformat = /^([a-zA-Z0-9_-]+)$/;
+  if(inputText.match(usernameformat))
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
 // Connection URL
 const url = 'mongodb://localhost:27017';
 
@@ -118,30 +144,6 @@ app.get('/about', function(req, res) {
 });
 
 app.post('/register', function (req, res) {
-  function ValidateEmail(inputText)
-  {
-    var mailformat = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
-    if(inputText.match(mailformat))
-    {
-      return true;
-    }
-    else
-    {
-      return false;
-    }
-  }
-  function ValidateUsername(inputText)
-  {
-    var usernameformat = /^([a-zA-Z0-9_-]+)$/;
-    if(inputText.match(usernameformat))
-    {
-      return true;
-    }
-    else
-    {
-      return false;
-    }
-  }
   if(req.isAuthenticated()) {
     res.send('Logged');
   } else {
@@ -205,6 +207,7 @@ app.get('/logged', function(req, res) {
 });
 
 app.post('/login', function(req, res, next) {
+  if(ValidateEmail(req.body.email)==true){
   passport.authenticate('local', function(err, user, info) {
     if (err) { return next(err); }
     if (!user) { return res.send(info); }
@@ -213,6 +216,9 @@ app.post('/login', function(req, res, next) {
       return res.send('Logged');
     });
   })(req, res, next);
+} else {
+  res.send("Invalid email address");
+}
 });
 
 app.get('/logout', function (req, res){
