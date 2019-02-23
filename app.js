@@ -16,6 +16,12 @@ var ObjectId = require('mongodb').ObjectID;
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
+// Connection URL
+const url = 'mongodb://localhost:27017';
+
+// Database Name
+const dbName = 'stellite-funding-platform';
+
 //Inputs validators
 function ValidateEmail(inputText)
 {
@@ -42,11 +48,31 @@ function ValidateUsername(inputText)
     return false;
   }
 }
-// Connection URL
-const url = 'mongodb://localhost:27017';
 
-// Database Name
-const dbName = 'stellite-funding-platform';
+
+function UsernameExist(inputText, next) {
+  const checkIfUsernameExist = function(db, callback) {
+    // Get the documents collection
+    const collection = db.collection('users');
+    // Find some documents
+    collection.find({'username': inputText}).toArray(function(err, data) {
+      assert.equal(err, null);
+      if (data[0]){
+        return insertUsername(true);
+      } else {
+        return insertUsername(false);
+      }
+    });
+  }
+  MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
+    assert.equal(null, err);
+    //Connected successfully to MongoDB server
+    const db = client.db(dbName);
+    checkIfUsernameExist(db, function() {
+      client.close();
+    });
+  });
+}
 
 // Configure passport.js to use the local strategy
 passport.use(new LocalStrategy(
@@ -65,16 +91,16 @@ passport.use(new LocalStrategy(
           if(email === user.email) {
             // Check password
             bcrypt.compare(password, user.password, function(err, res) {
-                if(res === true) {
+              if(res === true) {
                 //Local strategy returned true
                 return done(null, user);
-                } else if(res === false) {
+              } else if(res === false) {
                 return done(null, false, "Wrong password");
-                }
+              }
             });
           }
         } else {
-        return done(null, false, "Email not found");
+          return done(null, false, "Email not found");
         }
       });
     }
@@ -143,15 +169,73 @@ app.get('/about', function(req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
+app.post('/check_username', function(req, res) {
+  var username = req.body.username;
+  if(ValidateUsername(username)==true){
+    const checkIfUsernameExist = function(db, callback) {
+      // Get the documents collection
+      const collection = db.collection('users');
+      // Find some documents
+      collection.find({'username': username}).toArray(function(err, data) {
+        assert.equal(err, null);
+        if (data[0]){
+          res.send('Username already exist');
+        } else {
+          res.send('Available');
+        }
+      });
+    }
+    MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
+      assert.equal(null, err);
+      //Connected successfully to MongoDB server
+      const db = client.db(dbName);
+      checkIfUsernameExist(db, function() {
+        client.close();
+      });
+    });
+  } else {
+    res.send("Invalid username, allowed: a-z, A-Z, 0-9, underscore and dash");
+  }
+});
+
+app.post('/check_email', function(req, res) {
+  var email = req.body.email;
+  if(ValidateEmail(email)==true){
+    const checkIfEmailExist = function(db, callback) {
+      // Get the documents collection
+      const collection = db.collection('users');
+      // Find some documents
+      collection.find({'email': email}).toArray(function(err, data) {
+        assert.equal(err, null);
+        if (data[0]){
+          res.send('Email already registered');
+        } else {
+          res.send('Available');
+        }
+      });
+    }
+    MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
+      assert.equal(null, err);
+      //Connected successfully to MongoDB server
+      const db = client.db(dbName);
+      checkIfEmailExist(db, function() {
+        client.close();
+      });
+    });
+  } else {
+    res.send("Invalid email address");
+  }
+});
+
 app.post('/register', function (req, res) {
   if(req.isAuthenticated()) {
     res.send('Logged');
   } else {
     var username = req.body.username, email = req.body.email, password = req.body.password, passwordcheck = req.body.passwordcheck;
     if(password!=passwordcheck){
-    res.send("Different passwords");
+      res.send("Different passwords");
     } else if(ValidateEmail(email)==false){
-    res.send("Invalid email address");
+      res.send("Invalid email address");
     } else if(ValidateUsername(username)==false){
       res.send("Invalid username, allowed: a-z, A-Z, 0-9, underscore and dash");
     } else if(username.lenght>20){
@@ -161,22 +245,36 @@ app.post('/register', function (req, res) {
     } else if(password.lenght>256){
       res.send("Too long password");
     } else {
-    const insertDCreatedAccount = function(db, callback) {
-      const collection = db.collection('users');
-      bcrypt.hash(password, saltRounds, function(err, hash) {
-        collection.insertOne( { username: username, email: email, password: hash }, function(err, result) {
-          assert.equal(err, null);
-          res.send("Registered");
+      const insertCreatedAccount = function(db, callback) {
+        const collection = db.collection('users');
+        bcrypt.hash(password, saltRounds, function(err, hash) {
+          collection.find({'username': username}).toArray(function(err, data) {
+            assert.equal(err, null);
+            if(!data[0]){
+              collection.find({'email': email}).toArray(function(err, data) {
+                assert.equal(err, null);
+                if(!data[0]){
+                  collection.insertOne({ username: username, email: email, password: hash }, function(err, result) {
+                    assert.equal(err, null);
+                    res.send("Registered");
+                  });
+                } else {
+                  res.send('Email already registered');
+                }
+              });
+            } else {
+              res.send('Username already exist');
+            }
+          });
+        });
+      }
+      MongoClient.connect(url,  { useNewUrlParser: true }, function(err, client) {
+        assert.equal(null, err);
+        const db = client.db(dbName);
+        insertCreatedAccount(db, function() {
+          client.close();
         });
       });
-    }
-    MongoClient.connect(url,  { useNewUrlParser: true }, function(err, client) {
-      assert.equal(null, err);
-      const db = client.db(dbName);
-      insertDCreatedAccount(db, function() {
-        client.close();
-      });
-    });
     }
   }
 });
@@ -208,17 +306,17 @@ app.get('/logged', function(req, res) {
 
 app.post('/login', function(req, res, next) {
   if(ValidateEmail(req.body.email)==true){
-  passport.authenticate('local', function(err, user, info) {
-    if (err) { return next(err); }
-    if (!user) { return res.send(info); }
-    req.logIn(user, function(err) {
+    passport.authenticate('local', function(err, user, info) {
       if (err) { return next(err); }
-      return res.send('Logged');
-    });
-  })(req, res, next);
-} else {
-  res.send("Invalid email address");
-}
+      if (!user) { return res.send(info); }
+      req.logIn(user, function(err) {
+        if (err) { return next(err); }
+        return res.send('Logged');
+      });
+    })(req, res, next);
+  } else {
+    res.send("Invalid email address");
+  }
 });
 
 app.get('/logout', function (req, res){

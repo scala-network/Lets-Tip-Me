@@ -45,6 +45,26 @@ $(location).attr('href', '/register');
 });
 
 // register
+$( document ).on( 'focusout', '#Register_username', function () {
+  $("#RegisterError").hide();
+  $.post("/check_username",{username: $(this).val()}, function(data){
+    if(data != "Available") {
+      $("#RegisterError").text(data +"!");
+      $("#RegisterError").show();
+    }
+  });
+});
+
+$( document ).on( 'focusout', '#Register_email', function () {
+  $("#RegisterError").hide();
+  $.post("/check_email",{email: $(this).val()}, function(data){
+    if(data != "Available") {
+      $("#RegisterError").text(data +"!");
+      $("#RegisterError").show();
+    }
+  });
+});
+
 $( document ).on( 'click', '#Register', function () {
   $("#RegisterError").hide();
   if( $('#Register_username').val() && $('#Register_email').val() && $('#Register_password').val() && $('#Register_passwordcheck').val() ) {
