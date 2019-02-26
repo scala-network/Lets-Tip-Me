@@ -9,6 +9,9 @@ $( document ).ready(function() {
     else if ( $(location).attr('pathname') == "/register" ) {
     $( "#body-load" ).load( "/register.html" );
     }
+    else if ( $(location).attr('pathname') == "/activate" ) {
+    $( "#body-load" ).load( "/activate.html" );
+    }
     $.get( "/logged", function( data ) {
       if ( data != "false" ) {
         $("#menuloginlink").hide();
@@ -51,7 +54,7 @@ $( document ).on( 'focusout', '#Register_username', function () {
   $.post("/check_username",{username: $(this).val()}, function(data){
     if(data != "Available") {
       $("#RegisterError").text(data +"!");
-      $("#RegisterError").show();
+      $( "#RegisterError" ).show();
     }
   });
   }
@@ -75,7 +78,7 @@ $( document ).on( 'click', '#Register', function () {
     var username=$("#Register_username").val(), email=$("#Register_email").val(), password=$("#Register_password").val(), passwordcheck=$("#Register_passwordcheck").val();
     $.post("/register",{username: username,email: email,password: password, passwordcheck: passwordcheck}, function(data){
     if(data === "Registered") {
-    alert(data);
+    $(location).attr('href', '/activate');
     } else {
     $("#RegisterError").text(data +"!");
     $("#RegisterError").show();
@@ -83,5 +86,23 @@ $( document ).on( 'click', '#Register', function () {
     });
   }
 });
+
+//activate
+$( document ).on( 'click', '#Activate', function () {
+  $("#ActivationError").hide();
+  if($('#activation_code').val()) {
+    var activation_code=$("#activation_code").val();
+    $.post("/activate",{activation_code: activation_code}, function(data){
+      if ( data == "Activated" ) {
+        $(location).attr('href', '/login');
+      }
+      else {
+        $("#ActivationError").text(data +"!");
+        $("#ActivationError").show();
+      }
+    });
+  }
+});
+
 
 });

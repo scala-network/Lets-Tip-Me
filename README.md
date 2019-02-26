@@ -12,6 +12,6 @@ In the future it can extend to all types of funding and connect to StellitePay.
 2. Clone this repository :
 `git clone https://github.com/oxhak/Stellite-Funding-Platform`
 
-3. Run app.js with Node.js : `node app.js`
+3. Run app.js with Node.js v11.9 : `node app.js`
 
 4. Open your web browser, go to http://127.0.0.1:3000, create an account and try to login.

@@ -1,9 +1,9 @@
 
-var Ddos = require('ddos')
-var express = require('express')
+var Ddos = require('ddos');
+var express = require('express');
 var ddos = new Ddos({burst:50, limit:55});
 var app = express();
-app.use(ddos.express)
+app.use(ddos.express);
 const session = require('express-session');
 const uuid = require('uuid/v4');
 const FileStore = require('session-file-store')(session);
@@ -15,12 +15,18 @@ const assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
+const sendmail = require('sendmail')();
+const keygen = require('keygen');
 
 // Connection URL
 const url = 'mongodb://localhost:27017';
 
 // Database Name
 const dbName = 'stellite-funding-platform';
+
+// Hostname of your hosting
+const hostname = "127.0.0.1:3000";
+const noreply = "no-reply@stellite.cash"
 
 //Inputs validators
 function ValidateEmail(inputText)
@@ -49,6 +55,19 @@ function ValidateUsername(inputText)
   }
 }
 
+function ValidateActivationCode(inputText)
+{
+  var activationcodeformat = /^([a-zA-Z0-9]+)$/;
+  if(inputText.match(activationcodeformat))
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
 // Configure passport.js to use the local strategy
 passport.use(new LocalStrategy(
   { usernameField: 'email' },
@@ -67,8 +86,12 @@ passport.use(new LocalStrategy(
             // Check password
             bcrypt.compare(password, user.password, function(err, res) {
               if(res === true) {
+                if(user.activated === "true") {
                 //Local strategy returned true
                 return done(null, user);
+                } else {
+                return done(null, false, "Locked account, please check the email you received");
+                }
               } else if(res === false) {
                 return done(null, false, "Wrong password");
               }
@@ -79,7 +102,6 @@ passport.use(new LocalStrategy(
         }
       });
     }
-
     MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
       assert.equal(null, err);
       //Connected successfully to MongoDB server
@@ -134,6 +156,13 @@ app.get('/login', function(req, res) {
   }
 });
 app.get('/register', function(req, res) {
+  if(req.isAuthenticated()) {
+    res.send('Logged');
+  } else {
+    res.sendFile(__dirname + '/index.html');
+  }
+});
+app.get('/activate', function(req, res) {
   if(req.isAuthenticated()) {
     res.send('Logged');
   } else {
@@ -202,6 +231,41 @@ app.post('/check_email', function(req, res) {
   }
 });
 
+app.post('/activate', function(req, res) {
+  var activation_code = req.body.activation_code;
+  if(ValidateActivationCode(activation_code)==true){
+    const checkIfEmailExist = function(db, callback) {
+      // Get the documents collection
+      const collection = db.collection('users');
+      // Find some documents
+      collection.find({'activation_code': activation_code}).toArray(function(err, data) {
+        assert.equal(err, null);
+        if (data[0]){
+          collection.updateOne({ activation_code : activation_code }
+            , { $set: { activated : "true" } }, function(err, result) {
+              assert.equal(err, null);
+              assert.equal(1, result.result.n);
+              console.log("Updated the document with the field a equal to 2");
+              res.send('Activated');
+            });
+        } else {
+          res.send('Invalid code');
+        }
+      });
+    }
+    MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
+      assert.equal(null, err);
+      //Connected successfully to MongoDB server
+      const db = client.db(dbName);
+      checkIfEmailExist(db, function() {
+        client.close();
+      });
+    });
+  } else {
+    res.send("Invalid code format");
+  }
+});
+
 app.post('/register', function (req, res) {
   if(req.isAuthenticated()) {
     res.send('Logged');
@@ -229,9 +293,19 @@ app.post('/register', function (req, res) {
               collection.find({'email': email}).toArray(function(err, data) {
                 assert.equal(err, null);
                 if(!data[0]){
-                  collection.insertOne({ username: username, email: email, password: hash }, function(err, result) {
+                  const activation_code=keygen.url(keygen.small);
+                  collection.insertOne({ username: username, email: email, password: hash, activated: "false", activation_code: activation_code }, function(err, result) {
                     assert.equal(err, null);
                     res.send("Registered");
+                    sendmail({
+                      from: noreply,
+                      to: email,
+                      subject: 'Please confirm your email address - Stellite Funding Platform',
+                      html: '<h2>Stellite Funding Platform</h2><p>Please go to <a href="http://'+hostname+'/activate">http://'+hostname+'/activate</a>, and enter the following code:<br><p><strong>'+activation_code+'</strong></p></p><h6 style="font-weight:normal;">This code is only available for 2 hours, after that you will need to register again.</h6>',
+                    }, function(err, reply) {
+                      console.log(err && err.stack);
+                      console.dir(reply);
+                    });
                   });
                 } else {
                   res.send('Email already registered');
@@ -265,7 +339,6 @@ app.get('/logged', function(req, res) {
         res.send({ user_username: data[0].username });
       });
     }
-
     MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
       assert.equal(null, err);
       //Connected successfully to MongoDB server
