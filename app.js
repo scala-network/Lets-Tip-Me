@@ -87,10 +87,10 @@ passport.use(new LocalStrategy(
             bcrypt.compare(password, user.password, function(err, res) {
               if(res === true) {
                 if(user.activated === "true") {
-                //Local strategy returned true
-                return done(null, user);
+                  //Local strategy returned true
+                  return done(null, user);
                 } else {
-                return done(null, false, "Locked account, please check the email you received");
+                  return done(null, false, "Locked account, please check the email you received");
                 }
               } else if(res === false) {
                 return done(null, false, "Wrong password");
@@ -245,11 +245,53 @@ app.post('/activate', function(req, res) {
             , { $set: { activated : "true" } }, function(err, result) {
               assert.equal(err, null);
               assert.equal(1, result.result.n);
-              console.log("Updated the document with the field a equal to 2");
               res.send('Activated');
             });
-        } else {
-          res.send('Invalid code');
+          } else {
+            res.send('Invalid code');
+          }
+        });
+      }
+      MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
+        assert.equal(null, err);
+        //Connected successfully to MongoDB server
+        const db = client.db(dbName);
+        checkIfEmailExist(db, function() {
+          client.close();
+        });
+      });
+    } else {
+      res.send("Invalid code format");
+    }
+  });
+
+  function ActivationTimer() {
+    // Checking unactivated registered users
+    const checkUnactivatedRegisteredUsers = function(db, callback) {
+      const collection = db.collection('users');
+      collection.find({'activated': "false"}).toArray(function(err, data) {
+        assert.equal(err, null);
+        if (data[0]){
+          data.forEach(function(unactivated_user) {
+            // activation limit = 2 Hours (7200 seconds)
+            if((~~(+new Date / 1000)-unactivated_user.creation_date) > 7200){
+              const removeDocument = function(db, callback) {
+                const collection = db.collection('users');
+                collection.deleteOne({ username : unactivated_user.username }, function(err, result) {
+                  assert.equal(err, null);
+                  assert.equal(1, result.result.n);
+                  // removed user
+                });
+              }
+              MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
+                assert.equal(null, err);
+                const db = client.db(dbName);
+                removeDocument(db, function() {
+                  client.close();
+                });
+              });
+            }
+          });
         }
       });
     }
@@ -257,121 +299,119 @@ app.post('/activate', function(req, res) {
       assert.equal(null, err);
       //Connected successfully to MongoDB server
       const db = client.db(dbName);
-      checkIfEmailExist(db, function() {
+      checkUnactivatedRegisteredUsers(db, function() {
         client.close();
       });
     });
-  } else {
-    res.send("Invalid code format");
   }
-});
+  setInterval(ActivationTimer,10000);
 
-app.post('/register', function (req, res) {
-  if(req.isAuthenticated()) {
-    res.send('Logged');
-  } else {
-    var username = req.body.username, email = req.body.email, password = req.body.password, passwordcheck = req.body.passwordcheck;
-    if(password!=passwordcheck){
-      res.send("Different passwords");
-    } else if(ValidateEmail(email)==false){
-      res.send("Invalid email address");
-    } else if(ValidateUsername(username)==false){
-      res.send("Invalid username, allowed: a-z, A-Z, 0-9, underscore and dash");
-    } else if(username.lenght>20){
-      res.send("Too long username");
-    } else if(email.lenght>320){
-      res.send("Too long email address");
-    } else if(password.lenght>256){
-      res.send("Too long password");
+  app.post('/register', function (req, res) {
+    if(req.isAuthenticated()) {
+      res.send('Logged');
     } else {
-      const insertCreatedAccount = function(db, callback) {
-        const collection = db.collection('users');
-        bcrypt.hash(password, saltRounds, function(err, hash) {
-          collection.find({'username': username}).toArray(function(err, data) {
-            assert.equal(err, null);
-            if(!data[0]){
-              collection.find({'email': email}).toArray(function(err, data) {
-                assert.equal(err, null);
-                if(!data[0]){
-                  const activation_code=keygen.url(keygen.small);
-                  collection.insertOne({ username: username, email: email, password: hash, activated: "false", activation_code: activation_code }, function(err, result) {
-                    assert.equal(err, null);
-                    res.send("Registered");
-                    sendmail({
-                      from: noreply,
-                      to: email,
-                      subject: 'Please confirm your email address - Stellite Funding Platform',
-                      html: '<h2>Stellite Funding Platform</h2><p>Please go to <a href="http://'+hostname+'/activate">http://'+hostname+'/activate</a>, and enter the following code:<br><p><strong>'+activation_code+'</strong></p></p><h6 style="font-weight:normal;">This code is only available for 2 hours, after that you will need to register again.</h6>',
-                    }, function(err, reply) {
-                      console.log(err && err.stack);
-                      console.dir(reply);
+      var username = req.body.username, email = req.body.email, password = req.body.password, passwordcheck = req.body.passwordcheck;
+      if(password!=passwordcheck){
+        res.send("Different passwords");
+      } else if(ValidateEmail(email)==false){
+        res.send("Invalid email address");
+      } else if(ValidateUsername(username)==false){
+        res.send("Invalid username, allowed: a-z, A-Z, 0-9, underscore and dash");
+      } else if(username.lenght>20){
+        res.send("Too long username");
+      } else if(email.lenght>320){
+        res.send("Too long email address");
+      } else if(password.lenght>256){
+        res.send("Too long password");
+      } else {
+        const insertCreatedAccount = function(db, callback) {
+          const collection = db.collection('users');
+          bcrypt.hash(password, saltRounds, function(err, hash) {
+            collection.find({'username': username}).toArray(function(err, data) {
+              assert.equal(err, null);
+              if(!data[0]){
+                collection.find({'email': email}).toArray(function(err, data) {
+                  assert.equal(err, null);
+                  if(!data[0]){
+                    const activation_code=keygen.url(keygen.small);
+                    collection.insertOne({ username: username, email: email, password: hash, activated: "false", activation_code: activation_code, creation_date: ~~(+new Date / 1000) }, function(err, result) {
+                      assert.equal(err, null);
+                      res.send("Registered");
+                      sendmail({
+                        from: noreply,
+                        to: email,
+                        subject: 'Please confirm your email address - Stellite Funding Platform',
+                        html: '<h2>Stellite Funding Platform</h2><p>Please go to <a href="http://'+hostname+'/activate">http://'+hostname+'/activate</a>, and enter the following code:<br><p><strong>'+activation_code+'</strong></p></p><h6 style="font-weight:normal;">This code is only available for 2 hours, after that you will need to register again.</h6>',
+                      }, function(err, reply) {
+                        console.log(err && err.stack);
+                        console.dir(reply);
+                      });
                     });
-                  });
-                } else {
-                  res.send('Email already registered');
-                }
-              });
-            } else {
-              res.send('Username already exist');
-            }
+                  } else {
+                    res.send('Email already registered');
+                  }
+                });
+              } else {
+                res.send('Username already exist');
+              }
+            });
+          });
+        }
+        MongoClient.connect(url,  { useNewUrlParser: true }, function(err, client) {
+          assert.equal(null, err);
+          const db = client.db(dbName);
+          insertCreatedAccount(db, function() {
+            client.close();
           });
         });
       }
-      MongoClient.connect(url,  { useNewUrlParser: true }, function(err, client) {
+    }
+  });
+
+  app.get('/logged', function(req, res) {
+    if(req.isAuthenticated()) {
+      const checkLogged = function(db, callback) {
+        // Get the documents collection
+        const collection = db.collection('users');
+        // Find some documents
+        collection.find(ObjectId(req.user)).toArray(function(err, data) {
+          assert.equal(err, null);
+          res.send({ user_username: data[0].username });
+        });
+      }
+      MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
         assert.equal(null, err);
+        //Connected successfully to MongoDB server
         const db = client.db(dbName);
-        insertCreatedAccount(db, function() {
+        checkLogged(db, function() {
           client.close();
         });
       });
+    } else {
+      res.send('false')
     }
-  }
-});
-
-app.get('/logged', function(req, res) {
-  if(req.isAuthenticated()) {
-    const checkLogged = function(db, callback) {
-      // Get the documents collection
-      const collection = db.collection('users');
-      // Find some documents
-      collection.find(ObjectId(req.user)).toArray(function(err, data) {
-        assert.equal(err, null);
-        res.send({ user_username: data[0].username });
-      });
-    }
-    MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
-      assert.equal(null, err);
-      //Connected successfully to MongoDB server
-      const db = client.db(dbName);
-      checkLogged(db, function() {
-        client.close();
-      });
-    });
-  } else {
-    res.send('false')
-  }
-});
-
-app.post('/login', function(req, res, next) {
-  if(ValidateEmail(req.body.email)==true){
-    passport.authenticate('local', function(err, user, info) {
-      if (err) { return next(err); }
-      if (!user) { return res.send(info); }
-      req.logIn(user, function(err) {
-        if (err) { return next(err); }
-        return res.send('Logged');
-      });
-    })(req, res, next);
-  } else {
-    res.send("Invalid email address");
-  }
-});
-
-app.get('/logout', function (req, res){
-  req.session.destroy(function (err) {
-    res.redirect('/login');
   });
-});
 
-app.use(express.static('public'));
-app.listen(3000);
+  app.post('/login', function(req, res, next) {
+    if(ValidateEmail(req.body.email)==true){
+      passport.authenticate('local', function(err, user, info) {
+        if (err) { return next(err); }
+        if (!user) { return res.send(info); }
+        req.logIn(user, function(err) {
+          if (err) { return next(err); }
+          return res.send('Logged');
+        });
+      })(req, res, next);
+    } else {
+      res.send("Invalid email address");
+    }
+  });
+
+  app.get('/logout', function (req, res){
+    req.session.destroy(function (err) {
+      res.redirect('/login');
+    });
+  });
+
+  app.use(express.static('public'));
+  app.listen(3000);
