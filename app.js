@@ -73,11 +73,8 @@ passport.use(new LocalStrategy(
   { usernameField: 'email' },
   (email, password, done) => {
     //Inside local strategy callback
-    // Use connect method to connect to the server
     const checkLogin = function(db, callback) {
-      // Get the documents collection
       const collection = db.collection('users');
-      // Find some documents
       collection.find({'email': email}).toArray(function(err, data) {
         assert.equal(err, null);
         if (data[0]){
@@ -104,7 +101,6 @@ passport.use(new LocalStrategy(
     }
     MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
       assert.equal(null, err);
-      //Connected successfully to MongoDB server
       const db = client.db(dbName);
       checkLogin(db, function() {
         client.close();
@@ -169,6 +165,13 @@ app.get('/activate', function(req, res) {
     res.sendFile(__dirname + '/index.html');
   }
 });
+app.get('/settings', function(req, res) {
+  if(req.isAuthenticated()) {
+    res.sendFile(__dirname + '/index.html');
+  } else {
+    res.status(301).redirect("/login")
+  }
+});
 app.get('/about', function(req, res) {
   res.sendFile(__dirname + '/index.html');
 });
@@ -177,9 +180,7 @@ app.post('/check_username', function(req, res) {
   var username = req.body.username;
   if(ValidateUsername(username)==true){
     const checkIfUsernameExist = function(db, callback) {
-      // Get the documents collection
       const collection = db.collection('users');
-      // Find some documents
       collection.find({'username': username}).toArray(function(err, data) {
         assert.equal(err, null);
         if (data[0]){
@@ -191,7 +192,6 @@ app.post('/check_username', function(req, res) {
     }
     MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
       assert.equal(null, err);
-      //Connected successfully to MongoDB server
       const db = client.db(dbName);
       checkIfUsernameExist(db, function() {
         client.close();
@@ -206,9 +206,7 @@ app.post('/check_email', function(req, res) {
   var email = req.body.email;
   if(ValidateEmail(email)==true){
     const checkIfEmailExist = function(db, callback) {
-      // Get the documents collection
       const collection = db.collection('users');
-      // Find some documents
       collection.find({'email': email}).toArray(function(err, data) {
         assert.equal(err, null);
         if (data[0]){
@@ -220,7 +218,6 @@ app.post('/check_email', function(req, res) {
     }
     MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
       assert.equal(null, err);
-      //Connected successfully to MongoDB server
       const db = client.db(dbName);
       checkIfEmailExist(db, function() {
         client.close();
@@ -235,9 +232,7 @@ app.post('/activate', function(req, res) {
   var activation_code = req.body.activation_code;
   if(ValidateActivationCode(activation_code)==true){
     const checkIfEmailExist = function(db, callback) {
-      // Get the documents collection
       const collection = db.collection('users');
-      // Find some documents
       collection.find({'activation_code': activation_code}).toArray(function(err, data) {
         assert.equal(err, null);
         if (data[0]){
@@ -254,7 +249,6 @@ app.post('/activate', function(req, res) {
       }
       MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
         assert.equal(null, err);
-        //Connected successfully to MongoDB server
         const db = client.db(dbName);
         checkIfEmailExist(db, function() {
           client.close();
@@ -297,14 +291,14 @@ app.post('/activate', function(req, res) {
     }
     MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
       assert.equal(null, err);
-      //Connected successfully to MongoDB server
       const db = client.db(dbName);
       checkUnactivatedRegisteredUsers(db, function() {
         client.close();
       });
     });
   }
-  setInterval(ActivationTimer,10000);
+  //Check unactivated registered users every 5 minutes
+  setInterval(ActivationTimer,300000);
 
   app.post('/register', function (req, res) {
     if(req.isAuthenticated()) {
@@ -371,9 +365,7 @@ app.post('/activate', function(req, res) {
   app.get('/logged', function(req, res) {
     if(req.isAuthenticated()) {
       const checkLogged = function(db, callback) {
-        // Get the documents collection
         const collection = db.collection('users');
-        // Find some documents
         collection.find(ObjectId(req.user)).toArray(function(err, data) {
           assert.equal(err, null);
           res.send({ user_username: data[0].username });
@@ -381,7 +373,6 @@ app.post('/activate', function(req, res) {
       }
       MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
         assert.equal(null, err);
-        //Connected successfully to MongoDB server
         const db = client.db(dbName);
         checkLogged(db, function() {
           client.close();
@@ -411,6 +402,25 @@ app.post('/activate', function(req, res) {
     req.session.destroy(function (err) {
       res.redirect('/login');
     });
+  });
+
+
+  ///// Funding Goals
+  app.get('/categories', function(req, res) {
+      const getCategories = function(db, callback) {
+        const collection = db.collection('categories');
+        collection.find({}).toArray(function(err, data) {
+          assert.equal(err, null);
+          res.send(data);
+        });
+      }
+      MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
+        assert.equal(null, err);
+        const db = client.db(dbName);
+        getCategories(db, function() {
+          client.close();
+        });
+      });
   });
 
   app.use(express.static('public'));

@@ -24,16 +24,27 @@ $( document ).ready(function() {
       setTimeout(
         function()
         {
-          $("#ActivatedAccount").text("Account successfully activated! Please login.");
+          $("#ActivatedAccount").text("Account successfully activated! Please Login.");
           $("#ActivatedAccount").show();
         }, 100);
       }
+    }
+    else if ( $(location).attr('pathname') == "/" ) {
+      $( "#body-load" ).load( "/funding_index.html" );
+      $.get( "/categories", function( data ) {
+        $.each(data, function (index, value) {
+          $("#funding_goals_index").append("<div class=\"col-md-12\"><h4 class=\"d-flex justify-content-between align-items-center mb-3\"><h5 class=\"text-center\">"+value.categorie+"</h5></h4><hr class=\"mb-4\"></div>");
+          });
+      });
     }
     else if ( $(location).attr('pathname') == "/register" ) {
       $( "#body-load" ).load( "/register.html" );
     }
     else if ( $(location).attr('pathname') == "/activate" ) {
       $( "#body-load" ).load( "/activate.html" );
+    }
+    else if ( $(location).attr('pathname') == "/settings" ) {
+      $( "#body-load" ).load( "/settings.html" );
     }
     $.get( "/logged", function( data ) {
       if ( data != "false" ) {

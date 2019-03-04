@@ -13,6 +13,9 @@
 .stellite-main-color-background {
   background-color: #ff1468 !important;
 }
+.stellite-main-color-text {
+  color: #ff1468;
+}
 
 a {
   text-decoration: none;
@@ -77,15 +80,21 @@ a:hover {
    width: 250px!important;
    margin: 0 auto;
  }
- .set-alerts-login-width {
-   margin: 0 auto;
-   padding: 5px;
+ .set-alerts {
    margin-bottom:15px;
  }
  .set-margin-auto{
    margin: 0 auto;
  }
-
  .starthidden {
   display: none;
+}
+.no-background-color{
+  background-color: none!important;
+}
+.list-group-item-stellite{
+  color:#004085;background-color:#11141b;border-color:#232c43;
+}
+hr{
+  border-color:#232c43;
 }
