@@ -10,9 +10,12 @@ In the future it can extend to all types of funding and connect to StellitePay.
 1. Install and run MongoDB locally on port 27017.
 
 Add funding categories with MongoDB shell (mongo)
+
 `use stellite-funding-platform`
+
 `db.categories.insertOne( { categorie: "Stellite" } );`
-`db.categories.insertOne( { categorie: "Community" } );``
+
+`db.categories.insertOne( { categorie: "Community" } );`
 
 2. Clone this repository :
 `git clone https://github.com/oxhak/Stellite-Funding-Platform`
