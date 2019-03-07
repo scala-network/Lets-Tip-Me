@@ -57,7 +57,7 @@ $( document ).ready(function() {
                 var progress_bar_bg_color;
                 if(percentage<30){
                   progress_bar_bg_color="bg-danger";
-                } else if(percentage>30){
+                } else if((percentage>30)&&(percentage<70)){
                   progress_bar_bg_color="bg-warning";
                 } else if(percentage>70){
                   progress_bar_bg_color="bg-success";
