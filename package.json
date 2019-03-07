@@ -21,16 +21,20 @@
     "bcrypt": "^3.0.4",
     "body-parser": "^1.18.3",
     "ddos": "^0.2.1",
+    "escape-html": "^1.0.3",
     "express": "^4.16.4",
     "express-session": "^1.15.6",
     "gmail-send": "^1.2.14",
     "keygen": "^0.3.1",
     "mongodb": "^3.1.13",
+    "node-cmd": "^3.0.0",
     "nodemailer": "^5.1.1",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
+    "request-promise": "^4.2.4",
     "sendmail": "^1.4.1",
     "session-file-store": "^1.2.0",
-    "socket.io": "^2.2.0"
+    "socket.io": "^2.2.0",
+    "uuid": "^3.3.2"
   }
 }

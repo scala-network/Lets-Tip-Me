@@ -17,6 +17,13 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const sendmail = require('sendmail')();
 const keygen = require('keygen');
+var crypto = require("crypto");
+var escape = require('escape-html');
+var cmd=require('node-cmd');
+
+// console.log(escape('<script>alert("test");</script>'));
+
+// console.log(crypto.randomBytes(8).toString('hex'));
 
 // Connection URL
 const url = 'mongodb://localhost:27017';
@@ -59,6 +66,19 @@ function ValidateActivationCode(inputText)
 {
   var activationcodeformat = /^([a-zA-Z0-9]+)$/;
   if(inputText.match(activationcodeformat))
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+function ValidateID(inputText)
+{
+  var _idformat = /^([a-z0-9]+)$/;
+  if(inputText.match(_idformat)&&inputText.length<25)
   {
     return true;
   }
@@ -406,6 +426,9 @@ app.post('/activate', function(req, res) {
 
 
   ///// Funding Goals
+  app.get('/goal', function(req, res) {
+    res.sendFile(__dirname + '/index.html');
+  });
   app.get('/categories', function(req, res) {
       const getCategories = function(db, callback) {
         const collection = db.collection('categories');
@@ -422,6 +445,65 @@ app.post('/activate', function(req, res) {
         });
       });
   });
+  app.post('/goals', function(req, res) {
+      const getGoals = function(db, callback) {
+        const collection = db.collection('goals');
+        collection.find({'categorie': req.body._id}).toArray(function(err, data) {
+          assert.equal(err, null);
+          res.send(data);
+        });
+      }
+      MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
+        assert.equal(null, err);
+        const db = client.db(dbName);
+        getGoals(db, function() {
+          client.close();
+        });
+      });
+  });
+
+  app.get('/goal/:id*', function(req, res, next) {
+  res.sendFile(__dirname + '/index.html');
+  });
+
+  app.post('/goal/', function(req, res) {
+    if(ValidateID(req.body._id)){
+        const getGoal = function(db, callback) {
+          const collection = db.collection('goals');
+          collection.find(ObjectId(req.body._id)).toArray(function(err, data) {
+            assert.equal(err, null);
+            if(!data[0]){
+            res.send("Goal not found");
+            } else {
+            res.send(data);
+            }
+          });
+        }
+        MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
+          assert.equal(null, err);
+          const db = client.db(dbName);
+          getGoal(db, function() {
+            client.close();
+          });
+        });
+    } else {
+    res.send("Bad ID");
+    }
+  });
+
+
+  ////////// Stellite RPC Wallet
+  cmd.get(
+      'curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_address","params":{"account_index":0}}\' -H \'Content-Type: application/json\'',
+      function(err, data, stderr){
+         var jsonData=JSON.parse(data);
+         jsonData.result.addresses.forEach(function(value) {
+           console.log(value);
+         });
+      }
+  );
+
+
 
   app.use(express.static('public'));
   app.listen(3000);
