@@ -74,7 +74,7 @@ $( document ).ready(function() {
       });
     });
   }
-  else if ( $(location).attr('pathname').search("goal/")) {
+  else if ( $(location).attr('pathname').includes("/goal/")) {
     $( "#body-load" ).load( "/goal.html", function() {
       $.post("/goal",{_id: escape($(location).attr('pathname').replace("/goal/", ""))}, function(data){
         if(data === "Goal not found"){
