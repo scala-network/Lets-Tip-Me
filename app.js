@@ -493,15 +493,15 @@ app.post('/activate', function(req, res) {
 
 
   ////////// Stellite RPC Wallet
-  cmd.get(
-      'curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_address","params":{"account_index":0}}\' -H \'Content-Type: application/json\'',
-      function(err, data, stderr){
-         var jsonData=JSON.parse(data);
-         jsonData.result.addresses.forEach(function(value) {
-           console.log(value);
-         });
-      }
-  );
+  // cmd.get(
+  //     'curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_address","params":{"account_index":0}}\' -H \'Content-Type: application/json\'',
+  //     function(err, data, stderr){
+  //        var jsonData=JSON.parse(data);
+  //        jsonData.result.addresses.forEach(function(value) {
+  //          console.log(value);
+  //        });
+  //     }
+  // );
 
 
 
