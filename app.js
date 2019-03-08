@@ -508,4 +508,10 @@ app.post('/activate', function(req, res) {
 
 
   app.use(express.static('public'));
-  app.listen(3000);
+  // app.listen(3000);
+  var fs = require('fs');
+  var https = require('https');
+  https.createServer({
+  key: fs.readFileSync('/etc/letsencrypt/live/funding.stellite.cash/privkey.pe'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/funding.stellite.cash/fullchain.pem')
+}, app).listen(3443);
