@@ -512,6 +512,6 @@ app.post('/activate', function(req, res) {
   var fs = require('fs');
   var https = require('https');
   https.createServer({
-  key: fs.readFileSync('/etc/letsencrypt/live/funding.stellite.cash/privkey.pe'),
+  key: fs.readFileSync('/etc/letsencrypt/live/funding.stellite.cash/privkey.pem'),
   cert: fs.readFileSync('/etc/letsencrypt/live/funding.stellite.cash/fullchain.pem')
 }, app).listen(3443);
