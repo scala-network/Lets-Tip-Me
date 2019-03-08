@@ -32,8 +32,8 @@ const url = 'mongodb://localhost:27017';
 const dbName = 'stellite-funding-platform';
 
 // Hostname of your hosting
-const hostname = "127.0.0.1:3000";
-const noreply = "no-reply@stellite.cash"
+const hostname = "funding.stellite.cash";
+const noreply = "no-reply@funding.stellite.cash"
 
 //Inputs validators
 function ValidateEmail(inputText)
@@ -288,7 +288,7 @@ app.post('/activate', function(req, res) {
         if (data[0]){
           data.forEach(function(unactivated_user) {
             // activation limit = 2 Hours (7200 seconds)
-            if((~~(+new Date / 1000)-unactivated_user.creation_date) > 7200){
+            if((~~(+new Date / 1000)-unactivated_user.creation_date) > 3600){
               const removeDocument = function(db, callback) {
                 const collection = db.collection('users');
                 collection.deleteOne({ username : unactivated_user.username }, function(err, result) {
@@ -355,7 +355,7 @@ app.post('/activate', function(req, res) {
                         from: noreply,
                         to: email,
                         subject: 'Please confirm your email address - Stellite Funding Platform',
-                        html: '<h2>Stellite Funding Platform</h2><p>Please go to <a href="http://'+hostname+'/activate">http://'+hostname+'/activate</a>, and enter the following code:<br><p><strong>'+activation_code+'</strong></p></p><h6 style="font-weight:normal;">This code is only available for 2 hours, after that you will need to register again.</h6>',
+                        html: '<h2>Stellite Funding Platform</h2><p>Please go to <a href="https://'+hostname+'/activate">https://'+hostname+'/activate</a>, and enter the following code:<br><p><strong>'+activation_code+'</strong></p></p><h6 style="font-weight:normal;">This code is only available for 1 hour, after that you will need to register again.</h6>',
                       }, function(err, reply) {
                         console.log(err && err.stack);
                         console.dir(reply);
