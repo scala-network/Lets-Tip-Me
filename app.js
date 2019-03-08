@@ -15,7 +15,9 @@ const assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-const sendmail = require('sendmail')();
+const sendmail = require('sendmail')({
+  smtpPort: 443
+});
 const keygen = require('keygen');
 var crypto = require("crypto");
 var escape = require('escape-html');
