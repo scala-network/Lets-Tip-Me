@@ -44,14 +44,14 @@ $( document ).ready(function() {
       // Get categories on load
       $.get( "/categories", function( data ) {
         $.each(data, function (index, value) {
-          $("#funding_goals_index").append("<div class=\"col-md-12\"><h4 class=\"d-flex justify-content-between align-items-center mb-3\"><h5 class=\"text-center\">"+value.categorie+"</h5></h4><hr class=\"mb-4\"><ul class=\"list-group\" id=\"funding_goals_index_content"+value._id+"\"></ul>");
+          $("#funding_goals_index").append("<div class=\"col-md-12\"><h4 class=\"d-flex justify-content-between align-items-center mb-3\"><h4 class=\"text-center\">"+value.categorie+"</h4><hr class=\"mb-4\"><ul class=\"list-group\" id=\"funding_goals_index_content"+value._id+"\"></ul>");
 
           // Get goals on load
           $.post("/goals",{"_id": value._id}, function(data){
             $.each(data, function (i, value) {
 
               if(value.unlimited=="true"){
-                $("#funding_goals_index_content"+value.categorie).append("<li class=\"list-group-item justify-content-between list-group-item-stellite text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h4 class=\"text-white\">"+value.title+"</h4><span class=\"stellite-main-color-text\"><span class=\"text-white\"><small>"+value.amount+" XTL / Unlimited</small></span><div class=\"progress\"><div class=\"progress-bar bg-success\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 100%\"></div></div></div></li>");
+                $("#funding_goals_index_content"+value.categorie).append("<li class=\"list-group-item justify-content-between list-group-item-stellite text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"stellite-main-color-text\"><span class=\"text-white\"><small>"+value.amount+" XTL / Unlimited</small></span><div class=\"progress\"><div class=\"progress-bar bg-success\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 100%\"></div></div></div></li>");
               } else {
                 const percentage = Math.round((value.amount*100)/value.goal);
                 var progress_bar_bg_color;
@@ -62,7 +62,7 @@ $( document ).ready(function() {
                 } else if(percentage>70){
                   progress_bar_bg_color="bg-success";
                 }
-                $("#funding_goals_index_content"+value.categorie).append("<li class=\"list-group-item justify-content-between list-group-item-stellite text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h4 class=\"text-white\">"+value.title+"</h4><span class=\"stellite-main-color-text\"><span class=\"text-white\"><small>"+value.amount+" XTL / "+value.goal+" XTL ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></div></li>");
+                $("#funding_goals_index_content"+value.categorie).append("<li class=\"list-group-item justify-content-between list-group-item-stellite text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"stellite-main-color-text\"><span class=\"text-white\"><small>"+value.amount+" XTL / "+value.goal+" XTL ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></div></li>");
               }
 
             });
