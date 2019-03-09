@@ -44,7 +44,7 @@ $( document ).ready(function() {
       // Get categories on load
       $.get( "/categories", function( data ) {
         $.each(data, function (index, value) {
-          $("#funding_goals_index").append("<div class=\"col-md-12\"><h4 class=\"d-flex justify-content-between align-items-center mb-3\"><h4 class=\"text-center\">"+value.categorie+"</h4><hr class=\"mb-4\"><ul class=\"list-group\" id=\"funding_goals_index_content"+value._id+"\"></ul>");
+          $("#funding_goals_index").append("<div class=\"col-md-12\"><h4 class=\"d-flex justify-content-between align-items-center mb-3\"><h5 class=\"text-center\">"+value.categorie+"</h5></h4><hr class=\"mb-4\"><ul class=\"list-group\" id=\"funding_goals_index_content"+value._id+"\"></ul>");
 
           // Get goals on load
           $.post("/goals",{"_id": value._id}, function(data){
@@ -83,7 +83,7 @@ $( document ).ready(function() {
           alert("Bad ID");
         } else {
           var value = data[0];
-          $("#funding_goal").append("<div class=\"col-md-12\"><h4 class=\"d-flex justify-content-between align-items-center mb-3\"><h5 class=\"text-center\">"+value.title+"</h5></h4><hr class=\"mb-4\">");
+          $("#funding_goal").append("<div class=\"col-md-12\"><h4 class=\"d-flex justify-content-between align-items-center mb-3\"><h3 class=\"text-center\">"+value.title+"</h3></h4><hr class=\"mb-4\">");
           $("#funding_goal").append("</div>");
         }
       });
