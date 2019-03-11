@@ -349,7 +349,7 @@ app.post('/activate', function(req, res) {
                 collection.find({'email': email}).toArray(function(err, data) {
                   assert.equal(err, null);
                   if(!data[0]){
-                    const activation_code=keygen.url(keygen.small);
+                    const activation_code=keygen.url(keygen.medium);
                     collection.insertOne({ username: username, email: email, password: hash, activated: "false", activation_code: activation_code, creation_date: ~~(+new Date / 1000) }, function(err, result) {
                       assert.equal(err, null);
                       res.send("Registered");
@@ -509,6 +509,7 @@ app.post('/activate', function(req, res) {
 
   app.use(express.static('public'));
   // app.listen(3000);
+
   var fs = require('fs');
   var https = require('https');
   https.createServer({

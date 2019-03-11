@@ -83,8 +83,44 @@ $( document ).ready(function() {
           alert("Bad ID");
         } else {
           var value = data[0];
-          $("#funding_goal").append("<div class=\"col-md-12\"><h4 class=\"d-flex justify-content-between align-items-center mb-3\"><h4 class=\"text-center\">"+value.title+"</h4></h4><hr class=\"mb-4\">");
-          $("#funding_goal").append("</div>");
+          //goal progress
+          $("#funding_goal").append("<div class=\"col-md-12 text-center\"><h4 class=\"d-flex justify-content-between align-items-center mb-3\"><h4 class=\"text-center\">"+value.title+"</h4></h4><hr class=\"mb-4\"><ul id=\"funding_goal_progress\" class=\"list-group\">");
+          if(value.unlimited=="true"){
+            $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-stellite stellite-lighter-background\"><span class=\"stellite-main-color-text\"><span class=\"text-white\"><small>"+value.amount+" XTL / Unlimited</small></span><div class=\"progress\"><div class=\"progress-bar bg-success\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 100%\"></div></div></li>");
+          } else {
+            const percentage = Math.round((value.amount*100)/value.goal);
+            var progress_bar_bg_color;
+            if(percentage<30){
+              progress_bar_bg_color="bg-danger";
+            } else if((percentage>30)&&(percentage<70)){
+              progress_bar_bg_color="bg-warning";
+            } else if(percentage>70){
+              progress_bar_bg_color="bg-success";
+            }
+            $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-stellite stellite-lighter-background\"><span class=\"stellite-main-color-text\"><span class=\"text-white\"><small>"+value.amount+" XTL / "+value.goal+" XTL ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></li>");
+          }
+          //goal description
+          $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-stellite text-left\"><span class=\"text-white\"><p>On October 28, 2017, BitConnect held its first annual ceremony in Pattaya, Thailand. During the event, Carlos Matos from New York gave an enthusiastic presentation and testimonial about the website which led to him becoming an internet meme.</p></li>");
+
+          //goal donations address
+          $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-stellite \"><span class=\"text-white\"><small><b>Se2K2QkvTcvCwd8cjsjK5YDxkrizwTSAFga8X8zBYuXdUiV46fHiQ5E5A43krzyxMvBtoM38HhcJM9QDa6sy6WAv1yd2gUem8</b></small><br><small><i class=\"far fa-copy\"></i> Copy to donate as oxhak</small></li>");
+          $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-stellite \"><span class=\"text-white\"><small><b>Se3giBG4UnbV3PaTpT4ezJjdnDrAeDLHaeZS3Kqe6KPcZD6BfL8B9NLaXcyRMtwh332a97WD92enaDvPNigb4CwB1r5uchuHD</b></small><br><small><i class=\"far fa-copy\"></i> Copy to donate</small></li>");
+
+          //goal by
+          $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-stellite stellite-lighter-background\"><span class=\"text-white\"><small>Goal added by oxhak · March 11, 2019</small></li>");
+
+          //goal progress end
+          $("#funding_goal").append("</ul></div>");
+
+          //transactions history
+          $("#funding_goal").append("<div class=\"col-md-12\"><h4 class=\"d-flex justify-content-between align-items-center mb-3\"><h4 class=\"text-center\"><br>Transactions History</h4></h4><hr class=\"mb-4\"><ul id=\"funding_goal_transactions\" class=\"list-group\">");
+
+          //transactions
+          $("#funding_goal_transactions").append("<li class=\"list-group-item justify-content-between list-group-item-stellite\"><span class=\"text-white\"><small><span class=\"text-success\">+12165.70 XTL</span> · TX <a href=\"https://explorer.stellite.cash/tx/1d23778925306ce10f3a308af6bdd061c01bf2576259f7ee4791c2c786856d53\" target=\"_blank\">1d23778925306ce10f3a308af6bdd061c01bf2576259f7ee4791c2c786856d53</a> · 2019-03-11 10:29:45</small></li>");
+          $("#funding_goal_transactions").append("<li class=\"list-group-item justify-content-between list-group-item-stellite\"><span class=\"text-white\"><small><span class=\"text-success\">+12169.30 XTL</span> · TX <a href=\"https://explorer.stellite.cash/tx/1d357b1baeb22ecf8be4554f84b794a2309c3473cbc40a80628ff23890e227fa\" target=\"_blank\">1d357b1baeb22ecf8be4554f84b794a2309c3473cbc40a80628ff23890e227fa</a> · 2019-03-11 10:20:19</small></li>");
+
+          //transactions history end
+          $("#funding_goal").append("</ul></div>");
         }
       });
     });
