@@ -89,6 +89,18 @@ function ValidateID(inputText)
     return false;
   }
 }
+function ValidateAmount(inputText)
+{
+  var amountformat = /^([0-9]+)$/;
+  if(inputText.match(amountformat)&&inputText.length<12)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
 
 // Configure passport.js to use the local strategy
 passport.use(new LocalStrategy(
@@ -191,81 +203,115 @@ app.get('/settings', function(req, res) {
   if(req.isAuthenticated()) {
     res.sendFile(__dirname + '/index.html');
   } else {
-    res.status(301).redirect("/login")
+    res.status(301).redirect("/login");
   }
 });
 app.get('/about', function(req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
-app.post('/check_username', function(req, res) {
-  var username = req.body.username;
-  if(ValidateUsername(username)==true){
-    const checkIfUsernameExist = function(db, callback) {
-      const collection = db.collection('users');
-      collection.find({'username': username}).toArray(function(err, data) {
-        assert.equal(err, null);
-        if (data[0]){
-          res.send('Username already exist');
-        } else {
-          res.send('Available');
-        }
-      });
-    }
-    MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
-      assert.equal(null, err);
-      const db = client.db(dbName);
-      checkIfUsernameExist(db, function() {
-        client.close();
-      });
-    });
+app.get('/add', function(req, res) {
+  if(req.isAuthenticated()) {
+    res.sendFile(__dirname + '/index.html');
   } else {
-    res.send("Invalid username, allowed: a-z, A-Z, 0-9, underscore and dash");
+    res.status(301).redirect("/login");
   }
 });
 
-app.post('/check_email', function(req, res) {
-  var email = req.body.email;
-  if(ValidateEmail(email)==true){
-    const checkIfEmailExist = function(db, callback) {
-      const collection = db.collection('users');
-      collection.find({'email': email}).toArray(function(err, data) {
-        assert.equal(err, null);
-        if (data[0]){
-          res.send('Email already registered');
-        } else {
-          res.send('Available');
-        }
-      });
-    }
-    MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
-      assert.equal(null, err);
-      const db = client.db(dbName);
-      checkIfEmailExist(db, function() {
-        client.close();
-      });
-    });
-  } else {
-    res.send("Invalid email address");
-  }
-});
+app.post('/add', function(req, res) {
+  const title = escape(req.body.title);
+  const description = escape(req.body.description);
+  const unlimited = "false";
+  const goal = escape(req.body.goal);
+  const author = req.user;
 
-app.post('/activate', function(req, res) {
-  var activation_code = req.body.activation_code;
-  if(ValidateActivationCode(activation_code)==true){
-    const checkIfEmailExist = function(db, callback) {
-      const collection = db.collection('users');
-      collection.find({'activation_code': activation_code}).toArray(function(err, data) {
-        assert.equal(err, null);
-        if (data[0]){
-          collection.updateOne({ activation_code : activation_code }
-            , { $set: { activated : "true" } }, function(err, result) {
-              assert.equal(err, null);
-              assert.equal(1, result.result.n);
-              res.send('Activated');
-            });
+  if(req.isAuthenticated()) {
+
+    function addWithUsername(title,description,goal,author,author_id)
+    {
+          if(ValidateAmount(goal)==false){
+            res.send('Bad Amount');
+          } else if(title.lenght>200){
+            res.send('Title too long');
+          } else if(description.lenght>12000){
+            res.send('Description too long');
           } else {
-            res.send('Invalid code');
+            const insertNewGoal = function(db, callback) {
+              const collection = db.collection('goals');
+              collection.insertOne({ title: title, description: description, amount: 0, unlimited: "false", categorie: "5c7cf351c0e29674bb14018c", goal: goal, creation_date: ~~(+new Date / 1000), author: author, author_id: author_id }, function(err, result) {
+                assert.equal(err, null);
+                res.send("Added");
+              });
+            }
+            MongoClient.connect(url,  { useNewUrlParser: true }, function(err, client) {
+              assert.equal(null, err);
+              const db = client.db(dbName);
+              insertNewGoal(db, function() {
+                client.close();
+              });
+            });
+          }
+    }
+
+    const getUserName = function(db, callback) {
+      const collection = db.collection('users');
+      collection.find(ObjectId(req.user)).toArray(function(err, data) {
+        assert.equal(err, null);
+        addWithUsername(title,description,goal,data[0].username,req.user)
+      });
+    }
+    MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
+      assert.equal(null, err);
+      const db = client.db(dbName);
+      getUserName(db, function() {
+        client.close();
+      });
+    });
+
+
+    } else {
+      res.send('Not Logged');
+    }
+
+  });
+
+  app.post('/check_username', function(req, res) {
+    var username = req.body.username;
+    if(ValidateUsername(username)==true){
+      const checkIfUsernameExist = function(db, callback) {
+        const collection = db.collection('users');
+        collection.find({'username': username}).toArray(function(err, data) {
+          assert.equal(err, null);
+          if (data[0]){
+            res.send('Username already exist');
+          } else {
+            res.send('Available');
+          }
+        });
+      }
+      MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
+        assert.equal(null, err);
+        const db = client.db(dbName);
+        checkIfUsernameExist(db, function() {
+          client.close();
+        });
+      });
+    } else {
+      res.send("Invalid username, allowed: a-z, A-Z, 0-9, underscore and dash");
+    }
+  });
+
+  app.post('/check_email', function(req, res) {
+    var email = req.body.email;
+    if(ValidateEmail(email)==true){
+      const checkIfEmailExist = function(db, callback) {
+        const collection = db.collection('users');
+        collection.find({'email': email}).toArray(function(err, data) {
+          assert.equal(err, null);
+          if (data[0]){
+            res.send('Email already registered');
+          } else {
+            res.send('Available');
           }
         });
       }
@@ -277,161 +323,192 @@ app.post('/activate', function(req, res) {
         });
       });
     } else {
-      res.send("Invalid code format");
+      res.send("Invalid email address");
     }
   });
 
-  function ActivationTimer() {
-    // Checking unactivated registered users
-    const checkUnactivatedRegisteredUsers = function(db, callback) {
-      const collection = db.collection('users');
-      collection.find({'activated': "false"}).toArray(function(err, data) {
-        assert.equal(err, null);
-        if (data[0]){
-          data.forEach(function(unactivated_user) {
-            // activation limit = 2 Hours (7200 seconds)
-            if((~~(+new Date / 1000)-unactivated_user.creation_date) > 3600){
-              const removeDocument = function(db, callback) {
-                const collection = db.collection('users');
-                collection.deleteOne({ username : unactivated_user.username }, function(err, result) {
-                  assert.equal(err, null);
-                  assert.equal(1, result.result.n);
-                  // removed user
-                });
-              }
-              MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
-                assert.equal(null, err);
-                const db = client.db(dbName);
-                removeDocument(db, function() {
-                  client.close();
-                });
+  app.post('/activate', function(req, res) {
+    var activation_code = req.body.activation_code;
+    if(ValidateActivationCode(activation_code)==true){
+      const checkIfEmailExist = function(db, callback) {
+        const collection = db.collection('users');
+        collection.find({'activation_code': activation_code}).toArray(function(err, data) {
+          assert.equal(err, null);
+          if (data[0]){
+            collection.updateOne({ activation_code : activation_code }
+              , { $set: { activated : "true" } }, function(err, result) {
+                assert.equal(err, null);
+                assert.equal(1, result.result.n);
+                res.send('Activated');
               });
+            } else {
+              res.send('Invalid code');
             }
           });
         }
-      });
-    }
-    MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
-      assert.equal(null, err);
-      const db = client.db(dbName);
-      checkUnactivatedRegisteredUsers(db, function() {
-        client.close();
-      });
-    });
-  }
-  //Check unactivated registered users every 5 minutes
-  setInterval(ActivationTimer,300000);
-
-  app.post('/register', function (req, res) {
-    if(req.isAuthenticated()) {
-      res.send('Logged');
-    } else {
-      var username = req.body.username, email = req.body.email, password = req.body.password, passwordcheck = req.body.passwordcheck;
-      if(password!=passwordcheck){
-        res.send("Different passwords");
-      } else if(ValidateEmail(email)==false){
-        res.send("Invalid email address");
-      } else if(ValidateUsername(username)==false){
-        res.send("Invalid username, allowed: a-z, A-Z, 0-9, underscore and dash");
-      } else if(username.lenght>20){
-        res.send("Too long username");
-      } else if(email.lenght>320){
-        res.send("Too long email address");
-      } else if(password.lenght>256){
-        res.send("Too long password");
-      } else {
-        const insertCreatedAccount = function(db, callback) {
-          const collection = db.collection('users');
-          bcrypt.hash(password, saltRounds, function(err, hash) {
-            collection.find({'username': username}).toArray(function(err, data) {
-              assert.equal(err, null);
-              if(!data[0]){
-                collection.find({'email': email}).toArray(function(err, data) {
-                  assert.equal(err, null);
-                  if(!data[0]){
-                    const activation_code=keygen.url(keygen.medium);
-                    collection.insertOne({ username: username, email: email, password: hash, activated: "false", activation_code: activation_code, creation_date: ~~(+new Date / 1000) }, function(err, result) {
-                      assert.equal(err, null);
-                      res.send("Registered");
-                      sendmail({
-                        from: noreply,
-                        to: email,
-                        subject: 'Please confirm your email address - Stellite Funding Platform',
-                        html: '<h2>Stellite Funding Platform</h2><p>Please go to <a href="https://'+hostname+'/activate">https://'+hostname+'/activate</a>, and enter the following code:<br><p><strong>'+activation_code+'</strong></p></p><h6 style="font-weight:normal;">This code is only available for 1 hour, after that you will need to register again.</h6>',
-                      }, function(err, reply) {
-                        console.log(err && err.stack);
-                        console.dir(reply);
-                      });
-                    });
-                  } else {
-                    res.send('Email already registered');
-                  }
-                });
-              } else {
-                res.send('Username already exist');
-              }
-            });
-          });
-        }
-        MongoClient.connect(url,  { useNewUrlParser: true }, function(err, client) {
+        MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
           assert.equal(null, err);
           const db = client.db(dbName);
-          insertCreatedAccount(db, function() {
+          checkIfEmailExist(db, function() {
             client.close();
           });
         });
+      } else {
+        res.send("Invalid code format");
       }
-    }
-  });
+    });
 
-  app.get('/logged', function(req, res) {
-    if(req.isAuthenticated()) {
-      const checkLogged = function(db, callback) {
+    function ActivationTimer() {
+      // Checking unactivated registered users
+      const checkUnactivatedRegisteredUsers = function(db, callback) {
         const collection = db.collection('users');
-        collection.find(ObjectId(req.user)).toArray(function(err, data) {
+        collection.find({'activated': "false"}).toArray(function(err, data) {
           assert.equal(err, null);
-          res.send({ user_username: data[0].username });
+          if (data[0]){
+            data.forEach(function(unactivated_user) {
+              // activation limit = 2 Hours (7200 seconds)
+              if((~~(+new Date / 1000)-unactivated_user.creation_date) > 3600){
+                const removeDocument = function(db, callback) {
+                  const collection = db.collection('users');
+                  collection.deleteOne({ username : unactivated_user.username }, function(err, result) {
+                    assert.equal(err, null);
+                    assert.equal(1, result.result.n);
+                    // removed user
+                  });
+                }
+                MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
+                  assert.equal(null, err);
+                  const db = client.db(dbName);
+                  removeDocument(db, function() {
+                    client.close();
+                  });
+                });
+              }
+            });
+          }
         });
       }
       MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
         assert.equal(null, err);
         const db = client.db(dbName);
-        checkLogged(db, function() {
+        checkUnactivatedRegisteredUsers(db, function() {
           client.close();
         });
       });
-    } else {
-      res.send('false')
     }
-  });
+    //Check unactivated registered users every 5 minutes
+    setInterval(ActivationTimer,300000);
 
-  app.post('/login', function(req, res, next) {
-    if(ValidateEmail(req.body.email)==true){
-      passport.authenticate('local', function(err, user, info) {
-        if (err) { return next(err); }
-        if (!user) { return res.send(info); }
-        req.logIn(user, function(err) {
-          if (err) { return next(err); }
-          return res.send('Logged');
-        });
-      })(req, res, next);
-    } else {
-      res.send("Invalid email address");
-    }
-  });
-
-  app.get('/logout', function (req, res){
-    req.session.destroy(function (err) {
-      res.redirect('/login');
+    app.post('/register', function (req, res) {
+      if(req.isAuthenticated()) {
+        res.send('Logged');
+      } else {
+        var username = req.body.username, email = req.body.email, password = req.body.password, passwordcheck = req.body.passwordcheck;
+        if(password!=passwordcheck){
+          res.send("Different passwords");
+        } else if(ValidateEmail(email)==false){
+          res.send("Invalid email address");
+        } else if(ValidateUsername(username)==false){
+          res.send("Invalid username, allowed: a-z, A-Z, 0-9, underscore and dash");
+        } else if(username.lenght>20){
+          res.send("Too long username");
+        } else if(email.lenght>320){
+          res.send("Too long email address");
+        } else if(password.lenght>256){
+          res.send("Too long password");
+        } else {
+          const insertCreatedAccount = function(db, callback) {
+            const collection = db.collection('users');
+            bcrypt.hash(password, saltRounds, function(err, hash) {
+              collection.find({'username': username}).toArray(function(err, data) {
+                assert.equal(err, null);
+                if(!data[0]){
+                  collection.find({'email': email}).toArray(function(err, data) {
+                    assert.equal(err, null);
+                    if(!data[0]){
+                      const activation_code=keygen.url(keygen.medium);
+                      collection.insertOne({ username: username, email: email, password: hash, activated: "false", activation_code: activation_code, creation_date: ~~(+new Date / 1000) }, function(err, result) {
+                        assert.equal(err, null);
+                        res.send("Registered");
+                        sendmail({
+                          from: noreply,
+                          to: email,
+                          subject: 'Please confirm your email address - Stellite Funding Platform',
+                          html: '<h2>Stellite Funding Platform</h2><p>Please go to <a href="https://'+hostname+'/activate">https://'+hostname+'/activate</a>, and enter the following code:<br><p><strong>'+activation_code+'</strong></p></p><h6 style="font-weight:normal;">This code is only available for 1 hour, after that you will need to register again.</h6>',
+                        }, function(err, reply) {
+                          console.log(err && err.stack);
+                          console.dir(reply);
+                        });
+                      });
+                    } else {
+                      res.send('Email already registered');
+                    }
+                  });
+                } else {
+                  res.send('Username already exist');
+                }
+              });
+            });
+          }
+          MongoClient.connect(url,  { useNewUrlParser: true }, function(err, client) {
+            assert.equal(null, err);
+            const db = client.db(dbName);
+            insertCreatedAccount(db, function() {
+              client.close();
+            });
+          });
+        }
+      }
     });
-  });
+
+    app.get('/logged', function(req, res) {
+      if(req.isAuthenticated()) {
+        const checkLogged = function(db, callback) {
+          const collection = db.collection('users');
+          collection.find(ObjectId(req.user)).toArray(function(err, data) {
+            assert.equal(err, null);
+            res.send({ user_username: data[0].username });
+          });
+        }
+        MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
+          assert.equal(null, err);
+          const db = client.db(dbName);
+          checkLogged(db, function() {
+            client.close();
+          });
+        });
+      } else {
+        res.send('false')
+      }
+    });
+
+    app.post('/login', function(req, res, next) {
+      if(ValidateEmail(req.body.email)==true){
+        passport.authenticate('local', function(err, user, info) {
+          if (err) { return next(err); }
+          if (!user) { return res.send(info); }
+          req.logIn(user, function(err) {
+            if (err) { return next(err); }
+            return res.send('Logged');
+          });
+        })(req, res, next);
+      } else {
+        res.send("Invalid email address");
+      }
+    });
+
+    app.get('/logout', function (req, res){
+      req.session.destroy(function (err) {
+        res.redirect('/login');
+      });
+    });
 
 
-  ///// Funding Goals
-  app.get('/goal', function(req, res) {
-    res.sendFile(__dirname + '/index.html');
-  });
-  app.get('/categories', function(req, res) {
+    ///// Funding Goals
+    app.get('/goal', function(req, res) {
+      res.sendFile(__dirname + '/index.html');
+    });
+    app.get('/categories', function(req, res) {
       const getCategories = function(db, callback) {
         const collection = db.collection('categories');
         collection.find({}).toArray(function(err, data) {
@@ -446,8 +523,8 @@ app.post('/activate', function(req, res) {
           client.close();
         });
       });
-  });
-  app.post('/goals', function(req, res) {
+    });
+    app.post('/goals', function(req, res) {
       const getGoals = function(db, callback) {
         const collection = db.collection('goals');
         collection.find({'categorie': req.body._id}).toArray(function(err, data) {
@@ -462,22 +539,22 @@ app.post('/activate', function(req, res) {
           client.close();
         });
       });
-  });
+    });
 
-  app.get('/goal/:id*', function(req, res, next) {
-  res.sendFile(__dirname + '/index.html');
-  });
+    app.get('/goal/:id*', function(req, res, next) {
+      res.sendFile(__dirname + '/index.html');
+    });
 
-  app.post('/goal/', function(req, res) {
-    if(ValidateID(req.body._id)){
+    app.post('/goal/', function(req, res) {
+      if(ValidateID(req.body._id)){
         const getGoal = function(db, callback) {
           const collection = db.collection('goals');
           collection.find(ObjectId(req.body._id)).toArray(function(err, data) {
             assert.equal(err, null);
             if(!data[0]){
-            res.send("Goal not found");
+              res.send("Goal not found");
             } else {
-            res.send(data);
+              res.send(data);
             }
           });
         }
@@ -488,31 +565,31 @@ app.post('/activate', function(req, res) {
             client.close();
           });
         });
-    } else {
-    res.send("Bad ID");
-    }
-  });
+      } else {
+        res.send("Bad ID");
+      }
+    });
 
 
-  ////////// Stellite RPC Wallet
-  // cmd.get(
-  //     'curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_address","params":{"account_index":0}}\' -H \'Content-Type: application/json\'',
-  //     function(err, data, stderr){
-  //        var jsonData=JSON.parse(data);
-  //        jsonData.result.addresses.forEach(function(value) {
-  //          console.log(value);
-  //        });
-  //     }
-  // );
+    ////////// Stellite RPC Wallet
+    // cmd.get(
+    //     'curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_address","params":{"account_index":0}}\' -H \'Content-Type: application/json\'',
+    //     function(err, data, stderr){
+    //        var jsonData=JSON.parse(data);
+    //        jsonData.result.addresses.forEach(function(value) {
+    //          console.log(value);
+    //        });
+    //     }
+    // );
 
 
 
-  app.use(express.static('public'));
-  // app.listen(3000);
+    app.use(express.static('public'));
+    // app.listen(3000);
 
-  var fs = require('fs');
-  var https = require('https');
-  https.createServer({
-  key: fs.readFileSync('/etc/letsencrypt/live/funding.stellite.cash/privkey.pem'),
-  cert: fs.readFileSync('/etc/letsencrypt/live/funding.stellite.cash/fullchain.pem')
-}, app).listen(3443);
+      var fs = require('fs');
+      var https = require('https');
+      https.createServer({
+      key: fs.readFileSync('/etc/letsencrypt/live/funding.stellite.cash/privkey.pem'),
+      cert: fs.readFileSync('/etc/letsencrypt/live/funding.stellite.cash/fullchain.pem')
+    }, app).listen(3443);
