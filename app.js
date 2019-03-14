@@ -238,9 +238,10 @@ app.post('/add', function(req, res) {
           } else {
             const insertNewGoal = function(db, callback) {
               const collection = db.collection('goals');
-              collection.insertOne({ title: title, description: description, amount: 0, unlimited: "false", categorie: "5c7cf351c0e29674bb14018c", goal: goal, creation_date: ~~(+new Date / 1000), author: author, author_id: author_id }, function(err, result) {
+              collection.insertOne({ title: title, description: description, amount: 0, unlimited: "false", categorie: "2", goal: goal, creation_date: ~~(+new Date / 1000), author: author, author_id: author_id }, function(err, result) {
                 assert.equal(err, null);
-                res.send("Added");
+                var goalID = result["ops"][0]["_id"];
+                res.send({ status: "success", goalID: goalID });
               });
             }
             MongoClient.connect(url,  { useNewUrlParser: true }, function(err, client) {
@@ -527,7 +528,7 @@ app.post('/add', function(req, res) {
     app.post('/goals', function(req, res) {
       const getGoals = function(db, callback) {
         const collection = db.collection('goals');
-        collection.find({'categorie': req.body._id}).toArray(function(err, data) {
+        collection.find({'categorie': req.body.categorie_id}).toArray(function(err, data) {
           assert.equal(err, null);
           res.send(data);
         });

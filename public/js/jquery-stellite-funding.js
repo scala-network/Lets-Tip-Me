@@ -42,6 +42,19 @@ $( document ).ready(function() {
         return m+" "+d.getDate()+", "+d.getFullYear();
   }
 
+  function ValidateAmount(inputText)
+  {
+    var amountformat = /^([0-9]+)$/;
+    if(inputText.match(amountformat)&&inputText.length<12)
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+
   //body interactions
   $( document ).on( 'mouseover', '.goal_link', function () {
     $(this).css('cursor','pointer');
@@ -118,10 +131,10 @@ $( document ).ready(function() {
       // Get categories on load
       $.get( "/categories", function( data ) {
         $.each(data, function (index, value) {
-          $("#funding_goals_index").append("<div class=\"col-md-12\"><h4 class=\"d-flex justify-content-between align-items-center mb-3\"><h4 class=\"text-center\">"+value.categorie+"</h4></h4><hr class=\"mb-4\"><ul class=\"list-group\" id=\"funding_goals_index_content"+value._id+"\"></ul>");
+          $("#funding_goals_index").append("<div class=\"col-md-12\"><h4 class=\"d-flex justify-content-between align-items-center mb-3\"><h4 class=\"text-center\">"+value.categorie+"</h4></h4><hr class=\"mb-4\"><ul class=\"list-group\" id=\"funding_goals_index_content"+value.categorie_id+"\"></ul>");
 
           // Get goals on load
-          $.post("/goals",{"_id": value._id}, function(data){
+          $.post("/goals",{"categorie_id": value.categorie_id}, function(data){
             $.each(data, function (i, value) {
 
               if(value.unlimited=="true"){
@@ -310,12 +323,20 @@ $( document ).ready(function() {
   //add goal
   $( document ).on( 'click', '#AddGoal', function () {
     $("#AddGoalError").hide();
-    if( $('#add_goal_title').val() && $('#add_goal_description').val() && $('#add_goal_amount_goal').val() && $('#add_goal_amount_goal').val()<21000000001 ) {
+    if( $('#add_goal_title').val() && $('#add_goal_description').val() && $('#add_goal_amount_goal').val() && $('#add_goal_amount_goal').val()<21000000001 && ValidateAmount($('#add_goal_amount_goal').val())==true ) {
+      $('#AddGoal').hide();
+      $( "#add_goal_title" ).prop( "disabled", true );
+      $( "#add_goal_description" ).prop( "disabled", true );
+      $( "#add_goal_amount_goal" ).prop( "disabled", true );
+      $('#addgoal_loader').show();
+      $('#addgoal_loader_text').show();
       var title=$("#add_goal_title").val();
       var description=$("#add_goal_description").val();
       var goal=$("#add_goal_amount_goal").val();
       $.post("/add",{title: title,description: description,goal: goal}, function(data){
-         alert(data);
+         if(data.status==="success"){
+           $(location).attr('href', '/goal/'+data.goalID);
+         }
       });
     }
   });
