@@ -13,9 +13,9 @@ Add funding categories with MongoDB shell (mongo)
 
 `use stellite-funding-platform`
 
-`db.categories.insertOne( { categorie: "Stellite" } );`
+`db.categories.insertOne( { categorie: "Stellite", categorie_id: 1 } );`
 
-`db.categories.insertOne( { categorie: "Community" } );`
+`db.categories.insertOne( { categorie: "Community", categorie_id: 2 } );`
 
 2. Clone this repository :
 `git clone https://github.com/oxhak/Stellite-Funding-Platform`
