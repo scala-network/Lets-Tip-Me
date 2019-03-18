@@ -122,7 +122,7 @@ passport.use(new LocalStrategy(
     const checkLogin = function(db, callback) {
       const collection = db.collection('users');
       collection.find({'email': email}).toArray(function(err, data) {
-        assert.equal(err, null);
+        assert.strictEqual(err, null);
         if (data[0]){
           const user = data[0];
           if(email === user.email) {
@@ -146,7 +146,7 @@ passport.use(new LocalStrategy(
       });
     }
     MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
-      assert.equal(null, err);
+      assert.strictEqual(null, err);
       const db = client.db(dbName);
       checkLogin(db, function() {
         client.close();
@@ -270,7 +270,7 @@ app.post('/add', function(req, res) {
             const insertNewGoal = function(db, callback) {
               const collection = db.collection('goals');
               collection.insertOne({ title: title, description: description, balance: 0, unlimited: "false", categorie: "2", goal: goal, creation_date: ~~(+new Date / 1000), author: author, status: "open", author_id: author_id, wallet_index: "null", wallet_address: "null" }, function(err, result) {
-                assert.equal(err, null);
+                assert.strictEqual(err, null);
                 var goalID = result["ops"][0]["_id"];
 
                 //generate wallet address
@@ -284,7 +284,7 @@ app.post('/add', function(req, res) {
                     // Update document where a is 2, set b equal to 1
                     collection.updateMany({ _id : goalID }
                       , { $set: { wallet_index : data.result.account_index, wallet_address: data.result.address } }, function(err, result) {
-                        assert.equal(err, null);
+                        assert.strictEqual(err, null);
                         res.send({ status: "success", goalID: goalID });
                         //save wallet
                         cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"store"}\' -H \'Content-Type: application/json\'',
@@ -295,7 +295,7 @@ app.post('/add', function(req, res) {
                     }
 
                     MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
-                      assert.equal(null, err);
+                      assert.strictEqual(null, err);
                       const db = client.db(dbName);
                       AddGoalWalletAddress(db, function() {
                         client.close();
@@ -306,7 +306,7 @@ app.post('/add', function(req, res) {
               });
             }
             MongoClient.connect(url,  { useNewUrlParser: true }, function(err, client) {
-              assert.equal(null, err);
+              assert.strictEqual(null, err);
               const db = client.db(dbName);
               insertNewGoal(db, function() {
                 client.close();
@@ -318,12 +318,12 @@ app.post('/add', function(req, res) {
         const getUserName = function(db, callback) {
           const collection = db.collection('users');
           collection.find(ObjectId(req.user)).toArray(function(err, data) {
-            assert.equal(err, null);
+            assert.strictEqual(err, null);
             addWithUsername(title,description,goal,data[0].username,req.user)
           });
         }
         MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
-          assert.equal(null, err);
+          assert.strictEqual(null, err);
           const db = client.db(dbName);
           getUserName(db, function() {
             client.close();
@@ -344,7 +344,7 @@ app.post('/check_username', function(req, res) {
     const checkIfUsernameExist = function(db, callback) {
       const collection = db.collection('users');
       collection.find({'username': username}).toArray(function(err, data) {
-        assert.equal(err, null);
+        assert.strictEqual(err, null);
         if (data[0]){
           res.send('Username already exist');
         } else {
@@ -353,7 +353,7 @@ app.post('/check_username', function(req, res) {
       });
     }
     MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
-      assert.equal(null, err);
+      assert.strictEqual(null, err);
       const db = client.db(dbName);
       checkIfUsernameExist(db, function() {
         client.close();
@@ -370,7 +370,7 @@ app.post('/check_email', function(req, res) {
     const checkIfEmailExist = function(db, callback) {
       const collection = db.collection('users');
       collection.find({'email': email}).toArray(function(err, data) {
-        assert.equal(err, null);
+        assert.strictEqual(err, null);
         if (data[0]){
           res.send('Email already registered');
         } else {
@@ -379,7 +379,7 @@ app.post('/check_email', function(req, res) {
       });
     }
     MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
-      assert.equal(null, err);
+      assert.strictEqual(null, err);
       const db = client.db(dbName);
       checkIfEmailExist(db, function() {
         client.close();
@@ -396,11 +396,11 @@ app.post('/activate', function(req, res) {
     const checkIfEmailExist = function(db, callback) {
       const collection = db.collection('users');
       collection.find({'activation_code': activation_code}).toArray(function(err, data) {
-        assert.equal(err, null);
+        assert.strictEqual(err, null);
         if (data[0]){
           collection.updateOne({ activation_code : activation_code }
             , { $set: { activated : "true" } }, function(err, result) {
-              assert.equal(err, null);
+              assert.strictEqual(err, null);
               assert.equal(1, result.result.n);
               res.send('Activated');
             });
@@ -410,7 +410,7 @@ app.post('/activate', function(req, res) {
       });
     }
     MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
-      assert.equal(null, err);
+      assert.strictEqual(null, err);
       const db = client.db(dbName);
       checkIfEmailExist(db, function() {
         client.close();
@@ -426,7 +426,7 @@ function ActivationTimer() {
   const checkUnactivatedRegisteredUsers = function(db, callback) {
     const collection = db.collection('users');
     collection.find({'activated': "false"}).toArray(function(err, data) {
-      assert.equal(err, null);
+      assert.strictEqual(err, null);
       if (data[0]){
         data.forEach(function(unactivated_user) {
           // activation limit = 2 Hours (7200 seconds)
@@ -434,13 +434,13 @@ function ActivationTimer() {
             const removeDocument = function(db, callback) {
               const collection = db.collection('users');
               collection.deleteOne({ username : unactivated_user.username }, function(err, result) {
-                assert.equal(err, null);
+                assert.strictEqual(err, null);
                 assert.equal(1, result.result.n);
                 // removed user
               });
             }
             MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
-              assert.equal(null, err);
+              assert.strictEqual(null, err);
               const db = client.db(dbName);
               removeDocument(db, function() {
                 client.close();
@@ -452,7 +452,7 @@ function ActivationTimer() {
     });
   }
   MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
-    assert.equal(null, err);
+    assert.strictEqual(null, err);
     const db = client.db(dbName);
     checkUnactivatedRegisteredUsers(db, function() {
       client.close();
@@ -484,14 +484,14 @@ app.post('/register', function (req, res) {
         const collection = db.collection('users');
         bcrypt.hash(password, saltRounds, function(err, hash) {
           collection.find({'username': username}).toArray(function(err, data) {
-            assert.equal(err, null);
+            assert.strictEqual(err, null);
             if(!data[0]){
               collection.find({'email': email}).toArray(function(err, data) {
-                assert.equal(err, null);
+                assert.strictEqual(err, null);
                 if(!data[0]){
                   const activation_code=keygen.url(keygen.medium);
                   collection.insertOne({ username: username, email: email, password: hash, activated: "false", activation_code: activation_code, creation_date: ~~(+new Date / 1000) }, function(err, result) {
-                    assert.equal(err, null);
+                    assert.strictEqual(err, null);
                     res.send("Registered");
                     sendmail({
                       from: noreply,
@@ -514,7 +514,7 @@ app.post('/register', function (req, res) {
         });
       }
       MongoClient.connect(url,  { useNewUrlParser: true }, function(err, client) {
-        assert.equal(null, err);
+        assert.strictEqual(null, err);
         const db = client.db(dbName);
         insertCreatedAccount(db, function() {
           client.close();
@@ -529,12 +529,12 @@ app.get('/logged', function(req, res) {
     const checkLogged = function(db, callback) {
       const collection = db.collection('users');
       collection.find(ObjectId(req.user)).toArray(function(err, data) {
-        assert.equal(err, null);
+        assert.strictEqual(err, null);
         res.send({ user_username: data[0].username });
       });
     }
     MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
-      assert.equal(null, err);
+      assert.strictEqual(null, err);
       const db = client.db(dbName);
       checkLogged(db, function() {
         client.close();
@@ -572,12 +572,12 @@ app.get('/categories', function(req, res) {
   const getCategories = function(db, callback) {
     const collection = db.collection('categories');
     collection.find({}).toArray(function(err, data) {
-      assert.equal(err, null);
+      assert.strictEqual(err, null);
       res.send(data);
     });
   }
   MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
-    assert.equal(null, err);
+    assert.strictEqual(null, err);
     const db = client.db(dbName);
     getCategories(db, function() {
       client.close();
@@ -589,12 +589,12 @@ app.post('/goals', function(req, res) {
   const getGoals = function(db, callback) {
     const collection = db.collection('goals');
     collection.find({'categorie': req.body.categorie_id}).toArray(function(err, data) {
-      assert.equal(err, null);
+      assert.strictEqual(err, null);
       res.send(data);
     });
   }
   MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
-    assert.equal(null, err);
+    assert.strictEqual(null, err);
     const db = client.db(dbName);
     getGoals(db, function() {
       client.close();
@@ -618,7 +618,7 @@ app.post('/goal/', function(req, res) {
     const getGoal = function(db, callback) {
       const collection = db.collection('goals');
       collection.find(ObjectId(req.body._id)).toArray(function(err, data) {
-        assert.equal(err, null);
+        assert.strictEqual(err, null);
         if(!data[0]){
           res.send("Goal not found");
         } else {
@@ -631,7 +631,7 @@ app.post('/goal/', function(req, res) {
               const collectiongoal = db.collection('goals');
               collectiongoal.updateOne({ wallet_index : data[0].wallet_index }
                 , { $set: { balance : data[0].balance } }, function(err, result) {
-                  assert.equal(err, null);
+                  assert.strictEqual(err, null);
                   assert.equal(1, result.result.n);
                 });
               }
@@ -642,7 +642,7 @@ app.post('/goal/', function(req, res) {
       });
     }
     MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
-      assert.equal(null, err);
+      assert.strictEqual(null, err);
       const db = client.db(dbName);
       getGoal(db, function() {
         client.close();
