@@ -116,6 +116,10 @@ $( document ).ready(function() {
     $( "#body-load" ).load( "/error_wallet.html", function() {
     });
   }
+  else if ( $(location).attr('pathname') == "/error_db" ) {
+    $( "#body-load" ).load( "/error_db.html", function() {
+    });
+  }
   else if ( $(location).attr('pathname') == "/buy" ) {
     $( "#body-load" ).load( "/buy.html", function() {
     });
