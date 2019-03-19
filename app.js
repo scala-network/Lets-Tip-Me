@@ -117,6 +117,7 @@ function ValidateWalletIndex(inputText)
     return false;
   }
 }
+
 // Configure passport.js to use the local strategy
 passport.use(new LocalStrategy(
   { usernameField: 'email' },
@@ -154,7 +155,7 @@ passport.use(new LocalStrategy(
     }
     MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
       waitUntil()
-      .interval(100)
+      .interval(50)
       .times(Infinity)
       .condition(function() {
         return (err === null ? true : false);
@@ -313,7 +314,7 @@ app.post('/add', function(req, res) {
 
                     MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
                       waitUntil()
-                      .interval(100)
+                      .interval(50)
                       .times(Infinity)
                       .condition(function() {
                         return (err === null ? true : false);
@@ -331,7 +332,7 @@ app.post('/add', function(req, res) {
             }
             MongoClient.connect(url,  { useNewUrlParser: true }, function(err, client) {
               waitUntil()
-              .interval(100)
+              .interval(50)
               .times(Infinity)
               .condition(function() {
                 return (err === null ? true : false);
@@ -355,7 +356,7 @@ app.post('/add', function(req, res) {
         }
         MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
           waitUntil()
-          .interval(100)
+          .interval(50)
           .times(Infinity)
           .condition(function() {
             return (err === null ? true : false);
@@ -392,7 +393,7 @@ app.post('/check_username', function(req, res) {
     }
     MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
       waitUntil()
-      .interval(100)
+      .interval(50)
       .times(Infinity)
       .condition(function() {
         return (err === null ? true : false);
@@ -425,7 +426,7 @@ app.post('/check_email', function(req, res) {
     }
     MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
       waitUntil()
-      .interval(100)
+      .interval(50)
       .times(Infinity)
       .condition(function() {
         return (err === null ? true : false);
@@ -463,7 +464,7 @@ app.post('/activate', function(req, res) {
     }
     MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
       waitUntil()
-      .interval(100)
+      .interval(50)
       .times(Infinity)
       .condition(function() {
         return (err === null ? true : false);
@@ -500,7 +501,7 @@ function ActivationTimer() {
             }
             MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
               waitUntil()
-              .interval(100)
+              .interval(50)
               .times(Infinity)
               .condition(function() {
                 return (err === null ? true : false);
@@ -519,7 +520,7 @@ function ActivationTimer() {
   }
   MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
     waitUntil()
-    .interval(100)
+    .interval(50)
     .times(Infinity)
     .condition(function() {
       return (err === null ? true : false);
@@ -588,7 +589,7 @@ app.post('/register', function (req, res) {
       }
       MongoClient.connect(url,  { useNewUrlParser: true }, function(err, client) {
         waitUntil()
-        .interval(100)
+        .interval(50)
         .times(Infinity)
         .condition(function() {
           return (err === null ? true : false);
@@ -615,7 +616,7 @@ app.get('/logged', function(req, res) {
     }
     MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
       waitUntil()
-      .interval(100)
+      .interval(50)
       .times(Infinity)
       .condition(function() {
         return (err === null ? true : false);
@@ -655,7 +656,7 @@ app.get('/logout', function (req, res){
 
 
 ///// Funding Goals
-app.get('/categories', function(req, res, next) {
+app.get('/categories', function(req, res) {
   const getCategories = function(db, callback) {
     const collection = db.collection('categories');
     collection.find({}).toArray(function(err, data) {
@@ -669,7 +670,7 @@ app.get('/categories', function(req, res, next) {
   }
   MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
     waitUntil()
-    .interval(100)
+    .interval(50)
     .times(Infinity)
     .condition(function() {
       return (err === null ? true : false);
@@ -697,7 +698,7 @@ app.post('/goals', function(req, res) {
   }
   MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
     waitUntil()
-    .interval(100)
+    .interval(50)
     .times(Infinity)
     .condition(function() {
       return (err === null ? true : false);
@@ -756,7 +757,7 @@ app.post('/goal/', function(req, res) {
     }
     MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
       waitUntil()
-      .interval(100)
+      .interval(50)
       .times(Infinity)
       .condition(function() {
         return (err === null ? true : false);
