@@ -10,6 +10,10 @@ var bodyParser = require('body-parser');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const MongoClient = require('mongodb').MongoClient;
+const mongoOptions = {
+  socketTimeoutMS: 100,
+  connectTimeoutMS: 100
+}
 const assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
 const bcrypt = require('bcrypt');
@@ -154,7 +158,7 @@ passport.use(new LocalStrategy(
         }
       });
     }
-    MongoClient.connect(url,function(err, client) {
+    MongoClient.connect(url,mongoOptions,function(err, client) {
       waitUntil()
       .interval(50)
       .times(Infinity)
@@ -313,7 +317,7 @@ app.post('/add', function(req, res) {
                       });
                     }
 
-                    MongoClient.connect(url,function(err, client) {
+                    MongoClient.connect(url,mongoOptions,function(err, client) {
                       waitUntil()
                       .interval(50)
                       .times(Infinity)
@@ -355,7 +359,7 @@ app.post('/add', function(req, res) {
             addWithUsername(title,description,goal,data[0].username,req.user)
           });
         }
-        MongoClient.connect(url,function(err, client) {
+        MongoClient.connect(url,mongoOptions,function(err, client) {
           waitUntil()
           .interval(50)
           .times(Infinity)
@@ -392,7 +396,7 @@ app.post('/check_username', function(req, res) {
         }
       });
     }
-    MongoClient.connect(url,function(err, client) {
+    MongoClient.connect(url,mongoOptions,function(err, client) {
       waitUntil()
       .interval(50)
       .times(Infinity)
@@ -425,7 +429,7 @@ app.post('/check_email', function(req, res) {
         }
       });
     }
-    MongoClient.connect(url,function(err, client) {
+    MongoClient.connect(url,mongoOptions,function(err, client) {
       waitUntil()
       .interval(50)
       .times(Infinity)
@@ -463,7 +467,7 @@ app.post('/activate', function(req, res) {
         }
       });
     }
-    MongoClient.connect(url,function(err, client) {
+    MongoClient.connect(url,mongoOptions,function(err, client) {
       waitUntil()
       .interval(50)
       .times(Infinity)
@@ -500,7 +504,7 @@ function ActivationTimer() {
                 // removed user
               });
             }
-            MongoClient.connect(url,function(err, client) {
+            MongoClient.connect(url,mongoOptions,function(err, client) {
               waitUntil()
               .interval(50)
               .times(Infinity)
@@ -519,7 +523,7 @@ function ActivationTimer() {
       }
     });
   }
-  MongoClient.connect(url,function(err, client) {
+  MongoClient.connect(url,mongoOptions,function(err, client) {
     waitUntil()
     .interval(50)
     .times(Infinity)
@@ -615,7 +619,7 @@ app.get('/logged', function(req, res) {
         res.send({ user_username: data[0].username });
       });
     }
-    MongoClient.connect(url,function(err, client) {
+    MongoClient.connect(url,mongoOptions,function(err, client) {
       waitUntil()
       .interval(50)
       .times(Infinity)
@@ -669,7 +673,7 @@ app.get('/categories', function(req, res) {
       }
     });
   }
-  MongoClient.connect(url,function(err, client) {
+  MongoClient.connect(url,mongoOptions,function(err, client) {
     waitUntil()
     .interval(50)
     .times(Infinity)
@@ -697,7 +701,7 @@ app.post('/goals', function(req, res) {
       }
     });
   }
-  MongoClient.connect(url,function(err, client) {
+  MongoClient.connect(url,mongoOptions,function(err, client) {
     waitUntil()
     .interval(50)
     .times(Infinity)
@@ -756,7 +760,7 @@ app.post('/goal/', function(req, res) {
         }
       });
     }
-    MongoClient.connect(url,function(err, client) {
+    MongoClient.connect(url,mongoOptions,function(err, client) {
       waitUntil()
       .interval(50)
       .times(Infinity)
