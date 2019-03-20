@@ -11,7 +11,7 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const MongoClient = require('mongodb').MongoClient;
 const mongoOptions = {
-  socketTimeoutMS: 30000
+  socketTimeoutMS: 5000
 }
 const assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
