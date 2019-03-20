@@ -10,9 +10,6 @@ var bodyParser = require('body-parser');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const MongoClient = require('mongodb').MongoClient;
-const mongoOptions = {
-  socketTimeoutMS: 5000
-}
 const assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
 const bcrypt = require('bcrypt');
@@ -41,6 +38,12 @@ const dbName = 'stellite-funding-platform';
 const hostname = "funding.stellite.cash";
 const noreply = "no-reply@funding.stellite.cash"
 
+//start mongodb connection
+MongoClient.connect(url,function(err, client) {
+    const db = client.db(dbName);
+    // getGoals(db, function() {
+    //   client.close();
+    // });
 
 
 //Inputs validators
@@ -127,7 +130,6 @@ passport.use(new LocalStrategy(
   { usernameField: 'email' },
   (email, password, done) => {
     //Inside local strategy callback
-    const checkLogin = function(db, callback) {
       const collection = db.collection('users');
       collection.find({'email': email}).toArray(function(err, data) {
         // assert.strictEqual(err, null);
@@ -156,21 +158,6 @@ passport.use(new LocalStrategy(
         res.status(301).redirect("/error_db");
         }
       });
-    }
-    MongoClient.connect(url,mongoOptions,function(err, client) {
-      waitUntil()
-      .interval(50)
-      .times(Infinity)
-      .condition(function() {
-        return (err === null ? true : false);
-      })
-      .done(function(result) {
-        const db = client.db(dbName);
-        checkLogin(db, function() {
-          client.close();
-        });
-      });
-    });
   }
 ));
 
@@ -289,7 +276,6 @@ app.post('/add', function(req, res) {
           } else if(description.lenght>12000){
             res.send('Description too long');
           } else {
-            const insertNewGoal = function(db, callback) {
               const collection = db.collection('goals');
               collection.insertOne({ title: title, description: description, balance: 0, unlimited: "false", categorie: "2", goal: goal, creation_date: ~~(+new Date / 1000), author: author, status: "open", author_id: author_id, wallet_index: "null", wallet_address: "null" }, function(err, result) {
                 // assert.strictEqual(err, null);
@@ -299,8 +285,6 @@ app.post('/add', function(req, res) {
                 cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"create_account","params":{"label":"'+goalID+'"}}\' -H \'Content-Type: application/json\'',
                 function(err, data, stderr){
                   var data = JSON.parse(data);
-
-                  const AddGoalWalletAddress = function(db, callback) {
                     // Get the documents collection
                     const collection = db.collection('goals');
                     // Update document where a is 2, set b equal to 1
@@ -314,64 +298,16 @@ app.post('/add', function(req, res) {
                           //wallet saved
                         });
                       });
-                    }
-
-                    MongoClient.connect(url,mongoOptions,function(err, client) {
-                      waitUntil()
-                      .interval(50)
-                      .times(Infinity)
-                      .condition(function() {
-                        return (err === null ? true : false);
-                      })
-                      .done(function(result) {
-                        const db = client.db(dbName);
-                        AddGoalWalletAddress(db, function() {
-                          client.close();
-                        });
-                      });
-                    });
                   }
                 );
               });
-            }
-            MongoClient.connect(url, function(err, client) {
-              waitUntil()
-              .interval(50)
-              .times(Infinity)
-              .condition(function() {
-                return (err === null ? true : false);
-              })
-              .done(function(result) {
-                const db = client.db(dbName);
-                insertNewGoal(db, function() {
-                  client.close();
-                });
-              });
-            });
           }
         }
-
-        const getUserName = function(db, callback) {
           const collection = db.collection('users');
           collection.find(ObjectId(req.user)).toArray(function(err, data) {
             // assert.strictEqual(err, null);
             addWithUsername(title,description,goal,data[0].username,req.user)
           });
-        }
-        MongoClient.connect(url,mongoOptions,function(err, client) {
-          waitUntil()
-          .interval(50)
-          .times(Infinity)
-          .condition(function() {
-            return (err === null ? true : false);
-          })
-          .done(function(result) {
-            const db = client.db(dbName);
-            getUserName(db, function() {
-              client.close();
-            });
-          });
-        });
       } else {
         res.status(301).redirect("/login");
       }
@@ -384,7 +320,6 @@ app.post('/add', function(req, res) {
 app.post('/check_username', function(req, res) {
   var username = req.body.username;
   if(ValidateUsername(username)==true){
-    const checkIfUsernameExist = function(db, callback) {
       const collection = db.collection('users');
       collection.find({'username': username}).toArray(function(err, data) {
         // assert.strictEqual(err, null);
@@ -394,21 +329,6 @@ app.post('/check_username', function(req, res) {
           res.send('Available');
         }
       });
-    }
-    MongoClient.connect(url,mongoOptions,function(err, client) {
-      waitUntil()
-      .interval(50)
-      .times(Infinity)
-      .condition(function() {
-        return (err === null ? true : false);
-      })
-      .done(function(result) {
-        const db = client.db(dbName);
-        checkIfUsernameExist(db, function() {
-          client.close();
-        });
-      });
-    });
   } else {
     res.send("Invalid username, allowed: a-z, A-Z, 0-9, underscore and dash");
   }
@@ -417,7 +337,6 @@ app.post('/check_username', function(req, res) {
 app.post('/check_email', function(req, res) {
   var email = req.body.email;
   if(ValidateEmail(email)==true){
-    const checkIfEmailExist = function(db, callback) {
       const collection = db.collection('users');
       collection.find({'email': email}).toArray(function(err, data) {
         // assert.strictEqual(err, null);
@@ -427,21 +346,6 @@ app.post('/check_email', function(req, res) {
           res.send('Available');
         }
       });
-    }
-    MongoClient.connect(url,mongoOptions,function(err, client) {
-      waitUntil()
-      .interval(50)
-      .times(Infinity)
-      .condition(function() {
-        return (err === null ? true : false);
-      })
-      .done(function(result) {
-        const db = client.db(dbName);
-        checkIfEmailExist(db, function() {
-          client.close();
-        });
-      });
-    });
   } else {
     res.send("Invalid email address");
   }
@@ -450,7 +354,6 @@ app.post('/check_email', function(req, res) {
 app.post('/activate', function(req, res) {
   var activation_code = req.body.activation_code;
   if(ValidateActivationCode(activation_code)==true){
-    const checkIfEmailExist = function(db, callback) {
       const collection = db.collection('users');
       collection.find({'activation_code': activation_code}).toArray(function(err, data) {
         // assert.strictEqual(err, null);
@@ -465,21 +368,6 @@ app.post('/activate', function(req, res) {
           res.send('Invalid code');
         }
       });
-    }
-    MongoClient.connect(url,mongoOptions,function(err, client) {
-      waitUntil()
-      .interval(50)
-      .times(Infinity)
-      .condition(function() {
-        return (err === null ? true : false);
-      })
-      .done(function(result) {
-        const db = client.db(dbName);
-        checkIfEmailExist(db, function() {
-          client.close();
-        });
-      });
-    });
   } else {
   res.send("Invalid code format");
   }
@@ -487,7 +375,6 @@ app.post('/activate', function(req, res) {
 
 function ActivationTimer() {
   // Checking unactivated registered users
-  const checkUnactivatedRegisteredUsers = function(db, callback) {
     const collection = db.collection('users');
     collection.find({'activated': "false"}).toArray(function(err, data) {
       // assert.strictEqual(err, null);
@@ -495,47 +382,16 @@ function ActivationTimer() {
         data.forEach(function(unactivated_user) {
           // activation limit = 2 Hours (7200 seconds)
           if((~~(+new Date / 1000)-unactivated_user.creation_date) > 3600){
-            const removeDocument = function(db, callback) {
               const collection = db.collection('users');
               collection.deleteOne({ username : unactivated_user.username }, function(err, result) {
                 // assert.strictEqual(err, null);
                 // assert.equal(1, result.result.n);
                 // removed user
               });
-            }
-            MongoClient.connect(url,mongoOptions,function(err, client) {
-              waitUntil()
-              .interval(50)
-              .times(Infinity)
-              .condition(function() {
-                return (err === null ? true : false);
-              })
-              .done(function(result) {
-                const db = client.db(dbName);
-                removeDocument(db, function() {
-                  client.close();
-                });
-              });
-            });
           }
         });
       }
     });
-  }
-  MongoClient.connect(url,mongoOptions,function(err, client) {
-    waitUntil()
-    .interval(50)
-    .times(Infinity)
-    .condition(function() {
-      return (err === null ? true : false);
-    })
-    .done(function(result) {
-      const db = client.db(dbName);
-      checkUnactivatedRegisteredUsers(db, function() {
-        client.close();
-      });
-    });
-  });
 }
 //Check unactivated registered users every 5 minutes
 setInterval(ActivationTimer,300000);
@@ -558,7 +414,6 @@ app.post('/register', function (req, res) {
     } else if(password.lenght>256){
       res.send("Too long password");
     } else {
-      const insertCreatedAccount = function(db, callback) {
         const collection = db.collection('users');
         bcrypt.hash(password, saltRounds, function(err, hash) {
           collection.find({'username': username}).toArray(function(err, data) {
@@ -590,48 +445,17 @@ app.post('/register', function (req, res) {
             }
           });
         });
-      }
-      MongoClient.connect(url, function(err, client) {
-        waitUntil()
-        .interval(50)
-        .times(Infinity)
-        .condition(function() {
-          return (err === null ? true : false);
-        })
-        .done(function(result) {
-          const db = client.db(dbName);
-          insertCreatedAccount(db, function() {
-            client.close();
-          });
-        });
-      });
     }
   }
 });
 
 app.get('/logged', function(req, res) {
   if(req.isAuthenticated()) {
-    const checkLogged = function(db, callback) {
       const collection = db.collection('users');
       collection.find(ObjectId(req.user)).toArray(function(err, data) {
         // assert.strictEqual(err, null);
         res.send({ user_username: data[0].username });
       });
-    }
-    MongoClient.connect(url,mongoOptions,function(err, client) {
-      waitUntil()
-      .interval(50)
-      .times(Infinity)
-      .condition(function() {
-        return (err === null ? true : false);
-      })
-      .done(function(result) {
-        const db = client.db(dbName);
-        checkLogged(db, function() {
-          client.close();
-        });
-      });
-    });
   } else {
     res.send('false')
   }
@@ -661,7 +485,6 @@ app.get('/logout', function (req, res){
 
 ///// Funding Goals
 app.get('/categories', function(req, res) {
-  const getCategories = function(db, callback) {
     const collection = db.collection('categories');
     collection.find({}).toArray(function(err, data) {
       // assert.strictEqual(err, null);
@@ -671,25 +494,9 @@ app.get('/categories', function(req, res) {
       res.status(301).redirect("/error_db");
       }
     });
-  }
-  MongoClient.connect(url,mongoOptions,function(err, client) {
-    waitUntil()
-    .interval(50)
-    .times(Infinity)
-    .condition(function() {
-      return (err === null ? true : false);
-    })
-    .done(function(result) {
-        const db = client.db(dbName);
-        getCategories(db, function() {
-          client.close();
-        });
-    });
-  });
 });
 
 app.post('/goals', function(req, res) {
-  const getGoals = function(db, callback) {
     const collection = db.collection('goals');
     collection.find({'categorie': req.body.categorie_id}).toArray(function(err, data) {
       // assert.strictEqual(err, null);
@@ -699,21 +506,6 @@ app.post('/goals', function(req, res) {
         res.status(301).redirect("/error_db");
       }
     });
-  }
-  MongoClient.connect(url,mongoOptions,function(err, client) {
-    waitUntil()
-    .interval(50)
-    .times(Infinity)
-    .condition(function() {
-      return (err === null ? true : false);
-    })
-    .done(function(result) {
-      const db = client.db(dbName);
-      getGoals(db, function() {
-        client.close();
-      });
-    });
-  });
 });
 
 app.get('/goal/:id*', function(req, res, next) {
@@ -729,7 +521,6 @@ app.get('/goal/:id*', function(req, res, next) {
 
 app.post('/goal/', function(req, res) {
   if(ValidateID(req.body._id)){
-    const getGoal = function(db, callback) {
       const collection = db.collection('goals');
       collection.find(ObjectId(req.body._id)).toArray(function(err, data) {
         // assert.strictEqual(err, null);
@@ -758,21 +549,6 @@ app.post('/goal/', function(req, res) {
         res.status(301).redirect("/error_db");
         }
       });
-    }
-    MongoClient.connect(url,mongoOptions,function(err, client) {
-      waitUntil()
-      .interval(50)
-      .times(Infinity)
-      .condition(function() {
-        return (err === null ? true : false);
-      })
-      .done(function(result) {
-        const db = client.db(dbName);
-        getGoal(db, function() {
-          client.close();
-        });
-      });
-    });
   } else {
     res.send("Bad ID");
   }
@@ -841,6 +617,8 @@ app.post('/goal_txs', function(req, res) {
 app.use(express.static('public'));
 app.listen(3000);
 
+//end mongodb connection
+});
 //   var fs = require('fs');
 //   var https = require('https');
 //   https.createServer({
