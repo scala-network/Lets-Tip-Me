@@ -41,10 +41,6 @@ const noreply = "no-reply@funding.stellite.cash"
 //start mongodb connection
 MongoClient.connect(url,function(err, client) {
     const db = client.db(dbName);
-    // getGoals(db, function() {
-    //   client.close();
-    // });
-
 
 //Inputs validators
 function ValidateEmail(inputText)
