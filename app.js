@@ -23,10 +23,8 @@ var escape = require('escape-html');
 var cmd=require('node-cmd');
 var sortBy = require('sort-by');
 var waitUntil = require('wait-until');
-
-
-// console.log(escape('<script>alert("test");</script>'));
-// console.log(crypto.randomBytes(8).toString('hex'));
+var speakeasy = require('speakeasy');
+var QRCode = require('qrcode');
 
 // Connection URL
 const url = 'mongodb://localhost:27017';
@@ -376,7 +374,7 @@ function ActivationTimer() {
       // assert.strictEqual(err, null);
       if (data[0]){
         data.forEach(function(unactivated_user) {
-          // activation limit = 2 Hours (7200 seconds)
+          // activation limit = 1 Hour (3600 seconds)
           if((~~(+new Date / 1000)-unactivated_user.creation_date) > 3600){
               const collection = db.collection('users');
               collection.deleteOne({ username : unactivated_user.username }, function(err, result) {
@@ -419,7 +417,8 @@ app.post('/register', function (req, res) {
                 // assert.strictEqual(err, null);
                 if(!data[0]){
                   const activation_code=keygen.url(keygen.medium);
-                  collection.insertOne({ username: username, email: email, password: hash, activated: "false", activation_code: activation_code, creation_date: ~~(+new Date / 1000) }, function(err, result) {
+                  const secret_2FA = speakeasy.generateSecret({length: 20});
+                  collection.insertOne({ username: username, email: email, password: hash, activated: "false", activation_code: activation_code, creation_date: ~~(+new Date / 1000), secret_2FA: secret_2FA.base32, enabled_2FA: "false" }, function(err, result) {
                     // assert.strictEqual(err, null);
                     res.send("Registered");
                     sendmail({
@@ -476,6 +475,57 @@ app.get('/logout', function (req, res){
   req.session.destroy(function (err) {
     res.status(301).redirect("/login");
   });
+});
+
+
+///settings
+app.get('/user_settings', function(req, res) {
+  if(req.isAuthenticated()) {
+    const collection = db.collection('users');
+    collection.find(ObjectId(req.user)).toArray(function(err, data) {
+    res.send({enabled_2FA: data[0].enabled_2FA});
+    });
+  } else {
+    res.send('Not Logged');
+  }
+});
+
+///2FA
+app.get('/2FA', function(req, res) {
+  if(req.isAuthenticated()) {
+      const collection = db.collection('users');
+      collection.find(ObjectId(req.user)).toArray(function(err, data) {
+        // assert.strictEqual(err, null);
+        QRCode.toDataURL('otpauth://totp/Stellite%20Funding?secret='+data[0].secret_2FA, function(err, qrcode_2FA) {
+        res.send({ secret_2FA: data[0].secret_2FA, qrcode_2FA: qrcode_2FA });
+        });
+      });
+  } else {
+    res.status(301).redirect("/login");
+  }
+});
+app.post('/2FA', function(req, res) {
+  if(req.isAuthenticated()) {
+      const collection = db.collection('users');
+      collection.find(ObjectId(req.user)).toArray(function(err, data) {
+        var verified_2FA_code = speakeasy.totp.verify({
+          secret: data[0].secret_2FA,
+          encoding: 'base32',
+          token: req.body.code_2FA
+        });
+        if(verified_2FA_code===true){
+          const collection = db.collection('users');
+          collection.updateOne({ _id : ObjectId(req.user) }
+            , { $set: { enabled_2FA : "true" } }, function(err, result) {
+              res.send('true');
+            });
+        } else if(verified_2FA_code===false){
+          res.send('false');
+        }
+      });
+  } else {
+    res.status(301).redirect("/login");
+  }
 });
 
 

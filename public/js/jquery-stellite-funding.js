@@ -240,7 +240,15 @@ $( document ).ready(function() {
     $( "#body-load" ).load( "/activate.html" );
   }
   else if ( $(location).attr('pathname') == "/settings" ) {
-    $( "#body-load" ).load( "/settings.html" );
+    $( "#body-load" ).load( "/settings.html", function() {
+      $.get( "/user_settings", function( data ) {
+        if(data.enabled_2FA==="true"){
+         $("#ul_2FA").append("<li class=\"list-group-item justify-content-between list-group-item-stellite bg-success\"><span class=\"text-white\"><i class=\"fas fa-check\"></i> 2FA enabled</span></li>");
+       } else if(data.enabled_2FA==="false"){
+         $("#ul_2FA").append("<li class=\"list-group-item justify-content-between list-group-item-stellite text-center settings_li\" id=\"settings_2FA\"><span class=\"stellite-main-color-text\"><span class=\"text-white\"><p class=\"text-danger\"><b>You are strongly advised to enable two-factor authentication for your account security!</b></p><button id=\"Enable2FA\" class=\"btn btn-danger mb-2\"><i class=\"fas fa-exclamation-triangle\"></i> Enable 2FA</button></<span></span></li>");
+       }
+      });
+    });
   }
   else if ( $(location).attr('pathname') == "/add" ) {
     $( "#body-load" ).load( "/add_goal.html" );
@@ -340,6 +348,47 @@ $( document ).ready(function() {
       });
     }
   });
+
+  //Settings
+  ///copy 2FA key to clipboard
+  $( document ).on( 'mouseover', '.settings_li', function () {
+    $(this).css('cursor','pointer');
+    $(this).css('background-color','#151b29');
+  });
+  $( document ).on( 'mouseout', '.settings_li', function () {
+    $(this).css('background-color','#11141b');
+  });
+  $( document ).on( 'click', '#copy_2FA_key_li', function () {
+    copyToClipboard('#2FA_key_to_copy');
+    $('#copy_2FA_key').addClass("text-success");
+    $('#copy_2FA_key').html("<i class=\"far fa-copy\"></i> Copied to clipboard!");
+  });
+
+  $( document ).on( 'click', '#Verify2FA', function () {
+      $.post("/2FA",{code_2FA: $('#code_2FA').val()}, function(data){
+        if(data==="true"){
+        $('#li_2FA_QRcode').remove();
+        $('#copy_2FA_key_li').remove();
+        $('#li_2FA_verify').remove();
+        $("#ul_2FA").append("<li class=\"list-group-item justify-content-between list-group-item-stellite bg-success\"><span class=\"text-white\"><i class=\"fas fa-check\"></i> 2FA enabled</span></li>");
+      } else if(data==="false"){
+        $('#bad_2FA_error').show();
+        }
+      });
+  });
+
+  $( document ).on( 'click', '#Enable2FA', function () {
+    $('#settings_2FA').remove();
+    $.get( "/2fA", function( data ) {
+      $("#ul_2FA").append("<li class=\"list-group-item justify-content-between list-group-item-stellite text-center settings_li\" id=\"li_2FA_QRcode\"><span class=\"text-white\"><p><small><b>Scan this QRcode with Google Authenticator</b></small></p><img src=\""+data.qrcode_2FA+"\"></img></span></li>");
+
+      $("#ul_2FA").append("<li class=\"list-group-item justify-content-between list-group-item-stellite text-center settings_li\" id=\"copy_2FA_key_li\"><span class=\"text-white 2FA_key\"><small class=\"text-warning\"><b>Save this 2FA key somewhere with care!</b></small><br><b class=\"text-white\"><i class=\"fas fa-key\"></i> <span id=\"2FA_key_to_copy\">"+data.secret_2FA+"</span></b><br><small id=\"copy_2FA_key\"><i class=\"far fa-copy\"></i> Copy this 2FA key</small></span></li>");
+
+      $("#ul_2FA").append("<li class=\"list-group-item justify-content-between list-group-item-stellite text-center settings_li\" id=\"li_2FA_verify\"><span class=\"text-white\"><p><small><b>Enter the 2FA code shown in Google Authenticator</b></small><br><span class=\"starthidden text-danger small\" id=\"bad_2FA_error\"><b>Bad 2FA code</b></span></p><form role=\"form\" action=\"#\" onsubmit=\"return false;\"><input type=\"text\" class=\"form-control set-input-2FA-code-width\" id=\"code_2FA\" name=\"code_2FA\" autocomplete=\"off\" placeholder=\"Enter 2FA code\" maxlength=\"6\"></div><br><button id=\"Verify2FA\" class=\"btn btn-primary mb-2\"><i class=\"fas fa-arrow-circle-right\"></i> Enable 2FA</button></form></span></li>");
+    });
+  });
+
+
 
   //add goal
   $( document ).on( 'click', '#AddGoal', function () {
