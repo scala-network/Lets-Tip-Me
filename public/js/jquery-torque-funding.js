@@ -144,7 +144,7 @@ $( document ).ready(function() {
             $.each(data, function (i, value) {
 
               if(value.unlimited=="true"){
-                $("#funding_goals_index_content"+value.categorie).append("<li class=\"list-group-item justify-content-between list-group-item-torque text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"torque-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTL / Unlimited</small></span><div class=\"progress\"><div class=\"progress-bar bg-success\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 100%\"></div></div></div></li>");
+                $("#funding_goals_index_content"+value.categorie).append("<li class=\"list-group-item justify-content-between list-group-item-torque text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"torque-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / Unlimited</small></span><div class=\"progress\"><div class=\"progress-bar bg-success\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 100%\"></div></div></div></li>");
               } else {
                 const percentage = Math.round((value.balance*100)/value.goal);
                 var progress_bar_bg_color;
@@ -155,7 +155,7 @@ $( document ).ready(function() {
                 } else if(percentage>70){
                   progress_bar_bg_color="bg-success";
                 }
-                $("#funding_goals_index_content"+value.categorie).append("<li class=\"list-group-item justify-content-between list-group-item-torque text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"torque-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTL / "+value.goal+" XTL ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></div></li>");
+                $("#funding_goals_index_content"+value.categorie).append("<li class=\"list-group-item justify-content-between list-group-item-torque text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"torque-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / "+value.goal+" XTC ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></div></li>");
               }
 
             });
@@ -190,7 +190,7 @@ $( document ).ready(function() {
                   var txcolor="text-danger";
                   var txsign="-";
                 }
-                $("#funding_goal_transactions").append("<li class=\"list-group-item justify-content-between list-group-item-torque tx_link\" style=\"word-wrap:break-word;\" tx_link=\"https://explorer.torque.cash/tx/"+value.txid+"\"><span class=\"text-white\"><small><span class=\""+txcolor+"\"><b>"+txsign+""+value.amount/100+" XTL</b></span> · TX <b>"+value.txid+"</b> · "+datetxformat(value.timestamp)+"</small></li>");
+                $("#funding_goal_transactions").append("<li class=\"list-group-item justify-content-between list-group-item-torque tx_link\" style=\"word-wrap:break-word;\" tx_link=\"https://explorer.torque.cash/tx/"+value.txid+"\"><span class=\"text-white\"><small><span class=\""+txcolor+"\"><b>"+txsign+""+value.amount/100+" XTC</b></span> · TX <b>"+value.txid+"</b> · "+datetxformat(value.timestamp)+"</small></li>");
               });
             } else {
               $("#funding_goal_transactions").append("<li class=\"list-group-item justify-content-between list-group-item-torque\"><span class=\"text-white\">There are currently no transactions for this goal.</small></li>");
@@ -199,7 +199,7 @@ $( document ).ready(function() {
           //goal progress
           $("#funding_goal").append("<div class=\"col-md-12 text-center\"><h4 class=\"d-flex justify-content-between align-items-center mb-3\"><h4 class=\"text-center\">"+value.title+"</h4></h4><hr class=\"mb-4\"><ul id=\"funding_goal_progress\" class=\"list-group\">");
           if(value.unlimited=="true"){
-            $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-torque torque-lighter-background\"><span class=\"torque-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTL / Unlimited</small></span><div class=\"progress\"><div class=\"progress-bar bg-success\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 100%\"></div></div></li>");
+            $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-torque torque-lighter-background\"><span class=\"torque-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / Unlimited</small></span><div class=\"progress\"><div class=\"progress-bar bg-success\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 100%\"></div></div></li>");
           } else {
             const percentage = Math.round((value.balance*100)/value.goal);
             var progress_bar_bg_color;
@@ -210,7 +210,7 @@ $( document ).ready(function() {
             } else if(percentage>70){
               progress_bar_bg_color="bg-success";
             }
-            $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-torque torque-lighter-background\"><span class=\"torque-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTL / "+value.goal+" XTL ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></li>");
+            $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-torque torque-lighter-background\"><span class=\"torque-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / "+value.goal+" XTC ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></li>");
           }
           //goal description
           $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-torque text-left\"><span class=\"text-white\"><p>"+value.description.replace(/\n/g, "<br>")+"</p></li>");
