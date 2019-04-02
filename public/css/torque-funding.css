@@ -1,19 +1,19 @@
-.stellite-darker-background {
+.torque-darker-background {
   background-color: #11141b !important;
 }
-.stellite-lighter-background {
+.torque-lighter-background {
   background-color: #151b29 !important;
 }
-.stellite-bright-text-background {
+.torque-bright-text-background {
   background-color: #daddff !important;
 }
-.stellite-simple-blue-background {
+.torque-simple-blue-background {
   background-color: #004ee1 !important;
 }
-.stellite-main-color-background {
+.torque-main-color-background {
   background-color: #ff1468 !important;
 }
-.stellite-main-color-text {
+.torque-main-color-text {
   color: #ff1468;
 }
 
@@ -93,7 +93,7 @@ a:hover {
 .no-background-color{
   background-color: none!important;
 }
-.list-group-item-stellite{
+.list-group-item-torque{
   color:#004085;background-color:#11141b;border-color:#232c43;
 }
 hr{

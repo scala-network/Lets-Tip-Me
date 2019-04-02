@@ -1,7 +1,7 @@
 {
-  "name": "stellite-funding-platform",
+  "name": "torque-funding-platform",
   "version": "1.0.0",
-  "description": "Funding platform for the Stellite Blockchain.",
+  "description": "Funding platform for the Torque Blockchain.",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/oxhak/Stellite-Funding-Platform.git"
+    "url": "git+https://github.com/oxhak/Torque-Funding-Platform.git"
   },
   "author": "oxhak",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/oxhak/Stellite-Funding-Platform/issues"
+    "url": "https://github.com/oxhak/Torque-Funding-Platform/issues"
   },
-  "homepage": "https://github.com/oxhak/Stellite-Funding-Platform#readme",
+  "homepage": "https://github.com/oxhak/Torque-Funding-Platform#readme",
   "dependencies": {
     "bcrypt": "^3.0.4",
     "body-parser": "^1.18.3",

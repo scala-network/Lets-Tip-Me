@@ -144,7 +144,7 @@ $( document ).ready(function() {
             $.each(data, function (i, value) {
 
               if(value.unlimited=="true"){
-                $("#funding_goals_index_content"+value.categorie).append("<li class=\"list-group-item justify-content-between list-group-item-stellite text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"stellite-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTL / Unlimited</small></span><div class=\"progress\"><div class=\"progress-bar bg-success\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 100%\"></div></div></div></li>");
+                $("#funding_goals_index_content"+value.categorie).append("<li class=\"list-group-item justify-content-between list-group-item-torque text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"torque-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTL / Unlimited</small></span><div class=\"progress\"><div class=\"progress-bar bg-success\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 100%\"></div></div></div></li>");
               } else {
                 const percentage = Math.round((value.balance*100)/value.goal);
                 var progress_bar_bg_color;
@@ -155,7 +155,7 @@ $( document ).ready(function() {
                 } else if(percentage>70){
                   progress_bar_bg_color="bg-success";
                 }
-                $("#funding_goals_index_content"+value.categorie).append("<li class=\"list-group-item justify-content-between list-group-item-stellite text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"stellite-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTL / "+value.goal+" XTL ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></div></li>");
+                $("#funding_goals_index_content"+value.categorie).append("<li class=\"list-group-item justify-content-between list-group-item-torque text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"torque-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTL / "+value.goal+" XTL ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></div></li>");
               }
 
             });
@@ -190,16 +190,16 @@ $( document ).ready(function() {
                   var txcolor="text-danger";
                   var txsign="-";
                 }
-                $("#funding_goal_transactions").append("<li class=\"list-group-item justify-content-between list-group-item-stellite tx_link\" style=\"word-wrap:break-word;\" tx_link=\"https://explorer.stellite.cash/tx/"+value.txid+"\"><span class=\"text-white\"><small><span class=\""+txcolor+"\"><b>"+txsign+""+value.amount/100+" XTL</b></span> · TX <b>"+value.txid+"</b> · "+datetxformat(value.timestamp)+"</small></li>");
+                $("#funding_goal_transactions").append("<li class=\"list-group-item justify-content-between list-group-item-torque tx_link\" style=\"word-wrap:break-word;\" tx_link=\"https://explorer.torque.cash/tx/"+value.txid+"\"><span class=\"text-white\"><small><span class=\""+txcolor+"\"><b>"+txsign+""+value.amount/100+" XTL</b></span> · TX <b>"+value.txid+"</b> · "+datetxformat(value.timestamp)+"</small></li>");
               });
             } else {
-              $("#funding_goal_transactions").append("<li class=\"list-group-item justify-content-between list-group-item-stellite\"><span class=\"text-white\">There are currently no transactions for this goal.</small></li>");
+              $("#funding_goal_transactions").append("<li class=\"list-group-item justify-content-between list-group-item-torque\"><span class=\"text-white\">There are currently no transactions for this goal.</small></li>");
             }
           });
           //goal progress
           $("#funding_goal").append("<div class=\"col-md-12 text-center\"><h4 class=\"d-flex justify-content-between align-items-center mb-3\"><h4 class=\"text-center\">"+value.title+"</h4></h4><hr class=\"mb-4\"><ul id=\"funding_goal_progress\" class=\"list-group\">");
           if(value.unlimited=="true"){
-            $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-stellite stellite-lighter-background\"><span class=\"stellite-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTL / Unlimited</small></span><div class=\"progress\"><div class=\"progress-bar bg-success\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 100%\"></div></div></li>");
+            $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-torque torque-lighter-background\"><span class=\"torque-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTL / Unlimited</small></span><div class=\"progress\"><div class=\"progress-bar bg-success\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 100%\"></div></div></li>");
           } else {
             const percentage = Math.round((value.balance*100)/value.goal);
             var progress_bar_bg_color;
@@ -210,16 +210,16 @@ $( document ).ready(function() {
             } else if(percentage>70){
               progress_bar_bg_color="bg-success";
             }
-            $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-stellite stellite-lighter-background\"><span class=\"stellite-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTL / "+value.goal+" XTL ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></li>");
+            $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-torque torque-lighter-background\"><span class=\"torque-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTL / "+value.goal+" XTL ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></li>");
           }
           //goal description
-          $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-stellite text-left\"><span class=\"text-white\"><p>"+value.description.replace(/\n/g, "<br>")+"</p></li>");
+          $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-torque text-left\"><span class=\"text-white\"><p>"+value.description.replace(/\n/g, "<br>")+"</p></li>");
 
           //goal donations address
-          $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-stellite goal_donate_copy\" style=\"word-wrap:break-word;\"><span class=\"text-white\"><small><b id=\"addr_to_copy\">"+value.wallet_address+"</b></small><br><small id=\"confirm_addr_to_copy\"><i class=\"far fa-copy\"></i> Copy to donate</small></li>");
+          $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-torque goal_donate_copy\" style=\"word-wrap:break-word;\"><span class=\"text-white\"><small><b id=\"addr_to_copy\">"+value.wallet_address+"</b></small><br><small id=\"confirm_addr_to_copy\"><i class=\"far fa-copy\"></i> Copy to donate</small></li>");
 
           //goal by
-          $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-stellite stellite-lighter-background\"><span class=\"text-white\"><small>Goal added by "+value.author+" · "+dateformat(value.creation_date)+"</small></li>");
+          $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-torque torque-lighter-background\"><span class=\"text-white\"><small>Goal added by "+value.author+" · "+dateformat(value.creation_date)+"</small></li>");
 
           //goal progress end
           $("#funding_goal").append("</ul></div>");
@@ -243,9 +243,9 @@ $( document ).ready(function() {
     $( "#body-load" ).load( "/settings.html", function() {
       $.get( "/user_settings", function( data ) {
         if(data.enabled_2FA==="true"){
-         $("#ul_2FA").append("<li class=\"list-group-item justify-content-between list-group-item-stellite bg-success\"><span class=\"text-white\"><i class=\"fas fa-check\"></i> 2FA enabled</span></li>");
+         $("#ul_2FA").append("<li class=\"list-group-item justify-content-between list-group-item-torque bg-success\"><span class=\"text-white\"><i class=\"fas fa-check\"></i> 2FA enabled</span></li>");
        } else if(data.enabled_2FA==="false"){
-         $("#ul_2FA").append("<li class=\"list-group-item justify-content-between list-group-item-stellite text-center settings_li\" id=\"settings_2FA\"><span class=\"stellite-main-color-text\"><span class=\"text-white\"><p class=\"text-danger\"><b>You are strongly advised to enable two-factor authentication for your account security!</b></p><button id=\"Enable2FA\" class=\"btn btn-danger mb-2\"><i class=\"fas fa-exclamation-triangle\"></i> Enable 2FA</button></<span></span></li>");
+         $("#ul_2FA").append("<li class=\"list-group-item justify-content-between list-group-item-torque text-center settings_li\" id=\"settings_2FA\"><span class=\"torque-main-color-text\"><span class=\"text-white\"><p class=\"text-danger\"><b>You are strongly advised to enable two-factor authentication for your account security!</b></p><button id=\"Enable2FA\" class=\"btn btn-danger mb-2\"><i class=\"fas fa-exclamation-triangle\"></i> Enable 2FA</button></<span></span></li>");
        }
       });
     });
@@ -370,7 +370,7 @@ $( document ).ready(function() {
         $('#li_2FA_QRcode').remove();
         $('#copy_2FA_key_li').remove();
         $('#li_2FA_verify').remove();
-        $("#ul_2FA").append("<li class=\"list-group-item justify-content-between list-group-item-stellite bg-success\"><span class=\"text-white\"><i class=\"fas fa-check\"></i> 2FA enabled</span></li>");
+        $("#ul_2FA").append("<li class=\"list-group-item justify-content-between list-group-item-torque bg-success\"><span class=\"text-white\"><i class=\"fas fa-check\"></i> 2FA enabled</span></li>");
       } else if(data==="false"){
         $('#bad_2FA_error').show();
         }
@@ -380,11 +380,11 @@ $( document ).ready(function() {
   $( document ).on( 'click', '#Enable2FA', function () {
     $('#settings_2FA').remove();
     $.get( "/2fA", function( data ) {
-      $("#ul_2FA").append("<li class=\"list-group-item justify-content-between list-group-item-stellite text-center settings_li\" id=\"li_2FA_QRcode\"><span class=\"text-white\"><p><small><b>Scan this QRcode with Google Authenticator</b></small></p><img src=\""+data.qrcode_2FA+"\"></img></span></li>");
+      $("#ul_2FA").append("<li class=\"list-group-item justify-content-between list-group-item-torque text-center settings_li\" id=\"li_2FA_QRcode\"><span class=\"text-white\"><p><small><b>Scan this QRcode with Google Authenticator</b></small></p><img src=\""+data.qrcode_2FA+"\"></img></span></li>");
 
-      $("#ul_2FA").append("<li class=\"list-group-item justify-content-between list-group-item-stellite text-center settings_li\" id=\"copy_2FA_key_li\"><span class=\"text-white 2FA_key\"><small class=\"text-warning\"><b>Save this 2FA key somewhere with care!</b></small><br><b class=\"text-white\"><i class=\"fas fa-key\"></i> <span id=\"2FA_key_to_copy\">"+data.secret_2FA+"</span></b><br><small id=\"copy_2FA_key\"><i class=\"far fa-copy\"></i> Copy this 2FA key</small></span></li>");
+      $("#ul_2FA").append("<li class=\"list-group-item justify-content-between list-group-item-torque text-center settings_li\" id=\"copy_2FA_key_li\"><span class=\"text-white 2FA_key\"><small class=\"text-warning\"><b>Save this 2FA key somewhere with care!</b></small><br><b class=\"text-white\"><i class=\"fas fa-key\"></i> <span id=\"2FA_key_to_copy\">"+data.secret_2FA+"</span></b><br><small id=\"copy_2FA_key\"><i class=\"far fa-copy\"></i> Copy this 2FA key</small></span></li>");
 
-      $("#ul_2FA").append("<li class=\"list-group-item justify-content-between list-group-item-stellite text-center settings_li\" id=\"li_2FA_verify\"><span class=\"text-white\"><p><small><b>Enter the 2FA code shown in Google Authenticator</b></small><br><span class=\"starthidden text-danger small\" id=\"bad_2FA_error\"><b>Bad 2FA code</b></span></p><form role=\"form\" action=\"#\" onsubmit=\"return false;\"><input type=\"text\" class=\"form-control set-input-2FA-code-width\" id=\"code_2FA\" name=\"code_2FA\" autocomplete=\"off\" placeholder=\"Enter 2FA code\" maxlength=\"6\"></div><br><button id=\"Verify2FA\" class=\"btn btn-primary mb-2\"><i class=\"fas fa-arrow-circle-right\"></i> Enable 2FA</button></form></span></li>");
+      $("#ul_2FA").append("<li class=\"list-group-item justify-content-between list-group-item-torque text-center settings_li\" id=\"li_2FA_verify\"><span class=\"text-white\"><p><small><b>Enter the 2FA code shown in Google Authenticator</b></small><br><span class=\"starthidden text-danger small\" id=\"bad_2FA_error\"><b>Bad 2FA code</b></span></p><form role=\"form\" action=\"#\" onsubmit=\"return false;\"><input type=\"text\" class=\"form-control set-input-2FA-code-width\" id=\"code_2FA\" name=\"code_2FA\" autocomplete=\"off\" placeholder=\"Enter 2FA code\" maxlength=\"6\"></div><br><button id=\"Verify2FA\" class=\"btn btn-primary mb-2\"><i class=\"fas fa-arrow-circle-right\"></i> Enable 2FA</button></form></span></li>");
     });
   });
 

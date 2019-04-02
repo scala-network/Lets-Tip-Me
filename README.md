@@ -1,8 +1,8 @@
-# Stellite Funding Platform
+# Torque Funding Platform
 
-Funding platform for the Stellite Blockchain.
+Funding platform for the Torque Blockchain.
 
-In the future it can extend to all types of funding and connect to StellitePay.
+In the future it can extend to all types of funding.
 
 
 # How To (Temporary)
@@ -11,14 +11,14 @@ In the future it can extend to all types of funding and connect to StellitePay.
 
 Add funding categories with MongoDB shell (mongo)
 
-`use stellite-funding-platform`
+`use torque-funding-platform`
 
-`db.categories.insertOne( { categorie: "Stellite", categorie_id: 1 } );`
+`db.categories.insertOne( { categorie: "Torque", categorie_id: 1 } );`
 
 `db.categories.insertOne( { categorie: "Community", categorie_id: 2 } );`
 
 2. Clone this repository :
-`git clone https://github.com/oxhak/Stellite-Funding-Platform`
+`git clone https://github.com/oxhak/Torque-Funding-Platform`
 
 3. Run app.js with Node.js v11.9 : `node app.js`
 

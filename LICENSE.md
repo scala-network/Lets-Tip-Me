@@ -1,5 +1,5 @@
 Copyright (c) 2019 oxhak
-https://github.com/oxhak/Stellite-Funding-Platform
+https://github.com/oxhak/Torque-Funding-Platform
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

@@ -30,11 +30,11 @@ var QRCode = require('qrcode');
 const url = 'mongodb://localhost:27017';
 
 // Database Name
-const dbName = 'stellite-funding-platform';
+const dbName = 'torque-funding-platform';
 
 // Hostname of your hosting
-const hostname = "funding.stellite.cash";
-const noreply = "no-reply@funding.stellite.cash"
+const hostname = "funding.torque.cash";
+const noreply = "no-reply@funding.torque.cash"
 
 //start mongodb connection
 MongoClient.connect(url,function(err, client) {
@@ -424,8 +424,8 @@ app.post('/register', function (req, res) {
                     sendmail({
                       from: noreply,
                       to: email,
-                      subject: 'Please confirm your email address - Stellite Funding Platform',
-                      html: '<h2>Stellite Funding Platform</h2><p>Please go to <a href="https://'+hostname+'/activate">https://'+hostname+'/activate</a>, and enter the following code:<br><p><strong>'+activation_code+'</strong></p></p><h6 style="font-weight:normal;">This code is only available for 1 hour, after that you will need to register again.</h6>',
+                      subject: 'Please confirm your email address - Torque Funding Platform',
+                      html: '<h2>Torque Funding Platform</h2><p>Please go to <a href="https://'+hostname+'/activate">https://'+hostname+'/activate</a>, and enter the following code:<br><p><strong>'+activation_code+'</strong></p></p><h6 style="font-weight:normal;">This code is only available for 1 hour, after that you will need to register again.</h6>',
                     }, function(err, reply) {
                       // console.log(err && err.stack);
                       // console.dir(reply);
@@ -496,7 +496,7 @@ app.get('/2FA', function(req, res) {
       const collection = db.collection('users');
       collection.find(ObjectId(req.user)).toArray(function(err, data) {
         // assert.strictEqual(err, null);
-        QRCode.toDataURL('otpauth://totp/Stellite%20Funding?secret='+data[0].secret_2FA, function(err, qrcode_2FA) {
+        QRCode.toDataURL('otpauth://totp/Torque%20Funding?secret='+data[0].secret_2FA, function(err, qrcode_2FA) {
         res.send({ secret_2FA: data[0].secret_2FA, qrcode_2FA: qrcode_2FA });
         });
       });
@@ -668,6 +668,6 @@ app.listen(3000);
 //   var fs = require('fs');
 //   var https = require('https');
 //   https.createServer({
-//   key: fs.readFileSync('/etc/letsencrypt/live/funding.stellite.cash/privkey.pem'),
-//   cert: fs.readFileSync('/etc/letsencrypt/live/funding.stellite.cash/fullchain.pem')
+//   key: fs.readFileSync('/etc/letsencrypt/live/funding.torque.cash/privkey.pem'),
+//   cert: fs.readFileSync('/etc/letsencrypt/live/funding.torque.cash/fullchain.pem')
 // }, app).listen(3443);
