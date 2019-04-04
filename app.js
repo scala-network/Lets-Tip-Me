@@ -15,7 +15,11 @@ var ObjectId = require('mongodb').ObjectID;
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const sendmail = require('sendmail')({
-  smtpPort: 25
+  //uncomment in development
+  devPort: 25,
+  devHost: 'devsmtphost'
+  //uncomment in production
+  // smtpPort: 25
 });
 const keygen = require('keygen');
 var crypto = require("crypto");
