@@ -123,6 +123,19 @@ function ValidateWalletIndex(inputText)
   }
 }
 
+function Validate2FAcode(inputText)
+{
+  var amountformat = /^([0-9]+)$/;
+  if(inputText.match(amountformat)&&inputText.length<7)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
 // Configure passport.js to use the local strategy
 passport.use(new LocalStrategy(
   { usernameField: 'email' },
@@ -462,14 +475,60 @@ app.get('/logged', function(req, res) {
 
 app.post('/login', function(req, res, next) {
   if(ValidateEmail(req.body.email)==true){
-    passport.authenticate('local', function(err, user, info) {
-      if (err) { return next(err); }
-      if (!user) { return res.send(info); }
-      req.logIn(user, function(err) {
-        if (err) { return next(err); }
-        return res.send('Logged');
-      });
-    })(req, res, next);
+
+      if(req.body.login_2FA_code){
+            if(Validate2FAcode(req.body.login_2FA_code)==true){
+                 //check if 2FA is valid before login
+                 const collection = db.collection('users');
+                 collection.find({'email': req.body.email}).toArray(function(err, data) {
+                  var verified_2FA_code;
+                  if(data[0]){
+                  verified_2FA_code = speakeasy.totp.verify({
+                     secret: data[0].secret_2FA,
+                     encoding: 'base32',
+                     token: req.body.login_2FA_code
+                   });
+                  } else {
+                   res.send("Account not found");
+                  }
+                   if(verified_2FA_code===true){
+                     passport.authenticate('local', function(err, user, info) {
+                       if (err) { return next(err); }
+                       if (!user) { return res.send(info); }
+                       req.logIn(user, function(err) {
+                         if (err) { return next(err); }
+                         return res.send('Logged');
+                       });
+                     })(req, res, next);
+                     } else if(verified_2FA_code===false){
+                       res.send("Invalid 2FA code");
+                     }
+                 });
+            } else {
+            res.send("Invalid 2FA code format");
+            }
+        } else {
+          ///check if 2FA is enabled
+          const collection = db.collection('users');
+          collection.find({'email': req.body.email}).toArray(function(err, data) {
+           if(data[0]){
+             if(data[0].enabled_2FA==="false"){
+             passport.authenticate('local', function(err, user, info) {
+               if (err) { return next(err); }
+               if (!user) { return res.send(info); }
+               req.logIn(user, function(err) {
+                 if (err) { return next(err); }
+                 return res.send('Logged');
+               });
+             })(req, res, next);
+             } else {
+              res.send("2FA is enabled on this account");
+             }
+           } else {
+            res.send("Account not found");
+           }
+         });
+        }
   } else {
     res.send("Invalid email address");
   }

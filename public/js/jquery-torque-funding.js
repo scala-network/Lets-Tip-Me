@@ -276,7 +276,8 @@ $( document ).ready(function() {
     if( $('#email').val() && $('#password').val() ) {
       var email=$("#email").val();
       var password=$("#password").val();
-      $.post("/login",{email: email,password: password}, function(data){
+      var login_2FA_code=$("#login_2FA_code").val();
+      $.post("/login",{email: email,password: password, login_2FA_code: login_2FA_code}, function(data){
         if ( data == "Logged" ) {
           $(location).attr('href', '/');
         }
