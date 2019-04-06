@@ -739,7 +739,7 @@ app.get('/my_goals', function(req, res) {
   }
 });
 
-app.post('/my_goals', function(req, res) {
+app.get('/my_goals_user', function(req, res) {
   if(req.isAuthenticated()) {
     const collection = db.collection('goals');
     collection.find({'author_id': req.user}).toArray(function(err, data) {

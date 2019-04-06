@@ -260,7 +260,7 @@ $( document ).ready(function() {
     $( "#body-load" ).load( "/my_goals.html", function() {
 
           // Get goals on load
-          $.post("/my_goals",{"categorie_id": null}, function(data){
+          $.get("/my_goals_user", function(data){
             if(data[0]){
             $.each(data, function (i, value) {
               if(value.unlimited=="true"){
