@@ -281,7 +281,7 @@ $( document ).ready(function() {
           } else {
                 $("#my_goals_content").append("<li class=\"list-group-item justify-content-between list-group-item-torque mb-4\"><span class=\"text-white\">You have not added a goal yet.</small></li>");
           }
-          $("#my_goals_content").append("<button id=\"my_goals_add_goal\" class=\"btn btn-primary\"><i class=\"fas fa-arrow-circle-right\"></i> Add a new goal</button>");
+          $("#my_goals_content").append("<button id=\"my_goals_add_goal\" class=\"btn btn-primary\"><i class=\"fas fa-plus\"></i> Add a new goal</button>");
           });
     });
   }
