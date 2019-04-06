@@ -136,6 +136,15 @@ function Validate2FAcode(inputText)
   }
 }
 
+function shuffelActivationCode(code){
+    var shuffledCode = '';
+    code = code.split('');
+    while (code.length > 0) {
+      shuffledCode +=  code.splice(code.length * Math.random() << 0, 1);
+    }
+    return shuffledCode;
+}
+
 // Configure passport.js to use the local strategy
 passport.use(new LocalStrategy(
   { usernameField: 'email' },
@@ -435,7 +444,8 @@ app.post('/register', function (req, res) {
               collection.find({'email': email}).toArray(function(err, data) {
                 // assert.strictEqual(err, null);
                 if(!data[0]){
-                  const activation_code=keygen.url(keygen.medium);
+                  // console.log(shuffelActivationCode(keygen.url(keygen.medium)+~~(+new Date / 1000)));
+                  const activation_code=shuffelActivationCode(keygen.url(keygen.medium)+~~(+new Date / 1000));
                   const secret_2FA = speakeasy.generateSecret({length: 20});
                   collection.insertOne({ username: username, email: email, password: hash, activated: "false", activation_code: activation_code, creation_date: ~~(+new Date / 1000), secret_2FA: secret_2FA.base32, enabled_2FA: "false" }, function(err, result) {
                     // assert.strictEqual(err, null);
