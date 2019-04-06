@@ -723,6 +723,38 @@ app.post('/goal_txs', function(req, res) {
 }
 });
 
+// My goals
+app.get('/my_goals', function(req, res) {
+  if(req.isAuthenticated()) {
+    cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_version"}\' -H \'Content-Type: application/json\'',
+    function(err, jsonData, stderr){
+      if(!err){
+        res.sendFile(__dirname + '/index.html');
+      } else {
+        res.status(301).redirect("/error");
+      }
+    });
+  } else {
+    res.status(301).redirect("/login");
+  }
+});
+
+app.post('/my_goals', function(req, res) {
+  if(req.isAuthenticated()) {
+    const collection = db.collection('goals');
+    collection.find({'author_id': req.user}).toArray(function(err, data) {
+      // assert.strictEqual(err, null);
+      if(err===null){
+        res.send(data);
+      } else {
+        res.status(301).redirect("/error_db");
+      }
+    });
+  } else {
+    res.status(301).redirect("/login");
+  }
+});
+
 
 app.use(express.static('public'));
 app.listen(3000);

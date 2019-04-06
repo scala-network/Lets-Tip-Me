@@ -256,6 +256,38 @@ $( document ).ready(function() {
   else if ( $(location).attr('pathname') == "/add" ) {
     $( "#body-load" ).load( "/add_goal.html" );
   }
+  else if ( $(location).attr('pathname') == "/my_goals" ) {
+    $( "#body-load" ).load( "/my_goals.html", function() {
+
+          // Get goals on load
+          $.post("/my_goals",{"categorie_id": null}, function(data){
+            if(data[0]){
+            $.each(data, function (i, value) {
+              if(value.unlimited=="true"){
+                $("#my_goals_content").append("<ul class=\"list-group mb-4\"><li class=\"list-group-item justify-content-between list-group-item-torque text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"torque-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / Unlimited</small></span><div class=\"progress\"><div class=\"progress-bar bg-success\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 100%\"></div></div></div></li><li class=\"list-group-item justify-content-between list-group-item-torque torque-lighter-background\"><span class=\"text-white\"> </li></ul>");
+              } else {
+                const percentage = Math.round((value.balance*100)/value.goal);
+                var progress_bar_bg_color;
+                if(percentage<30){
+                  progress_bar_bg_color="bg-danger";
+                } else if((percentage>30)&&(percentage<70)){
+                  progress_bar_bg_color="bg-warning";
+                } else if(percentage>70){
+                  progress_bar_bg_color="bg-success";
+                }
+                $("#my_goals_content").append("<ul class=\"list-group mb-4\"><li class=\"list-group-item justify-content-between list-group-item-torque text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"torque-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / "+value.goal+" XTC ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></div></li><li class=\"list-group-item justify-content-between list-group-item-torque torque-lighter-background\"><span class=\"text-white\"> </li></ul>");
+              }
+            });
+          } else {
+                $("#my_goals_content").append("<li class=\"list-group-item justify-content-between list-group-item-torque mb-4\"><span class=\"text-white\">You have not added a goal yet.</small></li>");
+          }
+          $("#my_goals_content").append("<button id=\"my_goals_add_goal\" class=\"btn btn-primary\"><i class=\"fas fa-arrow-circle-right\"></i> Add a new goal</button>");
+          });
+    });
+  }
+  $( document ).on( 'click', '#my_goals_add_goal', function () {
+    $(location).attr('href', '/add');
+  });
   $.get( "/logged", function( data ) {
     if ( data != "false" ) {
       $("#menuloginlink").hide();
