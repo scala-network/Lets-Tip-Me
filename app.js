@@ -288,7 +288,7 @@ app.post('/add', function(req, res) {
             res.send('Description too long');
           } else {
               const collection = db.collection('goals');
-              collection.insertOne({ title: title, description: description, balance: 0, unlimited: "false", categorie: "2", goal: goal, creation_date: ~~(+new Date / 1000), author: author, status: "open", author_id: author_id, wallet_index: "null", wallet_address: "null" }, function(err, result) {
+              collection.insertOne({ title: title, description: description, balance: 0, unlimited: "false", categorie: "2", goal: goal, creation_date: ~~(+new Date / 1000), author: author, status: "open", author_id: author_id, wallet_index: "null", wallet_address: "null", address_qrcode: "null" }, function(err, result) {
                 // assert.strictEqual(err, null);
                 var goalID = result["ops"][0]["_id"];
 
@@ -298,16 +298,18 @@ app.post('/add', function(req, res) {
                   var data = JSON.parse(data);
                     // Get the documents collection
                     const collection = db.collection('goals');
-                    // Update document where a is 2, set b equal to 1
-                    collection.updateMany({ _id : goalID }
-                      , { $set: { wallet_index : data.result.account_index, wallet_address: data.result.address } }, function(err, result) {
-                        // assert.strictEqual(err, null);
-                        res.send({ status: "success", goalID: goalID });
-                        //save wallet
-                        cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"store"}\' -H \'Content-Type: application/json\'',
-                        function(err, data, stderr){
-                          //wallet saved
-                        });
+                    //Generate address QRcode & update goal wallet infos
+                    QRCode.toDataURL(data.result.address, function (err, qrcode) {
+                        collection.updateMany({ _id : goalID }
+                          , { $set: { wallet_index : data.result.account_index, wallet_address: data.result.address, address_qrcode: qrcode } }, function(err, result) {
+                            // assert.strictEqual(err, null);
+                            res.send({ status: "success", goalID: goalID });
+                            //save wallet
+                            cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"store"}\' -H \'Content-Type: application/json\'',
+                            function(err, data, stderr){
+                              //wallet saved
+                            });
+                          });
                       });
                   }
                 );
@@ -475,7 +477,6 @@ app.get('/logged', function(req, res) {
 
 app.post('/login', function(req, res, next) {
   if(ValidateEmail(req.body.email)==true){
-
       if(req.body.login_2FA_code){
             if(Validate2FAcode(req.body.login_2FA_code)==true){
                  //check if 2FA is valid before login
