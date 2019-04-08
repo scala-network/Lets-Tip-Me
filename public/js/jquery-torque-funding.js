@@ -438,7 +438,8 @@ $( document ).ready(function() {
   //add goal
   $( document ).on( 'click', '#AddGoal', function () {
     $("#AddGoalError").hide();
-    if( $('#add_goal_title').val() && $('#add_goal_description').val() && $('#add_goal_amount_goal').val() && $('#add_goal_amount_goal').val()<21000000001 && ValidateAmount($('#add_goal_amount_goal').val())==true ) {
+    if( $('#add_goal_title').val() && $('#add_goal_description').val() && $('#add_goal_amount_goal').val() && $('#add_goal_amount_goal').val()<21000000001 && ValidateAmount($('#add_goal_amount_goal').val())==true && $('#add_goal_2FA_code').val()  ) {
+      $('#bad_2FA_error').hide();
       $('#AddGoal').hide();
       $( "#add_goal_title" ).prop( "disabled", true );
       $( "#add_goal_description" ).prop( "disabled", true );
@@ -448,7 +449,8 @@ $( document ).ready(function() {
       var title=$("#add_goal_title").val();
       var description=$("#add_goal_description").val();
       var goal=$("#add_goal_amount_goal").val();
-      $.post("/add",{title: title,description: description,goal: goal}, function(data){
+      var add_goal_2FA_code=$("#add_goal_2FA_code").val();
+      $.post("/add",{title: title,description: description,goal: goal, add_goal_2FA_code: add_goal_2FA_code}, function(data){
         if(data.status==="success"){
           $(location).attr('href', '/goal/'+data.goalID);
         }
@@ -460,6 +462,15 @@ $( document ).ready(function() {
         }
         else if(data.status==="Wallet offline")  {
           $(location).attr('href', '/error');
+        }
+        else if(data.status==="Bad 2FA")  {
+          $('#AddGoal').show();
+          $( "#add_goal_title" ).prop( "disabled", false );
+          $( "#add_goal_description" ).prop( "disabled", false );
+          $( "#add_goal_amount_goal" ).prop( "disabled", false );
+          $('#addgoal_loader').hide();
+          $('#addgoal_loader_text').hide();
+          $('#bad_2FA_error').show();
         }
       });
     }

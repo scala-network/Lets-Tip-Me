@@ -278,71 +278,88 @@ app.post('/add', function(req, res) {
     const collection = db.collection('users');
     collection.find(ObjectId(req.user)).toArray(function(err, data) {
     if(data[0].enabled_2FA==="true"){
- /// ok
-         //check if wallet online
-         cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_version"}\' -H \'Content-Type: application/json\'',
-         function(err, jsonData, stderr){
-           if(!err){
 
-             const title = escape(req.body.title);
-             const description = escape(req.body.description);
-             const unlimited = "false";
-             const goal = escape(req.body.goal);
-             const author = req.user;
+      const title = escape(req.body.title);
+      const description = escape(req.body.description);
+      const unlimited = "false";
+      const goal = escape(req.body.goal);
+      const author = req.user;
+        //veryfy 2FA code
+        const collection = db.collection('users');
+        collection.find(ObjectId(req.user)).toArray(function(err, data) {
+         var verified_2FA_code;
+         if(req.body.add_goal_2FA_code && Validate2FAcode(req.body.add_goal_2FA_code)==true){
+         verified_2FA_code = speakeasy.totp.verify({
+            secret: data[0].secret_2FA,
+            encoding: 'base32',
+            token: req.body.add_goal_2FA_code
+          });
+        } else {
+          verified_2FA_code=false;
+        }
+          if(verified_2FA_code===true){
+                //check if wallet online
+                cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_version"}\' -H \'Content-Type: application/json\'',
+                function(err, jsonData, stderr){
+                  if(!err){
 
-             if(req.isAuthenticated()) {
-               function addWithUsername(title,description,goal,author,author_id)
-               {
-                 if(ValidateAmount(goal)==false){
-                   res.send('Bad Amount');
-                 } else if(title.lenght>200){
-                   res.send('Title too long');
-                 } else if(description.lenght>12000){
-                   res.send('Description too long');
-                 } else {
-                     const collection = db.collection('goals');
-                     collection.insertOne({ title: title, description: description, balance: 0, unlimited: "false", categorie: "2", goal: goal, creation_date: ~~(+new Date / 1000), author: author, status: "open", author_id: author_id, wallet_index: "null", wallet_address: "null", address_qrcode: "null" }, function(err, result) {
-                       // assert.strictEqual(err, null);
-                       var goalID = result["ops"][0]["_id"];
+                    if(req.isAuthenticated()) {
+                      function addWithUsername(title,description,goal,author,author_id)
+                      {
+                        if(ValidateAmount(goal)==false){
+                          res.send('Bad Amount');
+                        } else if(title.lenght>200){
+                          res.send('Title too long');
+                        } else if(description.lenght>12000){
+                          res.send('Description too long');
+                        } else {
+                            const collection = db.collection('goals');
+                            collection.insertOne({ title: title, description: description, balance: 0, unlimited: "false", categorie: "2", goal: goal, creation_date: ~~(+new Date / 1000), author: author, status: "open", author_id: author_id, wallet_index: "null", wallet_address: "null", address_qrcode: "null" }, function(err, result) {
+                              // assert.strictEqual(err, null);
+                              var goalID = result["ops"][0]["_id"];
 
-                       //generate wallet address
-                       cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"create_account","params":{"label":"'+goalID+'"}}\' -H \'Content-Type: application/json\'',
-                       function(err, data, stderr){
-                         var data = JSON.parse(data);
-                           // Get the documents collection
-                           const collection = db.collection('goals');
-                           //Generate address QRcode & update goal wallet infos
-                           QRCode.toDataURL(data.result.address, function (err, qrcode) {
-                               collection.updateMany({ _id : goalID }
-                                 , { $set: { wallet_index : data.result.account_index, wallet_address: data.result.address, address_qrcode: qrcode } }, function(err, result) {
-                                   // assert.strictEqual(err, null);
-                                   res.send({ status: "success", goalID: goalID });
-                                   //save wallet
-                                   cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"store"}\' -H \'Content-Type: application/json\'',
-                                   function(err, data, stderr){
-                                     //wallet saved
-                                   });
-                                 });
-                             });
-                         }
-                       );
-                     });
-                 }
-               }
-                 const collection = db.collection('users');
-                 collection.find(ObjectId(req.user)).toArray(function(err, data) {
-                   // assert.strictEqual(err, null);
-                   addWithUsername(title,description,goal,data[0].username,req.user)
-                 });
-               } else {
-                 res.send({ status: "Not logged" });
-               }
-           } else {
-             res.send({ status: "Wallet offline" });
-           }
-         });
+                              //generate wallet address
+                              cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"create_account","params":{"label":"'+goalID+'"}}\' -H \'Content-Type: application/json\'',
+                              function(err, data, stderr){
+                                var data = JSON.parse(data);
+                                  // Get the documents collection
+                                  const collection = db.collection('goals');
+                                  //Generate address QRcode & update goal wallet infos
+                                  QRCode.toDataURL(data.result.address, function (err, qrcode) {
+                                      collection.updateMany({ _id : goalID }
+                                        , { $set: { wallet_index : data.result.account_index, wallet_address: data.result.address, address_qrcode: qrcode } }, function(err, result) {
+                                          // assert.strictEqual(err, null);
+                                          res.send({ status: "success", goalID: goalID });
+                                          //save wallet
+                                          cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"store"}\' -H \'Content-Type: application/json\'',
+                                          function(err, data, stderr){
+                                            //wallet saved
+                                          });
+                                        });
+                                    });
+                                }
+                              );
+                            });
+                        }
+                      }
+                        const collection = db.collection('users');
+                        collection.find(ObjectId(req.user)).toArray(function(err, data) {
+                          // assert.strictEqual(err, null);
+                          addWithUsername(title,description,goal,data[0].username,req.user)
+                        });
+                      } else {
+                        res.send({ status: "Not logged" });
+                      }
+                  } else {
+                    res.send({ status: "Wallet offline" });
+                  }
+                });
+
+            } else if(verified_2FA_code===false){
+              res.send({ status: "Bad 2FA" });
+            }
+        });
     } else if(data[0].enabled_2FA==="false"){
-    /// not ok
     res.send({ status: "2FA disabled" });
     }
     });
