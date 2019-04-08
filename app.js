@@ -42,114 +42,114 @@ const noreply = "no-reply@funding.torque.cash"
 
 //start mongodb connection
 MongoClient.connect(url,function(err, client) {
-    const db = client.db(dbName);
+  const db = client.db(dbName);
 
-//Inputs validators
-function ValidateEmail(inputText)
-{
-  var mailformat = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
-  if(inputText.match(mailformat))
+  //Inputs validators
+  function ValidateEmail(inputText)
   {
-    return true;
+    var mailformat = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+    if(inputText.match(mailformat))
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
   }
-  else
-  {
-    return false;
-  }
-}
 
-function ValidateUsername(inputText)
-{
-  var usernameformat = /^([a-zA-Z0-9_-]+)$/;
-  if(inputText.match(usernameformat))
+  function ValidateUsername(inputText)
   {
-    return true;
+    var usernameformat = /^([a-zA-Z0-9_-]+)$/;
+    if(inputText.match(usernameformat))
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
   }
-  else
-  {
-    return false;
-  }
-}
 
-function ValidateActivationCode(inputText)
-{
-  var activationcodeformat = /^([a-zA-Z0-9]+)$/;
-  if(inputText.match(activationcodeformat))
+  function ValidateActivationCode(inputText)
   {
-    return true;
+    var activationcodeformat = /^([a-zA-Z0-9]+)$/;
+    if(inputText.match(activationcodeformat))
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
   }
-  else
-  {
-    return false;
-  }
-}
 
-function ValidateID(inputText)
-{
-  var _idformat = /^([a-z0-9]+)$/;
-  if(inputText.match(_idformat)&&inputText.length<25)
+  function ValidateID(inputText)
   {
-    return true;
+    var _idformat = /^([a-z0-9]+)$/;
+    if(inputText.match(_idformat)&&inputText.length<25)
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
   }
-  else
-  {
-    return false;
-  }
-}
 
-function ValidateAmount(inputText)
-{
-  var amountformat = /^([0-9]+)$/;
-  if(inputText.match(amountformat)&&inputText.length<12)
+  function ValidateAmount(inputText)
   {
-    return true;
+    var amountformat = /^([0-9]+)$/;
+    if(inputText.match(amountformat)&&inputText.length<12)
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
   }
-  else
-  {
-    return false;
-  }
-}
 
-function ValidateWalletIndex(inputText)
-{
-  var amountformat = /^([0-9]+)$/;
-  if(inputText.match(amountformat))
+  function ValidateWalletIndex(inputText)
   {
-    return true;
+    var amountformat = /^([0-9]+)$/;
+    if(inputText.match(amountformat))
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
   }
-  else
-  {
-    return false;
-  }
-}
 
-function Validate2FAcode(inputText)
-{
-  var amountformat = /^([0-9]+)$/;
-  if(inputText.match(amountformat)&&inputText.length<7)
+  function Validate2FAcode(inputText)
   {
-    return true;
+    var amountformat = /^([0-9]+)$/;
+    if(inputText.match(amountformat)&&inputText.length<7)
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
   }
-  else
-  {
-    return false;
-  }
-}
 
-function shuffelActivationCode(code){
+  function shuffelActivationCode(code){
     var shuffledCode = '';
     code = code.split('');
     while (code.length > 0) {
       shuffledCode +=  code.splice(code.length * Math.random() << 0, 1);
     }
     return shuffledCode;
-}
+  }
 
-// Configure passport.js to use the local strategy
-passport.use(new LocalStrategy(
-  { usernameField: 'email' },
-  (email, password, done) => {
-    //Inside local strategy callback
+  // Configure passport.js to use the local strategy
+  passport.use(new LocalStrategy(
+    { usernameField: 'email' },
+    (email, password, done) => {
+      //Inside local strategy callback
       const collection = db.collection('users');
       collection.find({'email': email}).toArray(function(err, data) {
         // assert.strictEqual(err, null);
@@ -175,202 +175,202 @@ passport.use(new LocalStrategy(
             return done(null, false, "Email not found");
           }
         } else {
-        res.status(301).redirect("/error_db");
+          res.status(301).redirect("/error_db");
         }
       });
-  }
-));
+    }
+  ));
 
-// Tell passport how to serialize the user
-passport.serializeUser((user, done) => {
-  //Inside serializeUser callback. User id is save to the session file store here
-  done(null, user._id);
-});
+  // Tell passport how to serialize the user
+  passport.serializeUser((user, done) => {
+    //Inside serializeUser callback. User id is save to the session file store here
+    done(null, user._id);
+  });
 
-passport.deserializeUser((_id, done) => {
-  //Inside deserializeUser callback
-  //The user id passport saved in the session file store is: _id
-  done(null, _id);
-});
+  passport.deserializeUser((_id, done) => {
+    //Inside deserializeUser callback
+    //The user id passport saved in the session file store is: _id
+    done(null, _id);
+  });
 
 
-// Add & configure middleware
-app.use( bodyParser.json() );       // to support JSON-encoded bodies
-app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
-  extended: true
-}));
-app.use(session({
-  genid: (req) => {
-    //Inside session middleware genid function
-    //Request object sessionID from client: ${req.sessionID}
-    return uuid(); // Use UUIDs for session IDs
-  },
-  store: new FileStore(),
-  secret: 'a secret random string',
-  resave: false,
-  saveUninitialized: true
-}));
-app.use(passport.initialize());
-app.use(passport.session());
+  // Add & configure middleware
+  app.use( bodyParser.json() );       // to support JSON-encoded bodies
+  app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+    extended: true
+  }));
+  app.use(session({
+    genid: (req) => {
+      //Inside session middleware genid function
+      //Request object sessionID from client: ${req.sessionID}
+      return uuid(); // Use UUIDs for session IDs
+    },
+    store: new FileStore(),
+    secret: 'a secret random string',
+    resave: false,
+    saveUninitialized: true
+  }));
+  app.use(passport.initialize());
+  app.use(passport.session());
 
-app.get('/', function(req, res) {
-  res.sendFile(__dirname + '/index.html');
-});
-app.get('/login', function(req, res) {
-  if(req.isAuthenticated()) {
-    res.send('Logged');
-  } else {
+  app.get('/', function(req, res) {
     res.sendFile(__dirname + '/index.html');
-  }
-});
-app.get('/register', function(req, res) {
-  if(req.isAuthenticated()) {
-    res.send('Logged');
-  } else {
+  });
+  app.get('/login', function(req, res) {
+    if(req.isAuthenticated()) {
+      res.send('Logged');
+    } else {
+      res.sendFile(__dirname + '/index.html');
+    }
+  });
+  app.get('/register', function(req, res) {
+    if(req.isAuthenticated()) {
+      res.send('Logged');
+    } else {
+      res.sendFile(__dirname + '/index.html');
+    }
+  });
+  app.get('/activate', function(req, res) {
+    if(req.isAuthenticated()) {
+      res.send('Logged');
+    } else {
+      res.sendFile(__dirname + '/index.html');
+    }
+  });
+  app.get('/settings', function(req, res) {
+    if(req.isAuthenticated()) {
+      res.sendFile(__dirname + '/index.html');
+    } else {
+      res.status(301).redirect("/login");
+    }
+  });
+  app.get('/buy', function(req, res) {
     res.sendFile(__dirname + '/index.html');
-  }
-});
-app.get('/activate', function(req, res) {
-  if(req.isAuthenticated()) {
-    res.send('Logged');
-  } else {
+  });
+  app.get('/about', function(req, res) {
     res.sendFile(__dirname + '/index.html');
-  }
-});
-app.get('/settings', function(req, res) {
-  if(req.isAuthenticated()) {
+  });
+  app.get('/error', function(req, res) {
     res.sendFile(__dirname + '/index.html');
-  } else {
-    res.status(301).redirect("/login");
-  }
-});
-app.get('/buy', function(req, res) {
-  res.sendFile(__dirname + '/index.html');
-});
-app.get('/about', function(req, res) {
-  res.sendFile(__dirname + '/index.html');
-});
-app.get('/error', function(req, res) {
-  res.sendFile(__dirname + '/index.html');
-});
-app.get('/error_db', function(req, res) {
-  res.sendFile(__dirname + '/index.html');
-});
+  });
+  app.get('/error_db', function(req, res) {
+    res.sendFile(__dirname + '/index.html');
+  });
 
-app.get('/add', function(req, res) {
-  if(req.isAuthenticated()) {
-    cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_version"}\' -H \'Content-Type: application/json\'',
-    function(err, jsonData, stderr){
-      if(!err){
-        res.sendFile(__dirname + '/index.html');
-      } else {
-        res.status(301).redirect("/error");
-      }
-    });
-  } else {
-    res.status(301).redirect("/login");
-  }
-});
-
-app.post('/add', function(req, res) {
-  if(req.isAuthenticated()) {
-    //check if 2FA is enabled
-    const collection = db.collection('users');
-    collection.find(ObjectId(req.user)).toArray(function(err, data) {
-    if(data[0].enabled_2FA==="true"){
-
-      const title = escape(req.body.title);
-      const description = escape(req.body.description);
-      const unlimited = "false";
-      const goal = escape(req.body.goal);
-      const author = req.user;
-        //veryfy 2FA code
-        const collection = db.collection('users');
-        collection.find(ObjectId(req.user)).toArray(function(err, data) {
-         var verified_2FA_code;
-         if(req.body.add_goal_2FA_code && Validate2FAcode(req.body.add_goal_2FA_code)==true){
-         verified_2FA_code = speakeasy.totp.verify({
-            secret: data[0].secret_2FA,
-            encoding: 'base32',
-            token: req.body.add_goal_2FA_code
-          });
+  app.get('/add', function(req, res) {
+    if(req.isAuthenticated()) {
+      cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_version"}\' -H \'Content-Type: application/json\'',
+      function(err, jsonData, stderr){
+        if(!err){
+          res.sendFile(__dirname + '/index.html');
         } else {
-          verified_2FA_code=false;
+          res.status(301).redirect("/error");
         }
-          if(verified_2FA_code===true){
-                //check if wallet online
-                cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_version"}\' -H \'Content-Type: application/json\'',
-                function(err, jsonData, stderr){
-                  if(!err){
+      });
+    } else {
+      res.status(301).redirect("/login");
+    }
+  });
 
-                    if(req.isAuthenticated()) {
-                      function addWithUsername(title,description,goal,author,author_id)
-                      {
-                        if(ValidateAmount(goal)==false){
-                          res.send('Bad Amount');
-                        } else if(title.lenght>200){
-                          res.send('Title too long');
-                        } else if(description.lenght>12000){
-                          res.send('Description too long');
-                        } else {
-                            const collection = db.collection('goals');
-                            collection.insertOne({ title: title, description: description, balance: 0, unlimited: "false", categorie: "2", goal: goal, creation_date: ~~(+new Date / 1000), author: author, status: "open", author_id: author_id, wallet_index: "null", wallet_address: "null", address_qrcode: "null" }, function(err, result) {
-                              // assert.strictEqual(err, null);
-                              var goalID = result["ops"][0]["_id"];
+  app.post('/add', function(req, res) {
+    if(req.isAuthenticated()) {
+      //check if 2FA is enabled
+      const collection = db.collection('users');
+      collection.find(ObjectId(req.user)).toArray(function(err, data) {
+        if(data[0].enabled_2FA==="true"){
 
-                              //generate wallet address
-                              cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"create_account","params":{"label":"'+goalID+'"}}\' -H \'Content-Type: application/json\'',
-                              function(err, data, stderr){
-                                var data = JSON.parse(data);
-                                  // Get the documents collection
-                                  const collection = db.collection('goals');
-                                  //Generate address QRcode & update goal wallet infos
-                                  QRCode.toDataURL(data.result.address, function (err, qrcode) {
-                                      collection.updateMany({ _id : goalID }
-                                        , { $set: { wallet_index : data.result.account_index, wallet_address: data.result.address, address_qrcode: qrcode } }, function(err, result) {
-                                          // assert.strictEqual(err, null);
-                                          res.send({ status: "success", goalID: goalID });
-                                          //save wallet
-                                          cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"store"}\' -H \'Content-Type: application/json\'',
-                                          function(err, data, stderr){
-                                            //wallet saved
-                                          });
-                                        });
-                                    });
-                                }
-                              );
-                            });
-                        }
-                      }
-                        const collection = db.collection('users');
-                        collection.find(ObjectId(req.user)).toArray(function(err, data) {
-                          // assert.strictEqual(err, null);
-                          addWithUsername(title,description,goal,data[0].username,req.user)
-                        });
+          const title = escape(req.body.title);
+          const description = escape(req.body.description);
+          const unlimited = "false";
+          const goal = escape(req.body.goal);
+          const author = req.user;
+          //veryfy 2FA code
+          const collection = db.collection('users');
+          collection.find(ObjectId(req.user)).toArray(function(err, data) {
+            var verified_2FA_code;
+            if(req.body.add_goal_2FA_code && Validate2FAcode(req.body.add_goal_2FA_code)==true){
+              verified_2FA_code = speakeasy.totp.verify({
+                secret: data[0].secret_2FA,
+                encoding: 'base32',
+                token: req.body.add_goal_2FA_code
+              });
+            } else {
+              verified_2FA_code=false;
+            }
+            if(verified_2FA_code===true){
+              //check if wallet online
+              cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_version"}\' -H \'Content-Type: application/json\'',
+              function(err, jsonData, stderr){
+                if(!err){
+
+                  if(req.isAuthenticated()) {
+                    function addWithUsername(title,description,goal,author,author_id)
+                    {
+                      if(ValidateAmount(goal)==false){
+                        res.send('Bad Amount');
+                      } else if(title.lenght>200){
+                        res.send('Title too long');
+                      } else if(description.lenght>12000){
+                        res.send('Description too long');
                       } else {
-                        res.send({ status: "Not logged" });
+                        const collection = db.collection('goals');
+                        collection.insertOne({ title: title, description: description, balance: 0, unlimited: "false", categorie: "2", goal: goal, creation_date: ~~(+new Date / 1000), author: author, status: "open", author_id: author_id, wallet_index: "null", wallet_address: "null", address_qrcode: "null" }, function(err, result) {
+                          // assert.strictEqual(err, null);
+                          var goalID = result["ops"][0]["_id"];
+
+                          //generate wallet address
+                          cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"create_account","params":{"label":"'+goalID+'"}}\' -H \'Content-Type: application/json\'',
+                          function(err, data, stderr){
+                            var data = JSON.parse(data);
+                            // Get the documents collection
+                            const collection = db.collection('goals');
+                            //Generate address QRcode & update goal wallet infos
+                            QRCode.toDataURL(data.result.address, function (err, qrcode) {
+                              collection.updateMany({ _id : goalID }
+                                , { $set: { wallet_index : data.result.account_index, wallet_address: data.result.address, address_qrcode: qrcode } }, function(err, result) {
+                                  // assert.strictEqual(err, null);
+                                  res.send({ status: "success", goalID: goalID });
+                                  //save wallet
+                                  cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"store"}\' -H \'Content-Type: application/json\'',
+                                  function(err, data, stderr){
+                                    //wallet saved
+                                  });
+                                });
+                              });
+                            }
+                          );
+                        });
                       }
+                    }
+                    const collection = db.collection('users');
+                    collection.find(ObjectId(req.user)).toArray(function(err, data) {
+                      // assert.strictEqual(err, null);
+                      addWithUsername(title,description,goal,data[0].username,req.user)
+                    });
                   } else {
-                    res.send({ status: "Wallet offline" });
+                    res.send({ status: "Not logged" });
                   }
-                });
+                } else {
+                  res.send({ status: "Wallet offline" });
+                }
+              });
 
             } else if(verified_2FA_code===false){
               res.send({ status: "Bad 2FA" });
             }
-        });
-    } else if(data[0].enabled_2FA==="false"){
-    res.send({ status: "2FA disabled" });
+          });
+        } else if(data[0].enabled_2FA==="false"){
+          res.send({ status: "2FA disabled" });
+        }
+      });
+    } else {
+      res.send({ status: "Not logged" });
     }
-    });
-  } else {
-    res.send({ status: "Not logged" });
-  }
-});
+  });
 
-app.post('/check_username', function(req, res) {
-  var username = req.body.username;
-  if(ValidateUsername(username)==true){
+  app.post('/check_username', function(req, res) {
+    var username = req.body.username;
+    if(ValidateUsername(username)==true){
       const collection = db.collection('users');
       collection.find({'username': username}).toArray(function(err, data) {
         // assert.strictEqual(err, null);
@@ -380,14 +380,14 @@ app.post('/check_username', function(req, res) {
           res.send('Available');
         }
       });
-  } else {
-    res.send("Invalid username, allowed: a-z, A-Z, 0-9, underscore and dash");
-  }
-});
+    } else {
+      res.send("Invalid username, allowed: a-z, A-Z, 0-9, underscore and dash");
+    }
+  });
 
-app.post('/check_email', function(req, res) {
-  var email = req.body.email;
-  if(ValidateEmail(email)==true){
+  app.post('/check_email', function(req, res) {
+    var email = req.body.email;
+    if(ValidateEmail(email)==true){
       const collection = db.collection('users');
       collection.find({'email': email}).toArray(function(err, data) {
         // assert.strictEqual(err, null);
@@ -397,14 +397,14 @@ app.post('/check_email', function(req, res) {
           res.send('Available');
         }
       });
-  } else {
-    res.send("Invalid email address");
-  }
-});
+    } else {
+      res.send("Invalid email address");
+    }
+  });
 
-app.post('/activate', function(req, res) {
-  var activation_code = req.body.activation_code;
-  if(ValidateActivationCode(activation_code)==true){
+  app.post('/activate', function(req, res) {
+    var activation_code = req.body.activation_code;
+    if(ValidateActivationCode(activation_code)==true){
       const collection = db.collection('users');
       collection.find({'activation_code': activation_code}).toArray(function(err, data) {
         // assert.strictEqual(err, null);
@@ -415,351 +415,351 @@ app.post('/activate', function(req, res) {
               // assert.equal(1, result.result.n);
               res.send('Activated');
             });
-        } else {
-          res.send('Invalid code');
-        }
-      });
-  } else {
-  res.send("Invalid code format");
-  }
-});
+          } else {
+            res.send('Invalid code');
+          }
+        });
+      } else {
+        res.send("Invalid code format");
+      }
+    });
 
-function ActivationTimer() {
-  // Checking unactivated registered users
-    const collection = db.collection('users');
-    collection.find({'activated': "false"}).toArray(function(err, data) {
-      // assert.strictEqual(err, null);
-      if (data[0]){
-        data.forEach(function(unactivated_user) {
-          // activation limit = 1 Hour (3600 seconds)
-          if((~~(+new Date / 1000)-unactivated_user.creation_date) > 3600){
+    function ActivationTimer() {
+      // Checking unactivated registered users
+      const collection = db.collection('users');
+      collection.find({'activated': "false"}).toArray(function(err, data) {
+        // assert.strictEqual(err, null);
+        if (data[0]){
+          data.forEach(function(unactivated_user) {
+            // activation limit = 1 Hour (3600 seconds)
+            if((~~(+new Date / 1000)-unactivated_user.creation_date) > 3600){
               const collection = db.collection('users');
               collection.deleteOne({ username : unactivated_user.username }, function(err, result) {
                 // assert.strictEqual(err, null);
                 // assert.equal(1, result.result.n);
                 // removed user
               });
-          }
-        });
-      }
-    });
-}
-//Check unactivated registered users every 5 minutes
-setInterval(ActivationTimer,300000);
-
-app.post('/register', function (req, res) {
-  if(req.isAuthenticated()) {
-    res.send('Logged');
-  } else {
-    var username = req.body.username, email = req.body.email, password = req.body.password, passwordcheck = req.body.passwordcheck;
-    if(password!=passwordcheck){
-      res.send("Different passwords");
-    } else if(ValidateEmail(email)==false){
-      res.send("Invalid email address");
-    } else if(ValidateUsername(username)==false){
-      res.send("Invalid username, allowed: a-z, A-Z, 0-9, underscore and dash");
-    } else if(username.lenght>20){
-      res.send("Too long username");
-    } else if(email.lenght>320){
-      res.send("Too long email address");
-    } else if(password.lenght>256){
-      res.send("Too long password");
-    } else {
-        const collection = db.collection('users');
-        bcrypt.hash(password, saltRounds, function(err, hash) {
-          collection.find({'username': username}).toArray(function(err, data) {
-            // assert.strictEqual(err, null);
-            if(!data[0]){
-              collection.find({'email': email}).toArray(function(err, data) {
-                // assert.strictEqual(err, null);
-                if(!data[0]){
-                  // console.log(shuffelActivationCode(keygen.url(keygen.medium)+~~(+new Date / 1000)));
-                  const activation_code=shuffelActivationCode(keygen.url(keygen.medium)+~~(+new Date / 1000));
-                  const secret_2FA = speakeasy.generateSecret({length: 20});
-                  collection.insertOne({ username: username, email: email, password: hash, activated: "false", activation_code: activation_code, creation_date: ~~(+new Date / 1000), secret_2FA: secret_2FA.base32, enabled_2FA: "false" }, function(err, result) {
-                    // assert.strictEqual(err, null);
-                    res.send("Registered");
-                    sendmail({
-                      from: noreply,
-                      to: email,
-                      subject: 'Please confirm your email address - Torque Funding Platform',
-                      html: '<h2>Torque Funding Platform</h2><p>Please go to <a href="https://'+hostname+'/activate">https://'+hostname+'/activate</a>, and enter the following code:<br><p><strong>'+activation_code+'</strong></p></p><h6 style="font-weight:normal;">This code is only available for 1 hour, after that you will need to register again.</h6>',
-                    }, function(err, reply) {
-                      // console.log(err && err.stack);
-                      // console.dir(reply);
-                    });
-                  });
-                } else {
-                  res.send('Email already registered');
-                }
-              });
-            } else {
-              res.send('Username already exist');
             }
           });
-        });
-    }
-  }
-});
-
-app.get('/logged', function(req, res) {
-  if(req.isAuthenticated()) {
-      const collection = db.collection('users');
-      collection.find(ObjectId(req.user)).toArray(function(err, data) {
-        // assert.strictEqual(err, null);
-        res.send({ user_username: data[0].username });
+        }
       });
-  } else {
-    res.send('false')
-  }
-});
+    }
+    //Check unactivated registered users every 5 minutes
+    setInterval(ActivationTimer,300000);
 
-app.post('/login', function(req, res, next) {
-  if(ValidateEmail(req.body.email)==true){
-      if(req.body.login_2FA_code){
-            if(Validate2FAcode(req.body.login_2FA_code)==true){
-                 //check if 2FA is valid before login
-                 const collection = db.collection('users');
-                 collection.find({'email': req.body.email}).toArray(function(err, data) {
-                  var verified_2FA_code;
-                  if(data[0]){
-                  verified_2FA_code = speakeasy.totp.verify({
-                     secret: data[0].secret_2FA,
-                     encoding: 'base32',
-                     token: req.body.login_2FA_code
-                   });
+    app.post('/register', function (req, res) {
+      if(req.isAuthenticated()) {
+        res.send('Logged');
+      } else {
+        var username = req.body.username, email = req.body.email, password = req.body.password, passwordcheck = req.body.passwordcheck;
+        if(password!=passwordcheck){
+          res.send("Different passwords");
+        } else if(ValidateEmail(email)==false){
+          res.send("Invalid email address");
+        } else if(ValidateUsername(username)==false){
+          res.send("Invalid username, allowed: a-z, A-Z, 0-9, underscore and dash");
+        } else if(username.lenght>20){
+          res.send("Too long username");
+        } else if(email.lenght>320){
+          res.send("Too long email address");
+        } else if(password.lenght>256){
+          res.send("Too long password");
+        } else {
+          const collection = db.collection('users');
+          bcrypt.hash(password, saltRounds, function(err, hash) {
+            collection.find({'username': username}).toArray(function(err, data) {
+              // assert.strictEqual(err, null);
+              if(!data[0]){
+                collection.find({'email': email}).toArray(function(err, data) {
+                  // assert.strictEqual(err, null);
+                  if(!data[0]){
+                    // console.log(shuffelActivationCode(keygen.url(keygen.medium)+~~(+new Date / 1000)));
+                    const activation_code=shuffelActivationCode(keygen.url(keygen.medium)+~~(+new Date / 1000));
+                    const secret_2FA = speakeasy.generateSecret({length: 20});
+                    collection.insertOne({ username: username, email: email, password: hash, activated: "false", activation_code: activation_code, creation_date: ~~(+new Date / 1000), secret_2FA: secret_2FA.base32, enabled_2FA: "false" }, function(err, result) {
+                      // assert.strictEqual(err, null);
+                      res.send("Registered");
+                      sendmail({
+                        from: noreply,
+                        to: email,
+                        subject: 'Please confirm your email address - Torque Funding Platform',
+                        html: '<h2>Torque Funding Platform</h2><p>Please go to <a href="https://'+hostname+'/activate">https://'+hostname+'/activate</a>, and enter the following code:<br><p><strong>'+activation_code+'</strong></p></p><h6 style="font-weight:normal;">This code is only available for 1 hour, after that you will need to register again.</h6>',
+                      }, function(err, reply) {
+                        // console.log(err && err.stack);
+                        // console.dir(reply);
+                      });
+                    });
                   } else {
-                   res.send("Account not found");
+                    res.send('Email already registered');
                   }
-                   if(verified_2FA_code===true){
-                     passport.authenticate('local', function(err, user, info) {
-                       if (err) { return next(err); }
-                       if (!user) { return res.send(info); }
-                       req.logIn(user, function(err) {
-                         if (err) { return next(err); }
-                         return res.send('Logged');
-                       });
-                     })(req, res, next);
-                     } else if(verified_2FA_code===false){
-                       res.send("Invalid 2FA code");
-                     }
-                 });
-            } else {
+                });
+              } else {
+                res.send('Username already exist');
+              }
+            });
+          });
+        }
+      }
+    });
+
+    app.get('/logged', function(req, res) {
+      if(req.isAuthenticated()) {
+        const collection = db.collection('users');
+        collection.find(ObjectId(req.user)).toArray(function(err, data) {
+          // assert.strictEqual(err, null);
+          res.send({ user_username: data[0].username });
+        });
+      } else {
+        res.send('false')
+      }
+    });
+
+    app.post('/login', function(req, res, next) {
+      if(ValidateEmail(req.body.email)==true){
+        if(req.body.login_2FA_code){
+          if(Validate2FAcode(req.body.login_2FA_code)==true){
+            //check if 2FA is valid before login
+            const collection = db.collection('users');
+            collection.find({'email': req.body.email}).toArray(function(err, data) {
+              var verified_2FA_code;
+              if(data[0]){
+                verified_2FA_code = speakeasy.totp.verify({
+                  secret: data[0].secret_2FA,
+                  encoding: 'base32',
+                  token: req.body.login_2FA_code
+                });
+              } else {
+                res.send("Account not found");
+              }
+              if(verified_2FA_code===true){
+                passport.authenticate('local', function(err, user, info) {
+                  if (err) { return next(err); }
+                  if (!user) { return res.send(info); }
+                  req.logIn(user, function(err) {
+                    if (err) { return next(err); }
+                    return res.send('Logged');
+                  });
+                })(req, res, next);
+              } else if(verified_2FA_code===false){
+                res.send("Invalid 2FA code");
+              }
+            });
+          } else {
             res.send("Invalid 2FA code format");
-            }
+          }
         } else {
           ///check if 2FA is enabled
           const collection = db.collection('users');
           collection.find({'email': req.body.email}).toArray(function(err, data) {
-           if(data[0]){
-             if(data[0].enabled_2FA==="false"){
-             passport.authenticate('local', function(err, user, info) {
-               if (err) { return next(err); }
-               if (!user) { return res.send(info); }
-               req.logIn(user, function(err) {
-                 if (err) { return next(err); }
-                 return res.send('Logged');
-               });
-             })(req, res, next);
-             } else {
-              res.send("2FA is enabled on this account");
-             }
-           } else {
-            res.send("Account not found");
-           }
-         });
+            if(data[0]){
+              if(data[0].enabled_2FA==="false"){
+                passport.authenticate('local', function(err, user, info) {
+                  if (err) { return next(err); }
+                  if (!user) { return res.send(info); }
+                  req.logIn(user, function(err) {
+                    if (err) { return next(err); }
+                    return res.send('Logged');
+                  });
+                })(req, res, next);
+              } else {
+                res.send("2FA is enabled on this account");
+              }
+            } else {
+              res.send("Account not found");
+            }
+          });
         }
-  } else {
-    res.send("Invalid email address");
-  }
-});
-
-app.get('/logout', function (req, res){
-  req.session.destroy(function (err) {
-    res.status(301).redirect("/login");
-  });
-});
-
-
-///settings
-app.get('/user_settings', function(req, res) {
-  if(req.isAuthenticated()) {
-    const collection = db.collection('users');
-    collection.find(ObjectId(req.user)).toArray(function(err, data) {
-    res.send({enabled_2FA: data[0].enabled_2FA});
+      } else {
+        res.send("Invalid email address");
+      }
     });
-  } else {
-    res.send('Not Logged');
-  }
-});
 
-///2FA
-app.get('/2FA', function(req, res) {
-  if(req.isAuthenticated()) {
-      const collection = db.collection('users');
-      collection.find(ObjectId(req.user)).toArray(function(err, data) {
-        // assert.strictEqual(err, null);
-        QRCode.toDataURL('otpauth://totp/Torque%20Funding?secret='+data[0].secret_2FA, function(err, qrcode_2FA) {
-        res.send({ secret_2FA: data[0].secret_2FA, qrcode_2FA: qrcode_2FA });
-        });
+    app.get('/logout', function (req, res){
+      req.session.destroy(function (err) {
+        res.status(301).redirect("/login");
       });
-  } else {
-    res.status(301).redirect("/login");
-  }
-});
-app.post('/2FA', function(req, res) {
-  if(req.isAuthenticated()) {
-      const collection = db.collection('users');
-      collection.find(ObjectId(req.user)).toArray(function(err, data) {
-        var verified_2FA_code = speakeasy.totp.verify({
-          secret: data[0].secret_2FA,
-          encoding: 'base32',
-          token: req.body.code_2FA
+    });
+
+
+    ///settings
+    app.get('/user_settings', function(req, res) {
+      if(req.isAuthenticated()) {
+        const collection = db.collection('users');
+        collection.find(ObjectId(req.user)).toArray(function(err, data) {
+          res.send({enabled_2FA: data[0].enabled_2FA});
         });
-        if(verified_2FA_code===true){
-          const collection = db.collection('users');
-          collection.updateOne({ _id : ObjectId(req.user) }
+      } else {
+        res.send('Not Logged');
+      }
+    });
+
+    ///2FA
+    app.get('/2FA', function(req, res) {
+      if(req.isAuthenticated()) {
+        const collection = db.collection('users');
+        collection.find(ObjectId(req.user)).toArray(function(err, data) {
+          // assert.strictEqual(err, null);
+          QRCode.toDataURL('otpauth://totp/Torque%20Funding?secret='+data[0].secret_2FA, function(err, qrcode_2FA) {
+            res.send({ secret_2FA: data[0].secret_2FA, qrcode_2FA: qrcode_2FA });
+          });
+        });
+      } else {
+        res.status(301).redirect("/login");
+      }
+    });
+    app.post('/2FA', function(req, res) {
+      if(req.isAuthenticated()) {
+        const collection = db.collection('users');
+        collection.find(ObjectId(req.user)).toArray(function(err, data) {
+          var verified_2FA_code = speakeasy.totp.verify({
+            secret: data[0].secret_2FA,
+            encoding: 'base32',
+            token: req.body.code_2FA
+          });
+          if(verified_2FA_code===true){
+            const collection = db.collection('users');
+            collection.updateOne({ _id : ObjectId(req.user) }
             , { $set: { enabled_2FA : "true" } }, function(err, result) {
               res.send('true');
             });
-        } else if(verified_2FA_code===false){
-          res.send('false');
-        }
-      });
-  } else {
-    res.status(301).redirect("/login");
-  }
-});
-
-
-///// Funding Goals
-app.get('/categories', function(req, res) {
-    const collection = db.collection('categories');
-    collection.find({}).toArray(function(err, data) {
-      // assert.strictEqual(err, null);
-      if(err===null){
-      res.send(data);
+          } else if(verified_2FA_code===false){
+            res.send('false');
+          }
+        });
       } else {
-      res.status(301).redirect("/error_db");
+        res.status(301).redirect("/login");
       }
     });
-});
 
-app.post('/goals', function(req, res) {
-    const collection = db.collection('goals');
-    collection.find({'categorie': req.body.categorie_id}).toArray(function(err, data) {
-      // assert.strictEqual(err, null);
-      if(err===null){
-        res.send(data);
-      } else {
-        res.status(301).redirect("/error_db");
-      }
-    });
-});
 
-app.get('/goal/:id*', function(req, res, next) {
-  cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_version"}\' -H \'Content-Type: application/json\'',
-  function(err, jsonData, stderr){
-    if(!err){
-      res.sendFile(__dirname + '/index.html');
-    } else {
-      res.status(301).redirect("/error");
-    }
-  });
-});
-
-app.post('/goal/', function(req, res) {
-  if(ValidateID(req.body._id)){
-      const collection = db.collection('goals');
-      collection.find(ObjectId(req.body._id)).toArray(function(err, data) {
+    ///// Funding Goals
+    app.get('/categories', function(req, res) {
+      const collection = db.collection('categories');
+      collection.find({}).toArray(function(err, data) {
         // assert.strictEqual(err, null);
         if(err===null){
-          if(!data[0]){
-            res.send("Goal not found");
-          } else {
-            cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_balance","params":{"account_index":'+data[0].wallet_index+'}}\' -H \'Content-Type: application/json\'',
-            function(err, jsonData, stderr){
-              var jsonData=JSON.parse(jsonData);
-              data[0].balance = jsonData.result.balance/100;
-              if(data[0].status==="open"){
-                ///update goal balance
-                const collectiongoal = db.collection('goals');
-                collectiongoal.updateOne({ wallet_index : data[0].wallet_index }
-                  , { $set: { balance : data[0].balance } }, function(err, result) {
-                    // assert.strictEqual(err, null);
-                    // assert.equal(1, result.result.n);
-                  });
-                }
-                res.send(data);
-              }
-            );
-          }
+          res.send(data);
         } else {
-        res.status(301).redirect("/error_db");
+          res.status(301).redirect("/error_db");
         }
       });
-  } else {
-    res.send("Bad ID");
-  }
-});
+    });
 
-app.post('/goal_txs', function(req, res) {
+    app.post('/goals', function(req, res) {
+      const collection = db.collection('goals');
+      collection.find({'categorie': req.body.categorie_id}).toArray(function(err, data) {
+        // assert.strictEqual(err, null);
+        if(err===null){
+          res.send(data);
+        } else {
+          res.status(301).redirect("/error_db");
+        }
+      });
+    });
 
-  if(ValidateWalletIndex(req.body.wallet_index)){
+    app.get('/goal/:id*', function(req, res, next) {
+      cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_version"}\' -H \'Content-Type: application/json\'',
+      function(err, jsonData, stderr){
+        if(!err){
+          res.sendFile(__dirname + '/index.html');
+        } else {
+          res.status(301).redirect("/error");
+        }
+      });
+    });
 
-    var transactions = new Array();
+    app.post('/goal/', function(req, res) {
+      if(ValidateID(req.body._id)){
+        const collection = db.collection('goals');
+        collection.find(ObjectId(req.body._id)).toArray(function(err, data) {
+          // assert.strictEqual(err, null);
+          if(err===null){
+            if(!data[0]){
+              res.send("Goal not found");
+            } else {
+              cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_balance","params":{"account_index":'+data[0].wallet_index+'}}\' -H \'Content-Type: application/json\'',
+              function(err, jsonData, stderr){
+                var jsonData=JSON.parse(jsonData);
+                data[0].balance = jsonData.result.balance/100;
+                if(data[0].status==="open"){
+                  ///update goal balance
+                  const collectiongoal = db.collection('goals');
+                  collectiongoal.updateOne({ wallet_index : data[0].wallet_index }
+                    , { $set: { balance : data[0].balance } }, function(err, result) {
+                      // assert.strictEqual(err, null);
+                      // assert.equal(1, result.result.n);
+                    });
+                  }
+                  res.send(data);
+                }
+              );
+            }
+          } else {
+            res.status(301).redirect("/error_db");
+          }
+        });
+      } else {
+        res.send("Bad ID");
+      }
+    });
 
-    function sendTxsArray()
-    {
-      transactions.sort(sortBy('-timestamp'));
-      res.send(transactions);
-    }
+    app.post('/goal_txs', function(req, res) {
 
-    function addTxsToArray(txid, amount, timestamp, type)
-    {
-      transactions.push({txid: txid, amount: amount, timestamp: timestamp, type: type});
-    }
+      if(ValidateWalletIndex(req.body.wallet_index)){
 
-    function getOutTxs()
-    {
-      //get OUT transactions
-      cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_transfers","params":{"out":true,"account_index":'+req.body.wallet_index+'}}\' -H \'Content-Type: application/json\'',
+        var transactions = new Array();
+
+        function sendTxsArray()
+        {
+          transactions.sort(sortBy('-timestamp'));
+          res.send(transactions);
+        }
+
+        function addTxsToArray(txid, amount, timestamp, type)
+        {
+          transactions.push({txid: txid, amount: amount, timestamp: timestamp, type: type});
+        }
+
+        function getOutTxs()
+        {
+          //get OUT transactions
+          cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_transfers","params":{"out":true,"account_index":'+req.body.wallet_index+'}}\' -H \'Content-Type: application/json\'',
+          function(err, data, stderr){
+            var jsonData=JSON.parse(data);
+            if(jsonData.result.out){
+              jsonData.result.out.forEach(function(value, index, array) {
+                addTxsToArray(value.txid,value.amount,value.timestamp, 'out');
+                if(index === array.length - 1) {
+                  sendTxsArray();
+                }
+              });
+            } else {
+              sendTxsArray();
+            }
+          }
+        );
+      }
+
+      //get IN transactions
+      cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_transfers","params":{"in":true,"account_index":'+req.body.wallet_index+'}}\' -H \'Content-Type: application/json\'',
       function(err, data, stderr){
         var jsonData=JSON.parse(data);
-        if(jsonData.result.out){
-          jsonData.result.out.forEach(function(value, index, array) {
-            addTxsToArray(value.txid,value.amount,value.timestamp, 'out');
+        if(jsonData.result.in){
+          jsonData.result.in.forEach(function(value, index, array) {
+            addTxsToArray(value.txid,value.amount,value.timestamp, 'in');
             if(index === array.length - 1) {
-              sendTxsArray();
+              getOutTxs();
             }
           });
         } else {
-          sendTxsArray();
+          res.send("No TXs");
         }
       }
     );
-  }
 
-  //get IN transactions
-  cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_transfers","params":{"in":true,"account_index":'+req.body.wallet_index+'}}\' -H \'Content-Type: application/json\'',
-  function(err, data, stderr){
-    var jsonData=JSON.parse(data);
-    if(jsonData.result.in){
-      jsonData.result.in.forEach(function(value, index, array) {
-        addTxsToArray(value.txid,value.amount,value.timestamp, 'in');
-        if(index === array.length - 1) {
-          getOutTxs();
-        }
-      });
-    } else {
-      res.send("No TXs");
-    }
+  } else {
+    res.send("Bad Wallet Index");
   }
-);
-
-} else {
-  res.send("Bad Wallet Index");
-}
 });
 
 // My goals
@@ -780,9 +780,9 @@ app.get('/my_goals', function(req, res) {
 
 app.get('/my_goals_index', function(req, res) {
   if(req.isAuthenticated()) {
-      //check if 2FA is enabled
-      const collection = db.collection('users');
-      collection.find(ObjectId(req.user)).toArray(function(err, data) {
+    //check if 2FA is enabled
+    const collection = db.collection('users');
+    collection.find(ObjectId(req.user)).toArray(function(err, data) {
       if(data[0].enabled_2FA==="true"){
         const collection = db.collection('goals');
         collection.find({'author_id': req.user}).toArray(function(err, data) {
@@ -794,9 +794,9 @@ app.get('/my_goals_index', function(req, res) {
           }
         });
       } else if(data[0].enabled_2FA==="false"){
-      res.send("2FA disabled");
+        res.send("2FA disabled");
       }
-      });
+    });
   } else {
     res.status(301).redirect("/login");
   }

@@ -246,10 +246,10 @@ $( document ).ready(function() {
     $( "#body-load" ).load( "/settings.html", function() {
       $.get( "/user_settings", function( data ) {
         if(data.enabled_2FA==="true"){
-         $("#ul_2FA").append("<li class=\"list-group-item justify-content-between list-group-item-torque bg-success\"><span class=\"text-white\"><i class=\"fas fa-check\"></i> 2FA enabled</span></li>");
-       } else if(data.enabled_2FA==="false"){
-         $("#ul_2FA").append("<li class=\"list-group-item justify-content-between list-group-item-torque text-center settings_li\" id=\"settings_2FA\"><span class=\"torque-main-color-text\"><span class=\"text-white\"><p class=\"text-danger\"><b>You are strongly advised to enable two-factor authentication for your account security!</b></p><button id=\"Enable2FA\" class=\"btn btn-danger mb-2\"><i class=\"fas fa-exclamation-triangle\"></i> Enable 2FA</button></<span></span></li>");
-       }
+          $("#ul_2FA").append("<li class=\"list-group-item justify-content-between list-group-item-torque bg-success\"><span class=\"text-white\"><i class=\"fas fa-check\"></i> 2FA enabled</span></li>");
+        } else if(data.enabled_2FA==="false"){
+          $("#ul_2FA").append("<li class=\"list-group-item justify-content-between list-group-item-torque text-center settings_li\" id=\"settings_2FA\"><span class=\"torque-main-color-text\"><span class=\"text-white\"><p class=\"text-danger\"><b>You are strongly advised to enable two-factor authentication for your account security!</b></p><button id=\"Enable2FA\" class=\"btn btn-danger mb-2\"><i class=\"fas fa-exclamation-triangle\"></i> Enable 2FA</button></<span></span></li>");
+        }
       });
     });
   }
@@ -259,36 +259,36 @@ $( document ).ready(function() {
   else if ( $(location).attr('pathname') == "/my_goals" ) {
     $( "#body-load" ).load( "/my_goals.html", function() {
 
-          // Get goals on load
-          $.get("/my_goals_index", function(data){
-            if(data==="2FA disabled"){
-              $("#my_goals_content").append("<li class=\"list-group-item justify-content-between list-group-item-torque mb-4\"><span class=\"text-warning\"><b>You must enable two-factor authentication before you can add and manage goals.</b></small></li>");
-            } else if(data[0]){
-            $.each(data, function (i, value) {
-              if(value.unlimited=="true"){
-                $("#my_goals_content").append("<ul class=\"list-group mb-4\"><li class=\"list-group-item justify-content-between list-group-item-torque text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"torque-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / Unlimited</small></span><div class=\"progress\"><div class=\"progress-bar bg-success\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 100%\"></div></div></div></li><li class=\"list-group-item justify-content-between list-group-item-torque torque-lighter-background\"><span class=\"text-white\"> </li></ul>");
-              } else {
-                const percentage = Math.round((value.balance*100)/value.goal);
-                var progress_bar_bg_color;
-                if(percentage<30){
-                  progress_bar_bg_color="bg-danger";
-                } else if((percentage>30)&&(percentage<70)){
-                  progress_bar_bg_color="bg-warning";
-                } else if(percentage>70){
-                  progress_bar_bg_color="bg-success";
-                }
-                $("#my_goals_content").append("<ul class=\"list-group mb-4\"><li class=\"list-group-item justify-content-between list-group-item-torque text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"torque-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / "+value.goal+" XTC ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></div></li><li class=\"list-group-item justify-content-between list-group-item-torque torque-lighter-background\"><span class=\"text-white\"> </li></ul>");
+      // Get goals on load
+      $.get("/my_goals_index", function(data){
+        if(data==="2FA disabled"){
+          $("#my_goals_content").append("<li class=\"list-group-item justify-content-between list-group-item-torque mb-4\"><span class=\"text-warning\"><b>You must enable two-factor authentication before you can add and manage goals.</b></small></li>");
+        } else if(data[0]){
+          $.each(data, function (i, value) {
+            if(value.unlimited=="true"){
+              $("#my_goals_content").append("<ul class=\"list-group mb-4\"><li class=\"list-group-item justify-content-between list-group-item-torque text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"torque-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / Unlimited</small></span><div class=\"progress\"><div class=\"progress-bar bg-success\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 100%\"></div></div></div></li><li class=\"list-group-item justify-content-between list-group-item-torque torque-lighter-background\"><span class=\"text-white\"> </li></ul>");
+            } else {
+              const percentage = Math.round((value.balance*100)/value.goal);
+              var progress_bar_bg_color;
+              if(percentage<30){
+                progress_bar_bg_color="bg-danger";
+              } else if((percentage>30)&&(percentage<70)){
+                progress_bar_bg_color="bg-warning";
+              } else if(percentage>70){
+                progress_bar_bg_color="bg-success";
               }
-            });
-          } else {
-                $("#my_goals_content").append("<li class=\"list-group-item justify-content-between list-group-item-torque mb-4\"><span class=\"text-white\">You have not added a goal yet.</small></li>");
-          }
-            if(data!="2FA disabled"){
-            $("#my_goals_content").append("<button id=\"my_goals_add_goal\" class=\"btn btn-primary\"><i class=\"fas fa-plus\"></i> Add a new goal</button>");
-          } else {
-            $("#my_goals_content").append("<button id=\"my_goals_enable_2FA\" class=\"btn btn-warning\"><i class=\"fas fa-arrow-circle-right\"></i> Settings</button>");
-          }
+              $("#my_goals_content").append("<ul class=\"list-group mb-4\"><li class=\"list-group-item justify-content-between list-group-item-torque text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"torque-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / "+value.goal+" XTC ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></div></li><li class=\"list-group-item justify-content-between list-group-item-torque torque-lighter-background\"><span class=\"text-white\"> </li></ul>");
+            }
           });
+        } else {
+          $("#my_goals_content").append("<li class=\"list-group-item justify-content-between list-group-item-torque mb-4\"><span class=\"text-white\">You have not added a goal yet.</small></li>");
+        }
+        if(data!="2FA disabled"){
+          $("#my_goals_content").append("<button id=\"my_goals_add_goal\" class=\"btn btn-primary\"><i class=\"fas fa-plus\"></i> Add a new goal</button>");
+        } else {
+          $("#my_goals_content").append("<button id=\"my_goals_enable_2FA\" class=\"btn btn-warning\"><i class=\"fas fa-arrow-circle-right\"></i> Settings</button>");
+        }
+      });
     });
   }
   $( document ).on( 'click', '#my_goals_add_goal', function () {
@@ -410,16 +410,16 @@ $( document ).ready(function() {
   });
 
   $( document ).on( 'click', '#Verify2FA', function () {
-      $.post("/2FA",{code_2FA: $('#code_2FA').val()}, function(data){
-        if(data==="true"){
+    $.post("/2FA",{code_2FA: $('#code_2FA').val()}, function(data){
+      if(data==="true"){
         $('#li_2FA_QRcode').remove();
         $('#copy_2FA_key_li').remove();
         $('#li_2FA_verify').remove();
         $("#ul_2FA").append("<li class=\"list-group-item justify-content-between list-group-item-torque bg-success\"><span class=\"text-white\"><i class=\"fas fa-check\"></i> 2FA enabled</span></li>");
       } else if(data==="false"){
         $('#bad_2FA_error').show();
-        }
-      });
+      }
+    });
   });
 
   $( document ).on( 'click', '#Enable2FA', function () {
