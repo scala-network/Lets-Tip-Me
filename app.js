@@ -611,11 +611,15 @@ app.post('/2FA', function(req, res) {
   if(req.isAuthenticated()) {
       const collection = db.collection('users');
       collection.find(ObjectId(req.user)).toArray(function(err, data) {
+        if(req.body.code_2FA && Validate2FAcode(req.body.code_2FA)==true){
         var verified_2FA_code = speakeasy.totp.verify({
           secret: data[0].secret_2FA,
           encoding: 'base32',
           token: req.body.code_2FA
         });
+        } else {
+        verified_2FA_code=false;
+        }
         if(verified_2FA_code===true){
           const collection = db.collection('users');
           collection.updateOne({ _id : ObjectId(req.user) }
