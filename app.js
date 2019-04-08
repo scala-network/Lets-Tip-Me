@@ -273,70 +273,82 @@ app.get('/add', function(req, res) {
 });
 
 app.post('/add', function(req, res) {
+  if(req.isAuthenticated()) {
+    //check if 2FA is enabled
+    const collection = db.collection('users');
+    collection.find(ObjectId(req.user)).toArray(function(err, data) {
+    if(data[0].enabled_2FA==="true"){
+ /// ok
+         //check if wallet online
+         cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_version"}\' -H \'Content-Type: application/json\'',
+         function(err, jsonData, stderr){
+           if(!err){
 
-  //check if wallet online
-  cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_version"}\' -H \'Content-Type: application/json\'',
-  function(err, jsonData, stderr){
-    if(!err){
+             const title = escape(req.body.title);
+             const description = escape(req.body.description);
+             const unlimited = "false";
+             const goal = escape(req.body.goal);
+             const author = req.user;
 
-      const title = escape(req.body.title);
-      const description = escape(req.body.description);
-      const unlimited = "false";
-      const goal = escape(req.body.goal);
-      const author = req.user;
+             if(req.isAuthenticated()) {
+               function addWithUsername(title,description,goal,author,author_id)
+               {
+                 if(ValidateAmount(goal)==false){
+                   res.send('Bad Amount');
+                 } else if(title.lenght>200){
+                   res.send('Title too long');
+                 } else if(description.lenght>12000){
+                   res.send('Description too long');
+                 } else {
+                     const collection = db.collection('goals');
+                     collection.insertOne({ title: title, description: description, balance: 0, unlimited: "false", categorie: "2", goal: goal, creation_date: ~~(+new Date / 1000), author: author, status: "open", author_id: author_id, wallet_index: "null", wallet_address: "null", address_qrcode: "null" }, function(err, result) {
+                       // assert.strictEqual(err, null);
+                       var goalID = result["ops"][0]["_id"];
 
-      if(req.isAuthenticated()) {
-
-        function addWithUsername(title,description,goal,author,author_id)
-        {
-          if(ValidateAmount(goal)==false){
-            res.send('Bad Amount');
-          } else if(title.lenght>200){
-            res.send('Title too long');
-          } else if(description.lenght>12000){
-            res.send('Description too long');
-          } else {
-              const collection = db.collection('goals');
-              collection.insertOne({ title: title, description: description, balance: 0, unlimited: "false", categorie: "2", goal: goal, creation_date: ~~(+new Date / 1000), author: author, status: "open", author_id: author_id, wallet_index: "null", wallet_address: "null", address_qrcode: "null" }, function(err, result) {
-                // assert.strictEqual(err, null);
-                var goalID = result["ops"][0]["_id"];
-
-                //generate wallet address
-                cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"create_account","params":{"label":"'+goalID+'"}}\' -H \'Content-Type: application/json\'',
-                function(err, data, stderr){
-                  var data = JSON.parse(data);
-                    // Get the documents collection
-                    const collection = db.collection('goals');
-                    //Generate address QRcode & update goal wallet infos
-                    QRCode.toDataURL(data.result.address, function (err, qrcode) {
-                        collection.updateMany({ _id : goalID }
-                          , { $set: { wallet_index : data.result.account_index, wallet_address: data.result.address, address_qrcode: qrcode } }, function(err, result) {
-                            // assert.strictEqual(err, null);
-                            res.send({ status: "success", goalID: goalID });
-                            //save wallet
-                            cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"store"}\' -H \'Content-Type: application/json\'',
-                            function(err, data, stderr){
-                              //wallet saved
-                            });
-                          });
-                      });
-                  }
-                );
-              });
-          }
-        }
-          const collection = db.collection('users');
-          collection.find(ObjectId(req.user)).toArray(function(err, data) {
-            // assert.strictEqual(err, null);
-            addWithUsername(title,description,goal,data[0].username,req.user)
-          });
-      } else {
-        res.status(301).redirect("/login");
-      }
-    } else {
-      res.status(301).redirect("/error");
+                       //generate wallet address
+                       cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"create_account","params":{"label":"'+goalID+'"}}\' -H \'Content-Type: application/json\'',
+                       function(err, data, stderr){
+                         var data = JSON.parse(data);
+                           // Get the documents collection
+                           const collection = db.collection('goals');
+                           //Generate address QRcode & update goal wallet infos
+                           QRCode.toDataURL(data.result.address, function (err, qrcode) {
+                               collection.updateMany({ _id : goalID }
+                                 , { $set: { wallet_index : data.result.account_index, wallet_address: data.result.address, address_qrcode: qrcode } }, function(err, result) {
+                                   // assert.strictEqual(err, null);
+                                   res.send({ status: "success", goalID: goalID });
+                                   //save wallet
+                                   cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"store"}\' -H \'Content-Type: application/json\'',
+                                   function(err, data, stderr){
+                                     //wallet saved
+                                   });
+                                 });
+                             });
+                         }
+                       );
+                     });
+                 }
+               }
+                 const collection = db.collection('users');
+                 collection.find(ObjectId(req.user)).toArray(function(err, data) {
+                   // assert.strictEqual(err, null);
+                   addWithUsername(title,description,goal,data[0].username,req.user)
+                 });
+               } else {
+                 res.send({ status: "Not logged" });
+               }
+           } else {
+             res.send({ status: "Wallet offline" });
+           }
+         });
+    } else if(data[0].enabled_2FA==="false"){
+    /// not ok
+    res.send({ status: "2FA disabled" });
     }
-  });
+    });
+  } else {
+    res.send({ status: "Not logged" });
+  }
 });
 
 app.post('/check_username', function(req, res) {
@@ -749,17 +761,25 @@ app.get('/my_goals', function(req, res) {
   }
 });
 
-app.get('/my_goals_user', function(req, res) {
+app.get('/my_goals_index', function(req, res) {
   if(req.isAuthenticated()) {
-    const collection = db.collection('goals');
-    collection.find({'author_id': req.user}).toArray(function(err, data) {
-      // assert.strictEqual(err, null);
-      if(err===null){
-        res.send(data);
-      } else {
-        res.status(301).redirect("/error_db");
+      //check if 2FA is enabled
+      const collection = db.collection('users');
+      collection.find(ObjectId(req.user)).toArray(function(err, data) {
+      if(data[0].enabled_2FA==="true"){
+        const collection = db.collection('goals');
+        collection.find({'author_id': req.user}).toArray(function(err, data) {
+          // assert.strictEqual(err, null);
+          if(err===null){
+            res.send(data);
+          } else {
+            res.status(301).redirect("/error_db");
+          }
+        });
+      } else if(data[0].enabled_2FA==="false"){
+      res.send("2FA disabled");
       }
-    });
+      });
   } else {
     res.status(301).redirect("/login");
   }

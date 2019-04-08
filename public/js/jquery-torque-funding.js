@@ -260,8 +260,10 @@ $( document ).ready(function() {
     $( "#body-load" ).load( "/my_goals.html", function() {
 
           // Get goals on load
-          $.get("/my_goals_user", function(data){
-            if(data[0]){
+          $.get("/my_goals_index", function(data){
+            if(data==="2FA disabled"){
+              $("#my_goals_content").append("<li class=\"list-group-item justify-content-between list-group-item-torque mb-4\"><span class=\"text-warning\"><b>You must enable two-factor authentication before you can add and manage goals.</b></small></li>");
+            } else if(data[0]){
             $.each(data, function (i, value) {
               if(value.unlimited=="true"){
                 $("#my_goals_content").append("<ul class=\"list-group mb-4\"><li class=\"list-group-item justify-content-between list-group-item-torque text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"torque-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / Unlimited</small></span><div class=\"progress\"><div class=\"progress-bar bg-success\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 100%\"></div></div></div></li><li class=\"list-group-item justify-content-between list-group-item-torque torque-lighter-background\"><span class=\"text-white\"> </li></ul>");
@@ -281,12 +283,19 @@ $( document ).ready(function() {
           } else {
                 $("#my_goals_content").append("<li class=\"list-group-item justify-content-between list-group-item-torque mb-4\"><span class=\"text-white\">You have not added a goal yet.</small></li>");
           }
-          $("#my_goals_content").append("<button id=\"my_goals_add_goal\" class=\"btn btn-primary\"><i class=\"fas fa-plus\"></i> Add a new goal</button>");
+            if(data!="2FA disabled"){
+            $("#my_goals_content").append("<button id=\"my_goals_add_goal\" class=\"btn btn-primary\"><i class=\"fas fa-plus\"></i> Add a new goal</button>");
+          } else {
+            $("#my_goals_content").append("<button id=\"my_goals_enable_2FA\" class=\"btn btn-warning\"><i class=\"fas fa-arrow-circle-right\"></i> Settings</button>");
+          }
           });
     });
   }
   $( document ).on( 'click', '#my_goals_add_goal', function () {
     $(location).attr('href', '/add');
+  });
+  $( document ).on( 'click', '#my_goals_enable_2FA', function () {
+    $(location).attr('href', '/settings');
   });
   $.get( "/logged", function( data ) {
     if ( data != "false" ) {
@@ -443,9 +452,14 @@ $( document ).ready(function() {
         if(data.status==="success"){
           $(location).attr('href', '/goal/'+data.goalID);
         }
-        else if(data === "Wallet Offline")  {
-          alert("Wallet is offline, please try again later...");
-          $(location).attr('href', '/add');
+        else if(data.status==="2FA disabled")  {
+          $(location).attr('href', '/my_goals');
+        }
+        else if(data.status==="Not logged")  {
+          $(location).attr('href', '/login');
+        }
+        else if(data.status==="Wallet offline")  {
+          $(location).attr('href', '/error');
         }
       });
     }
