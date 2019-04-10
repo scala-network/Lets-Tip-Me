@@ -102,3 +102,10 @@ hr{
 .width100{
   width:100%;
 }
+.truncate {
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color:#ffffff;
+}

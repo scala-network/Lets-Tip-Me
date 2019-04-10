@@ -86,8 +86,8 @@ function ValidateActivationCode(inputText)
 
 function ValidateAddressRedirect(inputText)
 {
-  var activationcodeformat = /^([a-zA-Z0-9]+)$/;
-  if(inputText.match(activationcodeformat))
+  var addressformat = /^([a-zA-Z0-9]+)$/;
+  if(inputText.match(addressformat))
   {
     return true;
   }
@@ -353,17 +353,16 @@ app.post('/add', function(req, res) {
                   const collection = db.collection('users');
                   collection.find(ObjectId(req.user)).toArray(function(err, data) {
                     // assert.strictEqual(err, null);
-                    if(ValidateAddressRedirect(redirect_address)==false){
+                    console.log(typeof(redirect_address))
+                    if(ValidateAddressRedirect(escape(redirect_address))==false){
                       res.send({ status: "Bad redirect address" });
-                    } else if(redirect_address.lenght>109){
-                      res.send({ status: "Bad redirect address" });
-                    } else if(redirect_address.lenght<95){
+                    } else if(String(redirect_address).length>109 || String(redirect_address).length<95){
                       res.send({ status: "Bad redirect address" });
                     } else if(ValidateAmount(goal)==false){
                       res.send('Bad Amount');
-                    } else if(title.lenght>200){
+                    } else if(title.length>200){
                       res.send('Title too long');
-                    } else if(description.lenght>12000){
+                    } else if(description.length>12000){
                       res.send('Description too long');
                     } else {
                       if(unlimited==="false"){
@@ -485,11 +484,11 @@ app.post('/register', function (req, res) {
       res.send("Invalid email address");
     } else if(ValidateUsername(username)==false){
       res.send("Invalid username, allowed: a-z, A-Z, 0-9, underscore and dash");
-    } else if(username.lenght>20){
+    } else if(username.length>20){
       res.send("Too long username");
-    } else if(email.lenght>320){
+    } else if(email.length>320){
       res.send("Too long email address");
-    } else if(password.lenght>256){
+    } else if(password.length>256){
       res.send("Too long password");
     } else {
         const collection = db.collection('users');

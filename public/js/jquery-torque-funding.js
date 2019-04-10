@@ -266,7 +266,7 @@ $( document ).ready(function() {
         } else if(data[0]){
           $.each(data, function (i, value) {
             if(value.unlimited=="true"){
-              $("#my_goals_content").append("<ul class=\"list-group mb-4\"><li class=\"list-group-item justify-content-between list-group-item-torque text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"torque-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / Unlimited</small></span><div class=\"progress\"><div class=\"progress-bar bg-success\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 100%\"></div></div></div></li><li class=\"list-group-item justify-content-between list-group-item-torque torque-lighter-background\"><span class=\"text-white\"> </li></ul>");
+              $("#my_goals_content").append("<ul class=\"list-group mb-4\"><li class=\"list-group-item justify-content-between list-group-item-torque text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"torque-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / Unlimited</small></span><div class=\"progress\"><div class=\"progress-bar bg-success\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 100%\"></div></div></div></li><li style=\"padding:2px;padding-left:5px;padding-right:5px;\"class=\"list-group-item justify-content-between list-group-item-torque bg-success truncate\"><span class=\"text-white\"><small><i class=\"fas fa-directions\"></i> "+value.redirect_address+"</small></li></ul>");
             } else {
               const percentage = Math.round((value.balance*100)/value.goal);
               var progress_bar_bg_color;
@@ -277,7 +277,7 @@ $( document ).ready(function() {
               } else if(percentage>70){
                 progress_bar_bg_color="bg-success";
               }
-              $("#my_goals_content").append("<ul class=\"list-group mb-4\"><li class=\"list-group-item justify-content-between list-group-item-torque text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"torque-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / "+value.goal+" XTC ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></div></li><li class=\"list-group-item justify-content-between list-group-item-torque torque-lighter-background\"><span class=\"text-white\"> </li></ul>");
+              $("#my_goals_content").append("<ul class=\"list-group mb-4\"><li class=\"list-group-item justify-content-between list-group-item-torque text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"torque-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / "+value.goal+" XTC ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></div></li></ul>");
             }
           });
         } else {
