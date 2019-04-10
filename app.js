@@ -357,6 +357,8 @@ app.post('/add', function(req, res) {
                       res.send({ status: "Bad redirect address" });
                     } else if(redirect_address.lenght>109){
                       res.send({ status: "Bad redirect address" });
+                    } else if(redirect_address.lenght<95){
+                      res.send({ status: "Bad redirect address" });
                     } else if(ValidateAmount(goal)==false){
                       res.send('Bad Amount');
                     } else if(title.lenght>200){
