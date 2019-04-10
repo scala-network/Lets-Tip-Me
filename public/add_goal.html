@@ -1,4 +1,4 @@
-<h4 class="page-title"><i class="fas fa-tasks"></i> My Goals</h4><hr class="mb-4">
+<h4 class="page-title"><i class="fas fa-plus"></i> Add a new goal</h4><hr class="mb-4">
 <div id="AddGoalError" class="text-danger set-alerts starthidden"></div>
 <form role="form" action="#" onsubmit="return false;">
     <div class="form-group">
@@ -12,15 +12,28 @@
       <option value="1">Torque</option>
       <option value="2">Community</option>
     </select> -->
-    <div class="form-group">
-      <label for="add_goal_amount_goal">How much XTC do you need for that goal ?</label>
-  <input type="number" id="add_goal_amount_goal" class="form-control set-inputs-login-width" step="1" min="1" max="21000000000" value="1">
-</div>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="add_goal_limited" id="add_goal_limited" checked>
+      <label class="form-check-label" for="add_goal_limited">Limited</label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="add_goal_unlimited" id="add_goal_unlimited">
+      <label class="form-check-label" for="add_goal_unlimited">Unlimited</label>
+    </div>
+    <div class="form-group" id="add_goal_limited_amount_needed">
+      <label for="add_goal_amount_goal">How much XTC do you need for that goal?</label>
+      <input type="number" id="add_goal_amount_goal" class="form-control set-inputs-login-width" step="1" min="1" max="21000000000" value="1">
+    </div>
+    <div class="form-group starthidden" id="add_goal_unlimited_address_redirect_needed">
+      <label for="add_goal_unlimited_address_redirect">To which XTC address to redirect donations?</label>
+      <br><label class="starthidden text-danger" for="add_goal_unlimited_address_redirect" id="bad_address_redirect_error"><b><i class="fas fa-exclamation-triangle"></i> Bad XTC address</b></label>
+      <input type="text" class="form-control" id="add_goal_unlimited_address_redirect" name="add_goal_unlimited_address_redirect" placeholder="XTC address" maxlength="109">
+    </div>
 <!-- <div class="form-group">
   <input class="form-check-input" type="checkbox" id="add_goal_amount_unlimited">
   <label for="add_goal_amount_unlimited">Unlimited amount</label>
 </div> -->
-<div style="text-align:center;"><span class="text-warning">For security reasons you will not be able to edit or delete this goal.</span><br><span class="text-danger"><b>Please make sure that all the information above is correct!</b></span></div>
+<div style="text-align:center;"><span class="text-warning">For security reasons you will not (yet) be able to edit or delete this goal.</span><br><span class="text-danger"><b>Please make sure that all the information above is correct!</b></span></div>
 <div class="form-group"><br>
   <label class="starthidden text-danger" for="add_goal_amount_goal" id="bad_2FA_error"><b><i class="fas fa-exclamation-triangle"></i> Bad 2FA code</b></label>
   <input type="text" class="form-control set-input-2FA-code-width" id="add_goal_2FA_code" name="add_goal_2FA_code" autocomplete="off" placeholder="2FA code" maxlength="6">

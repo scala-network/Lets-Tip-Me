@@ -440,17 +440,31 @@ $( document ).ready(function() {
     $("#AddGoalError").hide();
     if( $('#add_goal_title').val() && $('#add_goal_description').val() && $('#add_goal_amount_goal').val() && $('#add_goal_amount_goal').val()<21000000001 && ValidateAmount($('#add_goal_amount_goal').val())==true && $('#add_goal_2FA_code').val()  ) {
       $('#bad_2FA_error').hide();
+      $('#bad_address_redirect_error').hide();
       $('#AddGoal').hide();
       $( "#add_goal_title" ).prop( "disabled", true );
       $( "#add_goal_description" ).prop( "disabled", true );
+      $( "#add_goal_limited" ).prop( "disabled", true );
+      $( "#add_goal_unlimited" ).prop( "disabled", true );
       $( "#add_goal_amount_goal" ).prop( "disabled", true );
+      $( "#add_goal_unlimited_address_redirect" ).prop( "disabled", true );
+      $( "#add_goal_2FA_code" ).prop( "disabled", true );
       $('#addgoal_loader').show();
       $('#addgoal_loader_text').show();
       var title=$("#add_goal_title").val();
       var description=$("#add_goal_description").val();
       var goal=$("#add_goal_amount_goal").val();
+      var redirect_address=$("#add_goal_unlimited_address_redirect").val();
       var add_goal_2FA_code=$("#add_goal_2FA_code").val();
-      $.post("/add",{title: title,description: description,goal: goal, add_goal_2FA_code: add_goal_2FA_code}, function(data){
+      var unlimited;
+      if($( "#add_goal_limited" ).prop('checked')===true){
+        unlimited="false";
+        redirect_address="none";
+      } else if($( "#add_goal_unlimited" ).prop('checked')===true) {
+        unlimited="true";
+        goal=1;
+      }
+      $.post("/add",{title: title,description: description,goal: goal,redirect_address: redirect_address,unlimited: unlimited, add_goal_2FA_code: add_goal_2FA_code}, function(data){
         if(data.status==="success"){
           $(location).attr('href', '/goal/'+data.goalID);
         }
@@ -467,12 +481,44 @@ $( document ).ready(function() {
           $('#AddGoal').show();
           $( "#add_goal_title" ).prop( "disabled", false );
           $( "#add_goal_description" ).prop( "disabled", false );
+          $( "#add_goal_limited" ).prop( "disabled", false );
+          $( "#add_goal_unlimited" ).prop( "disabled", false );
           $( "#add_goal_amount_goal" ).prop( "disabled", false );
+          $( "#add_goal_unlimited_address_redirect" ).prop( "disabled", false );
+          $( "#add_goal_2FA_code" ).prop( "disabled", false );
           $('#addgoal_loader').hide();
           $('#addgoal_loader_text').hide();
           $('#bad_2FA_error').show();
         }
+        else if(data.status==="Bad redirect address")  {
+          $('#AddGoal').show();
+          $( "#add_goal_title" ).prop( "disabled", false );
+          $( "#add_goal_description" ).prop( "disabled", false );
+          $( "#add_goal_limited" ).prop( "disabled", false );
+          $( "#add_goal_unlimited" ).prop( "disabled", false );
+          $( "#add_goal_amount_goal" ).prop( "disabled", false );
+          $( "#add_goal_unlimited_address_redirect" ).prop( "disabled", false );
+          $( "#add_goal_2FA_code" ).prop( "disabled", false );
+          $('#addgoal_loader').hide();
+          $('#addgoal_loader_text').hide();
+          $('#bad_address_redirect_error').show();
+        }
       });
+    }
+  });
+
+  $( document ).on( 'change', '#add_goal_limited', function () {
+    if(this.checked) {
+      $('#add_goal_unlimited').prop('checked', false);
+      $('#add_goal_limited_amount_needed').show();
+      $('#add_goal_unlimited_address_redirect_needed').hide();
+    }
+  });
+  $( document ).on( 'change', '#add_goal_unlimited', function () {
+    if(this.checked) {
+      $('#add_goal_limited').prop('checked', false);
+      $('#add_goal_limited_amount_needed').hide();
+      $('#add_goal_unlimited_address_redirect_needed').show();
     }
   });
 

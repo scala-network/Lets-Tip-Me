@@ -84,6 +84,19 @@ function ValidateActivationCode(inputText)
   }
 }
 
+function ValidateAddressRedirect(inputText)
+{
+  var activationcodeformat = /^([a-zA-Z0-9]+)$/;
+  if(inputText.match(activationcodeformat))
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
 function ValidateID(inputText)
 {
   var _idformat = /^([a-z0-9]+)$/;
@@ -281,8 +294,9 @@ app.post('/add', function(req, res) {
 
         const title = escape(req.body.title);
         const description = escape(req.body.description);
-        const unlimited = "false";
+        const unlimited = req.body.unlimited;
         const goal = escape(req.body.goal);
+        var redirect_address = escape(req.body.redirect_address);
         const author = req.user;
         //veryfy 2FA code
         const collection = db.collection('users');
@@ -304,17 +318,11 @@ app.post('/add', function(req, res) {
               if(!err){
 
                 if(req.isAuthenticated()) {
-                  function addWithUsername(title,description,goal,author,author_id)
+                  function addWithUsername(title,description,goal,redirect_address,author,author_id)
                   {
-                    if(ValidateAmount(goal)==false){
-                      res.send('Bad Amount');
-                    } else if(title.lenght>200){
-                      res.send('Title too long');
-                    } else if(description.lenght>12000){
-                      res.send('Description too long');
-                    } else {
+                    if((title) && (description) && (unlimited) && (goal) && (redirect_address) && (author) && (author_id) && (unlimited === "true" || unlimited === "false")){
                       const collection = db.collection('goals');
-                      collection.insertOne({ title: title, description: description, balance: 0, unlimited: "false", categorie: "2", goal: goal, creation_date: ~~(+new Date / 1000), author: author, status: "open", author_id: author_id, wallet_index: "null", wallet_address: "null", address_qrcode: "null" }, function(err, result) {
+                      collection.insertOne({ title: title, description: description, balance: 0, unlimited: unlimited, categorie: "2", goal: goal, redirect_address: redirect_address, creation_date: ~~(+new Date / 1000), author: author, status: "open", author_id: author_id, wallet_index: "null", wallet_address: "null", address_qrcode: "null" }, function(err, result) {
                         // assert.strictEqual(err, null);
                         var goalID = result["ops"][0]["_id"];
 
@@ -345,7 +353,24 @@ app.post('/add', function(req, res) {
                   const collection = db.collection('users');
                   collection.find(ObjectId(req.user)).toArray(function(err, data) {
                     // assert.strictEqual(err, null);
-                    addWithUsername(title,description,goal,data[0].username,req.user)
+                    if(ValidateAddressRedirect(redirect_address)==false){
+                      res.send({ status: "Bad redirect address" });
+                    } else if(redirect_address.lenght>109){
+                      res.send({ status: "Bad redirect address" });
+                    } else if(ValidateAmount(goal)==false){
+                      res.send('Bad Amount');
+                    } else if(title.lenght>200){
+                      res.send('Title too long');
+                    } else if(description.lenght>12000){
+                      res.send('Description too long');
+                    } else {
+                      if(unlimited==="false"){
+                        redirect_address="none";
+                      }
+                      if((title) && (description) && (unlimited) && (goal) && (redirect_address) && (unlimited === "true" || unlimited === "false")){
+                      addWithUsername(title,description,goal,redirect_address,data[0].username,req.user)
+                      }
+                    }
                   });
                 } else {
                   res.send({ status: "Not logged" });
