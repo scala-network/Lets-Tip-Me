@@ -854,7 +854,7 @@ function Unlimited_Goals_Relay() {
   });
 
 }
-//Check and relay unlimited goals every 8 minutes
+//Check and relay unlimited goals every 5 minutes
 setInterval(Unlimited_Goals_Relay,300000);
 
 
@@ -870,6 +870,12 @@ app.listen(3000);
 //   key: fs.readFileSync('/etc/letsencrypt/live/funding.torque.cash/privkey.pem'),
 //   cert: fs.readFileSync('/etc/letsencrypt/live/funding.torque.cash/fullchain.pem')
 // }, app).listen(3443);
+
+// var http = require('http');
+// http.createServer(function (req, res) {
+//     res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
+//     res.end();
+// }).listen(3000);
 
 //end mongodb connection
 });

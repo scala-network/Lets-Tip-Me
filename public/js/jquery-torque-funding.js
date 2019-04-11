@@ -225,7 +225,7 @@ $( document ).ready(function() {
           $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-torque goal_donate_copy\" style=\"word-wrap:break-word;\"><span class=\"text-white\"><small><b id=\"addr_to_copy\">"+value.wallet_address+"</b></small><br><small id=\"confirm_addr_to_copy\"><i class=\"far fa-copy\"></i> Copy to donate</small></li>");
 
           //goal address qrcode
-          $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-torque\" style=\"word-wrap:break-word;\"><span class=\"text-white\"><small><img src=\""+value.address_qrcode+"\"></img></small></li>");
+          $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-torque\" style=\"word-wrap:break-word;\"><span class=\"text-white\"><small><img class=\"rounded\" src=\""+value.address_qrcode+"\"></img></small></li>");
 
           //goal by
           $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-torque torque-lighter-background low_padding_li\"><span class=\"text-white\"><small>Goal added by "+value.author+" · "+dateformat(value.creation_date)+"</small></li>");
