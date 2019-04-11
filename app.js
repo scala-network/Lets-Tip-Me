@@ -353,10 +353,9 @@ app.post('/add', function(req, res) {
                   const collection = db.collection('users');
                   collection.find(ObjectId(req.user)).toArray(function(err, data) {
                     // assert.strictEqual(err, null);
-                    console.log(typeof(redirect_address))
                     if(ValidateAddressRedirect(escape(redirect_address))==false){
                       res.send({ status: "Bad redirect address" });
-                    } else if(String(redirect_address).length>109 || String(redirect_address).length<95){
+                    } else if(redirect_address.length>109 || redirect_address.length<95){
                       res.send({ status: "Bad redirect address" });
                     } else if(ValidateAmount(goal)==false){
                       res.send('Bad Amount');
@@ -707,22 +706,7 @@ app.post('/goal/', function(req, res) {
           if(!data[0]){
             res.send("Goal not found");
           } else {
-            cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_balance","params":{"account_index":'+data[0].wallet_index+'}}\' -H \'Content-Type: application/json\'',
-            function(err, jsonData, stderr){
-              var jsonData=JSON.parse(jsonData);
-              data[0].balance = jsonData.result.balance/100;
-              if(data[0].status==="open"){
-                ///update goal balance
-                const collectiongoal = db.collection('goals');
-                collectiongoal.updateOne({ wallet_index : data[0].wallet_index }
-                  , { $set: { balance : data[0].balance } }, function(err, result) {
-                    // assert.strictEqual(err, null);
-                    // assert.equal(1, result.result.n);
-                  });
-                }
-                res.send(data);
-              }
-            );
+          res.send(data);
           }
         } else {
         res.status(301).redirect("/error_db");
@@ -738,6 +722,16 @@ app.post('/goal_txs', function(req, res) {
   if(ValidateWalletIndex(req.body.wallet_index)){
 
     var transactions = new Array();
+    var balance=0;
+
+    function updateBalance(balance)
+    {
+      //update goal Balance
+        db.collection('goals').updateOne({ wallet_index : parseInt(req.body.wallet_index, 10) }
+          , { $set: { balance : balance/100 } }, function(err, result) {
+            // goal balance updated
+          });
+    }
 
     function sendTxsArray()
     {
@@ -776,8 +770,10 @@ app.post('/goal_txs', function(req, res) {
     var jsonData=JSON.parse(data);
     if(jsonData.result.in){
       jsonData.result.in.forEach(function(value, index, array) {
+        balance+=value.amount;
         addTxsToArray(value.txid,value.amount,value.timestamp, 'in');
         if(index === array.length - 1) {
+          updateBalance(balance);
           getOutTxs();
         }
       });
@@ -831,6 +827,38 @@ app.get('/my_goals_index', function(req, res) {
     res.status(301).redirect("/login");
   }
 });
+
+
+/// Relay unlimited goals
+function Unlimited_Goals_Relay() {
+  ///Checking for positive unlocked balance on unlimited goals...
+  const collection = db.collection('goals');
+  collection.find({'unlimited': "true"}).toArray(function(err, data) {
+    if (data[0]){
+      data.forEach(function(goal) {
+          cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_balance","params":{"account_index":'+goal.wallet_index+'}}\' -H \'Content-Type: application/json\'',
+          function(err, jsonData, stderr){
+            var jsonData=JSON.parse(jsonData);
+            if((jsonData.result.unlocked_balance/100)>0){
+                  //Found unlimited goal with positive balance
+                  //send all unlocked balance to the redirect address
+                  cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"sweep_all","params":{"address":"'+goal.redirect_address+'","account_index":'+goal.wallet_index+',"ring_size":8}\' -H \'Content-Type: application/json\'',
+                  function(err, jsonData, stderr){
+                    var jsonData=JSON.parse(jsonData);
+                    // console.log(jsonData);
+                  });
+            }
+          });
+      });
+    }
+  });
+
+}
+//Check and relay unlimited goals every 8 minutes
+setInterval(Unlimited_Goals_Relay,300000);
+
+
+
 
 
 app.use(express.static('public'));

@@ -109,3 +109,8 @@ hr{
   text-overflow: ellipsis;
   color:#ffffff;
 }
+.low_padding_li{
+  padding:2px;
+  padding-left:5px;
+  padding-right:5px;
+}
