@@ -280,7 +280,7 @@ app.get('/error_db', function(req, res) {
 
 app.get('/add', function(req, res) {
   if(req.isAuthenticated()) {
-    cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_version"}\' -H \'Content-Type: application/json\'',
+    cmd.get('curl -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_version"}\' -H \'Content-Type: application/json\'',
     function(err, jsonData, stderr){
       if(!err){
         res.sendFile(__dirname + '/index.html');
@@ -321,7 +321,7 @@ app.post('/add', function(req, res) {
           }
           if(verified_2FA_code===true){
             //check if wallet online
-            cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_version"}\' -H \'Content-Type: application/json\'',
+            cmd.get('curl -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_version"}\' -H \'Content-Type: application/json\'',
             function(err, jsonData, stderr){
               if(!err){
 
@@ -335,7 +335,7 @@ app.post('/add', function(req, res) {
                         var goalID = result["ops"][0]["_id"];
 
                         //generate wallet address
-                        cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"create_account","params":{"label":"'+goalID+'"}}\' -H \'Content-Type: application/json\'',
+                        cmd.get('curl -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"create_account","params":{"label":"'+goalID+'"}}\' -H \'Content-Type: application/json\'',
                         function(err, data, stderr){
                           var data = JSON.parse(data);
                           // Get the documents collection
@@ -347,7 +347,7 @@ app.post('/add', function(req, res) {
                                 // assert.strictEqual(err, null);
                                 res.send({ status: "success", goalID: goalID });
                                 //save wallet
-                                cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"store"}\' -H \'Content-Type: application/json\'',
+                                cmd.get('curl -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"store"}\' -H \'Content-Type: application/json\'',
                                 function(err, data, stderr){
                                   //wallet saved
                                 });
@@ -695,7 +695,7 @@ app.post('/goals', function(req, res) {
 });
 
 app.get('/goal/:id*', function(req, res, next) {
-  cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_version"}\' -H \'Content-Type: application/json\'',
+  cmd.get('curl -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_version"}\' -H \'Content-Type: application/json\'',
   function(err, jsonData, stderr){
     if(!err){
       res.sendFile(__dirname + '/index.html');
@@ -755,7 +755,7 @@ app.post('/goal_txs', function(req, res) {
     function getOutTxs()
     {
       //get OUT transactions
-      cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_transfers","params":{"out":true,"account_index":'+req.body.wallet_index+'}}\' -H \'Content-Type: application/json\'',
+      cmd.get('curl -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_transfers","params":{"out":true,"account_index":'+req.body.wallet_index+'}}\' -H \'Content-Type: application/json\'',
       function(err, data, stderr){
         var jsonData=JSON.parse(data);
         if(jsonData.result.out){
@@ -773,7 +773,7 @@ app.post('/goal_txs', function(req, res) {
   }
 
   //get IN transactions
-  cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_transfers","params":{"in":true,"account_index":'+req.body.wallet_index+'}}\' -H \'Content-Type: application/json\'',
+  cmd.get('curl -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_transfers","params":{"in":true,"account_index":'+req.body.wallet_index+'}}\' -H \'Content-Type: application/json\'',
   function(err, data, stderr){
     var jsonData=JSON.parse(data);
     if(jsonData.result.in){
@@ -799,7 +799,7 @@ app.post('/goal_txs', function(req, res) {
 // My goals
 app.get('/my_goals', function(req, res) {
   if(req.isAuthenticated()) {
-    cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_version"}\' -H \'Content-Type: application/json\'',
+    cmd.get('curl -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_version"}\' -H \'Content-Type: application/json\'',
     function(err, jsonData, stderr){
       if(!err){
         res.sendFile(__dirname + '/index.html');
@@ -844,13 +844,13 @@ function Unlimited_Goals_Relay() {
   collection.find({'unlimited': "true"}).toArray(function(err, data) {
     if (data[0]){
       data.forEach(function(goal) {
-          cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_balance","params":{"account_index":'+goal.wallet_index+'}}\' -H \'Content-Type: application/json\'',
+          cmd.get('curl -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_balance","params":{"account_index":'+goal.wallet_index+'}}\' -H \'Content-Type: application/json\'',
           function(err, jsonData, stderr){
             var jsonData=JSON.parse(jsonData);
             if((jsonData.result.unlocked_balance/100)>0){
                   //Found unlimited goal with positive balance
                   //send all unlocked balance to the redirect address
-                  cmd.get('curl -X POST http://127.0.0.1:18082/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"sweep_all","params":{"address":"'+goal.redirect_address+'","account_index":'+goal.wallet_index+',"ring_size":8}\' -H \'Content-Type: application/json\'',
+                  cmd.get('curl -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"sweep_all","params":{"address":"'+goal.redirect_address+'","account_index":'+goal.wallet_index+',"ring_size":8}\' -H \'Content-Type: application/json\'',
                   function(err, jsonData, stderr){
                     var jsonData=JSON.parse(jsonData);
                     // console.log(jsonData);
