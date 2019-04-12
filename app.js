@@ -1,3 +1,6 @@
+/// Torque Funding Config File
+const config = require('./config');
+/////
 var Ddos = require('ddos');
 var express = require('express');
 var ddos = new Ddos({burst:50, limit:55});
@@ -14,13 +17,18 @@ const assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-const sendmail = require('sendmail')({
-  //uncomment in development
-  devPort: 25,
-  devHost: 'devsmtphost'
-  //uncomment in production
-  // smtpPort: 25
-});
+
+if(config.env==='dev'){
+  const sendmail = require('sendmail')({
+    devPort: 25,
+    devHost: 'devsmtphost'
+  });
+} else if(config.env==='production'){
+  const sendmail = require('sendmail')({
+      smtpPort: 25
+  });
+}
+
 const keygen = require('keygen');
 var crypto = require("crypto");
 var escape = require('escape-html');
@@ -857,25 +865,24 @@ function Unlimited_Goals_Relay() {
 //Check and relay unlimited goals every 5 minutes
 setInterval(Unlimited_Goals_Relay,300000);
 
-
-
-
-
 app.use(express.static('public'));
-app.listen(3000);
 
-//   var fs = require('fs');
-//   var https = require('https');
-//   https.createServer({
-//   key: fs.readFileSync('/etc/letsencrypt/live/funding.torque.cash/privkey.pem'),
-//   cert: fs.readFileSync('/etc/letsencrypt/live/funding.torque.cash/fullchain.pem')
-// }, app).listen(3443);
+if(config.env==='dev'){
+    app.listen(3000);
+} else if(config.env==='production'){
+    var fs = require('fs');
+    var https = require('https');
+    https.createServer({
+    key: fs.readFileSync(config.https_key),
+    cert: fs.readFileSync(config.https_cert)
+  }, app).listen(3443);
 
-// var http = require('http');
-// http.createServer(function (req, res) {
-//     res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
-//     res.end();
-// }).listen(3000);
+    var http = require('http');
+    http.createServer(function (req, res) {
+      res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
+      res.end();
+    }).listen(3000);
+}
 
 //end mongodb connection
 });
