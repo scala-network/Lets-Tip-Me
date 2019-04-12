@@ -108,6 +108,14 @@ $( document ).ready(function() {
     window.open($(this).attr('tx_link'), '_blank');
   });
 
+  ///footer click
+  $( document ).on( 'mouseover', '#footer', function () {
+    $(this).css('cursor','pointer');
+  });
+  $( document ).on( 'click', '#footer', function () {
+    window.open('https://github.com/oxhak/Torque-Funding-Platform', '_blank');
+  });
+
   // body load
   if ( $(location).attr('pathname') == "/about" ) {
     $( "#body-load" ).load( "/about.html" );
