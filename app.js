@@ -356,22 +356,34 @@ app.post('/add', function(req, res) {
                   const collection = db.collection('users');
                   collection.find(ObjectId(req.user)).toArray(function(err, data) {
                     // assert.strictEqual(err, null);
-                    if(ValidateAddressRedirect(escape(redirect_address))==false){
-                      res.send({ status: "Bad redirect address" });
-                    } else if(redirect_address.length>109 || redirect_address.length<95){
-                      res.send({ status: "Bad redirect address" });
-                    } else if(ValidateAmount(goal)==false){
-                      res.send('Bad Amount');
-                    } else if(title.length>200){
-                      res.send('Title too long');
-                    } else if(description.length>12000){
-                      res.send('Description too long');
-                    } else {
-                      if(unlimited==="false"){
-                        redirect_address="none";
+                    if(unlimited==="false"){
+                      if(ValidateAmount(goal)==false){
+                        res.send('Bad Amount');
+                      } else if(title.length>200){
+                        res.send('Title too long');
+                      } else if(description.length>12000){
+                        res.send('Description too long');
+                      } else {
+                        redirect_address= "none";
+                        if((title) && (description) && (unlimited) && (goal) && (redirect_address) && (unlimited === "true" || unlimited === "false")){
+                        addWithUsername(title,description,goal,redirect_address,data[0].username,req.user)
+                        }
                       }
-                      if((title) && (description) && (unlimited) && (goal) && (redirect_address) && (unlimited === "true" || unlimited === "false")){
-                      addWithUsername(title,description,goal,redirect_address,data[0].username,req.user)
+                    } else if(unlimited==="true"){
+                      if(ValidateAddressRedirect(escape(redirect_address))==false){
+                        res.send({ status: "Bad redirect address" });
+                      } else if(redirect_address.length>109 || redirect_address.length<95){
+                        res.send({ status: "Bad redirect address" });
+                      } else if(ValidateAmount(goal)==false){
+                        res.send('Bad Amount');
+                      } else if(title.length>200){
+                        res.send('Title too long');
+                      } else if(description.length>12000){
+                        res.send('Description too long');
+                      } else {
+                        if((title) && (description) && (unlimited) && (goal) && (redirect_address) && (unlimited === "true" || unlimited === "false")){
+                        addWithUsername(title,description,goal,redirect_address,data[0].username,req.user)
+                        }
                       }
                     }
                   });
