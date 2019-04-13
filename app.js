@@ -1,6 +1,5 @@
 /// Torque Funding Config File
 const config = require('./config');
-console.log(config.env)
 /////
 var Ddos = require('ddos');
 var express = require('express');
