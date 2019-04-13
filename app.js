@@ -1,5 +1,6 @@
 /// Torque Funding Config File
 const config = require('./config');
+console.log(config.env)
 /////
 var Ddos = require('ddos');
 var express = require('express');
@@ -17,18 +18,6 @@ const assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-
-if(config.env==='dev'){
-  const sendmail = require('sendmail')({
-    devPort: 25,
-    devHost: 'devsmtphost'
-  });
-} else if(config.env==='production'){
-  const sendmail = require('sendmail')({
-      smtpPort: 25
-  });
-}
-
 const keygen = require('keygen');
 var crypto = require("crypto");
 var escape = require('escape-html');
@@ -51,6 +40,13 @@ const noreply = "no-reply@funding.torque.cash"
 //start mongodb connection
 MongoClient.connect(url,function(err, client) {
     const db = client.db(dbName);
+
+
+const sendmail = require('sendmail')({
+  devPort: config.sendmail_devPort,
+  devHost: config.sendmail_devHost,
+  smtpPort: config.smtpPort
+});
 
 //Inputs validators
 function ValidateEmail(inputText)
@@ -867,9 +863,9 @@ setInterval(Unlimited_Goals_Relay,300000);
 
 app.use(express.static('public'));
 
-if(config.env==='dev'){
+if(config.env==="dev"){
     app.listen(3000);
-} else if(config.env==='production'){
+} else if(config.env==="production"){
     var fs = require('fs');
     var https = require('https');
     https.createServer({
