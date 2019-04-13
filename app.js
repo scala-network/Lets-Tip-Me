@@ -325,7 +325,7 @@ app.post('/add', function(req, res) {
                   {
                     if((title) && (description) && (unlimited) && (goal) && (redirect_address) && (author) && (author_id) && (unlimited === "true" || unlimited === "false")){
                       const collection = db.collection('goals');
-                      collection.insertOne({ title: title, description: description, balance: 0, unlimited: unlimited, categorie: "2", goal: goal, redirect_address: redirect_address, creation_date: ~~(+new Date / 1000), author: author, status: "open", author_id: author_id, wallet_index: "null", wallet_address: "null", address_qrcode: "null" }, function(err, result) {
+                      collection.insertOne({ title: title, description: description, balance: 0, last_check_balance: 0, unlimited: unlimited, categorie: "2", goal: goal, redirect_address: redirect_address, creation_date: ~~(+new Date / 1000), author: author, status: "open", author_id: author_id, wallet_index: "null", wallet_address: "null", address_qrcode: "null" }, function(err, result) {
                         // assert.strictEqual(err, null);
                         var goalID = result["ops"][0]["_id"];
 
@@ -691,7 +691,7 @@ app.get('/categories', function(req, res) {
 
 app.post('/goals', function(req, res) {
     const collection = db.collection('goals');
-    collection.find({'categorie': req.body.categorie_id}).toArray(function(err, data) {
+    collection.find({'categorie': req.body.categorie_id, 'status': 'open'}).toArray(function(err, data) {
       // assert.strictEqual(err, null);
       if(err===null){
         res.send(data);
@@ -775,8 +775,7 @@ app.post('/goal_txs', function(req, res) {
         } else {
           sendTxsArray();
         }
-      }
-    );
+      });
   }
 
   //get IN transactions
@@ -795,8 +794,7 @@ app.post('/goal_txs', function(req, res) {
     } else {
       res.send("No TXs");
     }
-  }
-);
+  });
 
 } else {
   res.send("Bad Wallet Index");
@@ -876,6 +874,72 @@ function Unlimited_Goals_Relay() {
 }
 //Check and relay unlimited goals every 5 minutes
 setInterval(Unlimited_Goals_Relay,300000);
+
+/// Check and update goals balances
+function Check_Update_Goals_Balances() {
+ //Check if wallet is online first
+ cmd.get('curl -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_version"}\' -H \'Content-Type: application/json\'',
+ function(err, jsonData, stderr){
+   if(!err){
+         function notifyReceivedFunds(amount, author_id, goal_id, goal_title)
+         {
+              db.collection('users').find(ObjectId(author_id)).toArray(function(err, data) {
+                if(data[0]){
+                  //send email notification
+                  sendmail({
+                    from: noreply,
+                    to: data[0].email,
+                    subject: 'Congratulations, you have received funds for one of your goals!',
+                    html: 'You received: <b style="color:#28a745;">+'+amount+' XTC</b> for your goal: <b><a style="color:#17a2b8;" href="https://funding.torque.cash/goal/'+goal_id+'" target="_blank">'+goal_title+'</a></b>',
+                  }, function(err, reply) {
+                    // console.log(err && err.stack);
+                    // console.dir(reply);
+                  });
+                }
+              });
+         }
+
+         function updateBalance(balance, last_check_balance, wallet_index, author_id, goal_id, goal_title)
+         {
+           db.collection('goals').updateMany({ wallet_index : parseInt(wallet_index, 10) }
+             , { $set: { balance : parseInt(balance, 10), last_check_balance: parseInt(balance, 10) } }, function(err, result) {
+             // goal balance updated
+             // notify goal owner of received funds
+             notifyReceivedFunds(balance-last_check_balance, author_id,goal_id, goal_title);
+           });
+         }
+
+        ///Checking balance on open goals...
+        const collection = db.collection('goals');
+        var balance = 0;
+        collection.find({'status': "open"}).toArray(function(err, data) {
+          if (data[0]){
+            data.forEach(function(goal) {
+              //get IN transactions
+              cmd.get('curl -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_transfers","params":{"in":true,"account_index":'+goal.wallet_index+'}}\' -H \'Content-Type: application/json\'',
+              function(err, data, stderr){
+                var jsonData=JSON.parse(data);
+                if(jsonData.result.in){
+                  jsonData.result.in.forEach(function(value, index, array) {
+                    balance+=value.amount;
+                    if(index === array.length - 1) {
+                      // update if different balance
+                       if(balance/100!=goal.last_check_balance){
+                       updateBalance(balance/100, goal.last_check_balance, goal.wallet_index, goal.author_id, goal._id, goal.title);
+                       }
+                       balance=0;
+                    }
+                  });
+                }
+              });
+            });
+          }
+        });
+      }
+    });
+}
+//Check and update goals balances every 5 minutes
+setInterval(Check_Update_Goals_Balances,5000);
 
 app.use(express.static('public'));
 
