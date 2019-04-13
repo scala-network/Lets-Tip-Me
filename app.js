@@ -939,7 +939,7 @@ function Check_Update_Goals_Balances() {
     });
 }
 //Check and update goals balances every 5 minutes
-setInterval(Check_Update_Goals_Balances,5000);
+setInterval(Check_Update_Goals_Balances,300000);
 
 app.use(express.static('public'));
 
