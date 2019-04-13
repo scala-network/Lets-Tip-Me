@@ -1,11 +1,11 @@
 var config = {};
 
-////Dev env
+////Dev environment
 config.env = 'dev';
 config.https_cert = '';
 config.https_key = '';
 
-////Production env
+////Production environment
 // config.env = 'production';
 // config.https_cert = 'PATH/TO/YOUR/SSL/CERTFICIATE';
 // config.https_key = 'PATH/TO/YOUR/SSL/PRIVATE_KEY';
