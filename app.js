@@ -846,31 +846,36 @@ app.get('/my_goals_index', function(req, res) {
 
 /// Relay unlimited goals
 function Unlimited_Goals_Relay() {
-  ///Checking for positive unlocked balance on unlimited goals...
-  const collection = db.collection('goals');
-  collection.find({'unlimited': "true"}).toArray(function(err, data) {
-    if (data[0]){
-      data.forEach(function(goal) {
-          cmd.get('curl -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_balance","params":{"account_index":'+goal.wallet_index+'}}\' -H \'Content-Type: application/json\'',
-          function(err, jsonData, stderr){
-            var jsonData=JSON.parse(jsonData);
-            if((jsonData.result.unlocked_balance/100)>0){
-                  //Found unlimited goal with positive balance
-                  //send all unlocked balance to the redirect address
-                  cmd.get('curl -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"sweep_all","params":{"address":"'+goal.redirect_address+'","account_index":'+goal.wallet_index+',"ring_size":8}\' -H \'Content-Type: application/json\'',
-                  function(err, jsonData, stderr){
-                    var jsonData=JSON.parse(jsonData);
-                    // console.log(jsonData);
-                  });
-            }
-          });
-      });
-    }
-  });
-
+ //Check if wallet is online first
+ cmd.get('curl -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_version"}\' -H \'Content-Type: application/json\'',
+ function(err, jsonData, stderr){
+   if(!err){
+        ///Checking for positive unlocked balance on unlimited goals...
+        const collection = db.collection('goals');
+        collection.find({'unlimited': "true"}).toArray(function(err, data) {
+          if (data[0]){
+            data.forEach(function(goal) {
+                cmd.get('curl -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_balance","params":{"account_index":'+goal.wallet_index+'}}\' -H \'Content-Type: application/json\'',
+                function(err, jsonData, stderr){
+                  var jsonData=JSON.parse(jsonData);
+                  if((jsonData.result.unlocked_balance/100)>0){
+                        //Found unlimited goal with positive balance
+                        //send all unlocked balance to the redirect address
+                        cmd.get('curl -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"sweep_all","params":{"address":"'+goal.redirect_address+'","account_index":'+goal.wallet_index+',"ring_size":8}\' -H \'Content-Type: application/json\'',
+                        function(err, jsonData, stderr){
+                          var jsonData=JSON.parse(jsonData);
+                          // console.log(jsonData);
+                        });
+                  }
+                });
+            });
+          }
+        });
+      }
+    });
 }
 //Check and relay unlimited goals every 5 minutes
-setInterval(Unlimited_Goals_Relay,300000);
+setInterval(Unlimited_Goals_Relay,5000);
 
 app.use(express.static('public'));
 
