@@ -875,7 +875,7 @@ function Unlimited_Goals_Relay() {
     });
 }
 //Check and relay unlimited goals every 5 minutes
-setInterval(Unlimited_Goals_Relay,5000);
+setInterval(Unlimited_Goals_Relay,300000);
 
 app.use(express.static('public'));
 
