@@ -762,7 +762,7 @@ app.post('/goal_txs', function(req, res) {
     function getOutTxs()
     {
       //get OUT transactions
-      cmd.get('curl -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_transfers","params":{"out":true,"pending":true,"pool":true,"account_index":'+req.body.wallet_index+'}}\' -H \'Content-Type: application/json\'',
+      cmd.get('curl -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_transfers","params":{"out":true,"account_index":'+req.body.wallet_index+'}}\' -H \'Content-Type: application/json\'',
       function(err, data, stderr){
         var jsonData=JSON.parse(data);
         if(jsonData.result.out){
@@ -780,7 +780,7 @@ app.post('/goal_txs', function(req, res) {
   }
 
   //get IN transactions
-  cmd.get('curl -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_transfers","params":{"in":true,"pending":true,"pool":true,"account_index":'+req.body.wallet_index+'}}\' -H \'Content-Type: application/json\'',
+  cmd.get('curl -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_transfers","params":{"in":true,"account_index":'+req.body.wallet_index+'}}\' -H \'Content-Type: application/json\'',
   function(err, data, stderr){
     var jsonData=JSON.parse(data);
     if(jsonData.result.in){
