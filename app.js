@@ -1,4 +1,4 @@
-/// Torque Funding Config File
+/// Let's Tip Me Config File
 const config = require('./config');
 /////
 var Ddos = require('ddos');
@@ -30,11 +30,11 @@ var QRCode = require('qrcode');
 const url = 'mongodb://localhost:27017';
 
 // Database Name
-const dbName = 'torque-funding-platform';
+const dbName = 'lets-tip-me';
 
 // Hostname of your hosting
-const hostname = "funding.torque.cash";
-const noreply = "no-reply@funding.torque.cash"
+const hostname = "letstip.me";
+const noreply = "no-reply@letstip.me"
 
 //start mongodb connection
 MongoClient.connect(url,function(err, client) {
@@ -522,8 +522,8 @@ app.post('/register', function (req, res) {
                     sendmail({
                       from: noreply,
                       to: email,
-                      subject: 'Please confirm your email address - Torque Funding Platform',
-                      html: '<h2>Torque Funding Platform</h2><p>Please go to <a href="https://'+hostname+'/activate">https://'+hostname+'/activate</a>, and enter the following code:<br><p><strong>'+activation_code+'</strong></p></p><h6 style="font-weight:normal;">This code is only available for 1 hour, after that you will need to register again.</h6>',
+                      subject: 'Please confirm your email address - Let\'s Tip Me',
+                      html: '<h2>Let\'s Tip Me</h2><p>Please go to <a href="https://'+hostname+'/activate">https://'+hostname+'/activate</a>, and enter the following code:<br><p><strong>'+activation_code+'</strong></p></p><h6 style="font-weight:normal;">This code is only available for 1 hour, after that you will need to register again.</h6>',
                     }, function(err, reply) {
                       // console.log(err && err.stack);
                       // console.dir(reply);
@@ -639,7 +639,7 @@ app.get('/2FA', function(req, res) {
       const collection = db.collection('users');
       collection.find(ObjectId(req.user)).toArray(function(err, data) {
         // assert.strictEqual(err, null);
-        QRCode.toDataURL('otpauth://totp/Torque%20Funding?secret='+data[0].secret_2FA, function(err, qrcode_2FA) {
+        QRCode.toDataURL('otpauth://totp/Let\'s%20Tip%20Me?secret='+data[0].secret_2FA, function(err, qrcode_2FA) {
         res.send({ secret_2FA: data[0].secret_2FA, qrcode_2FA: qrcode_2FA });
         });
       });
@@ -890,7 +890,7 @@ function Check_Update_Goals_Balances() {
                     from: noreply,
                     to: data[0].email,
                     subject: 'Congratulations, you have received funds for one of your goals!',
-                    html: 'You have received: <b style="color:#28a745;">+'+amount+' XTC</b> for your goal: <b><a style="color:#17a2b8;" href="https://funding.torque.cash/goal/'+goal_id+'" target="_blank">'+goal_title+'</a></b>',
+                    html: 'You have received: <b style="color:#28a745;">+'+amount+' XTC</b> for your goal: <b><a style="color:#17a2b8;" href="https://letstip.me/goal/'+goal_id+'" target="_blank">'+goal_title+'</a></b>',
                   }, function(err, reply) {
                     // console.log(err && err.stack);
                     // console.dir(reply);

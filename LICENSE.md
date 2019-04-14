@@ -1,5 +1,5 @@
-Torque Funding Platform
-Copyright (C) 2019 oxhak <https://github.com/oxhak/Torque-Funding-Platform>
+Let's Tip Me
+Copyright (C) 2019 oxhak <https://github.com/oxhak/Lets-Tip-Me>
 
 This program can exclusively be used on the Torque (XTC) blockchain <https://github.com/contribute-torque>.
 

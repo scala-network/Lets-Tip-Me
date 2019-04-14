@@ -1,19 +1,19 @@
-.torque-darker-background {
+.letstipme-darker-background {
   background-color: #11141b !important;
 }
-.torque-lighter-background {
+.letstipme-lighter-background {
   background-color: #151b29 !important;
 }
-.torque-bright-text-background {
+.letstipme-bright-text-background {
   background-color: #daddff !important;
 }
-.torque-simple-blue-background {
+.letstipme-simple-blue-background {
   background-color: #004ee1 !important;
 }
-.torque-main-color-background {
+.letstipme-main-color-background {
   background-color: #ff1468 !important;
 }
-.torque-main-color-text {
+.letstipme-main-color-text {
   color: #ff1468;
 }
 
@@ -97,7 +97,7 @@ a:hover {
 .no-background-color{
   background-color: none!important;
 }
-.list-group-item-torque{
+.list-group-item-letstipme{
   color:#004085;background-color:#11141b;border-color:#232c43;
 }
 hr{

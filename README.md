@@ -1,8 +1,6 @@
-# Torque Funding Platform
+# Let's Tip Me
 
-Funding platform for the Torque Blockchain.
-
-In the future it can extend to all types of funding.
+Crowdfunding & Tips over the Torque Blockchain.
 
 
 # How To (Temporary)
@@ -11,14 +9,14 @@ In the future it can extend to all types of funding.
 
 Add funding categories with MongoDB shell (mongo)
 
-`use torque-funding-platform`
+`use lets-tip-me`
 
-`db.categories.insertOne( { categorie: "Torque", categorie_id: 1 } );`
+`db.categories.insertOne( { categorie: "Torque Blockchain", categorie_id: 1 } );`
 
-`db.categories.insertOne( { categorie: "Community", categorie_id: 2 } );`
+`db.categories.insertOne( { categorie: "Torque Community Contributions", categorie_id: 2 } );`
 
 2. Clone this repository :
-`git clone https://github.com/oxhak/Torque-Funding-Platform`
+`git clone https://github.com/oxhak/Lets-Tip-Me`
 
 3. Run app.js with Node.js v11.9 : `node app.js`
 
@@ -28,8 +26,8 @@ Add funding categories with MongoDB shell (mongo)
 
 ------------------------
 
-Torque Funding Platform
-Copyright (C) 2019 oxhak <https://github.com/oxhak/Torque-Funding-Platform>
+Let's Tip Me
+Copyright (C) 2019 oxhak <https://github.com/oxhak/Lets-Tip-Me>
 
 This program can exclusively be used on the Torque (XTC) blockchain <https://github.com/contribute-torque>.
 
