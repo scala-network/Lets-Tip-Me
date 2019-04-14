@@ -889,8 +889,8 @@ function Check_Update_Goals_Balances() {
                   sendmail({
                     from: noreply,
                     to: data[0].email,
-                    subject: 'Congratulations, you have received funds for one of your goals!',
-                    html: 'You have received: <b style="color:#28a745;">+'+amount+' XTC</b> for your goal: <b><a style="color:#17a2b8;" href="https://letstip.me/goal/'+goal_id+'" target="_blank">'+goal_title+'</a></b>',
+                    subject: 'Congratulations, you have received funds for one of your goals! - Let\'s Tip Me',
+                    html: 'You have received <b style="color:#28a745;">+'+amount+' XTC</b> for your goal: <b><a style="color:#17a2b8;" href="https://letstip.me/goal/'+goal_id+'" target="_blank">'+goal_title+'</a></b>',
                   }, function(err, reply) {
                     // console.log(err && err.stack);
                     // console.dir(reply);
