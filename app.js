@@ -325,7 +325,7 @@ app.post('/add', function(req, res) {
                   {
                     if((title) && (description) && (unlimited) && (goal) && (redirect_address) && (author) && (author_id) && (unlimited === "true" || unlimited === "false")){
                       const collection = db.collection('goals');
-                      collection.insertOne({ title: title, description: description, balance: 0, last_check_balance: 0, unlimited: unlimited, categorie: "2", goal: goal, redirect_address: redirect_address, creation_date: ~~(+new Date / 1000), author: author, status: "open", author_id: author_id, wallet_index: "null", wallet_address: "null", address_qrcode: "null" }, function(err, result) {
+                      collection.insertOne({ title: title, description: description, balance: 0, last_check_balance: 0, unlimited: unlimited, categorie: "3", goal: goal, redirect_address: redirect_address, creation_date: ~~(+new Date / 1000), author: author, status: "open", author_id: author_id, wallet_index: "null", wallet_address: "null", address_qrcode: "null" }, function(err, result) {
                         // assert.strictEqual(err, null);
                         var goalID = result["ops"][0]["_id"];
 
