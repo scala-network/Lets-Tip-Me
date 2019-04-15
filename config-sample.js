@@ -13,10 +13,15 @@ config.https_key = '';
 ////RPC Wallet
 config.rpc_wallet_address = '127.0.0.1';
 config.rpc_wallet_port = '18082';
+config.rpc_login = 'username';
+config.rpc_password = 'password';
 
 ////In production sendmail_devPort='' sendmail_devHost='' smtpPort='25'
 config.sendmail_devPort = '25';
 config.sendmail_devHost = 'localhost';
 config.smtpPort = '';
+
+////Sessions
+config.session_secret = 'a secret random string';
 
 module.exports = config;

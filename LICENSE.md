@@ -1,7 +1,7 @@
 Let's Tip Me
 Copyright (C) 2019 oxhak <https://github.com/oxhak/Lets-Tip-Me>
 
-This program can exclusively be used on the Torque (XTC) blockchain <https://github.com/contribute-torque>.
+This program can exclusively be used on the Torque (XTC) Blockchain <https://github.com/contribute-torque>.
 
 To support the Torque Blockchain, any other use over another blockchain is not allowed at this time.
 
