@@ -694,7 +694,11 @@ app.post('/goals', function(req, res) {
     collection.find({'categorie': req.body.categorie_id, 'status': 'open'}).toArray(function(err, data) {
       // assert.strictEqual(err, null);
       if(err===null){
-        res.send(data);
+        if(data[0]){
+          res.send(data);
+        } else {
+          res.send('no goals');
+        }
       } else {
         res.status(301).redirect("/error_db");
       }

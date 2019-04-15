@@ -149,8 +149,8 @@ $( document ).ready(function() {
 
           // Get goals on load
           $.post("/goals",{"categorie_id": value.categorie_id}, function(data){
+          if(data!="no goals"){
             $.each(data, function (i, value) {
-
               if(value.unlimited=="true"){
                 $("#funding_goals_index_content"+value.categorie).append("<li class=\"list-group-item justify-content-between list-group-item-letstipme text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"letstipme-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / Unlimited</small></span><div class=\"progress\"><div class=\"progress-bar bg-success\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 100%\"></div></div></div></li>");
               } else {
@@ -165,8 +165,11 @@ $( document ).ready(function() {
                 }
                 $("#funding_goals_index_content"+value.categorie).append("<li class=\"list-group-item justify-content-between list-group-item-letstipme text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"letstipme-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / "+value.goal+" XTC ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></div></li>");
               }
-
             });
+          } else {
+            $("#funding_goals_index_content"+value.categorie_id).append("<li class=\"list-group-item justify-content-between list-group-item-letstipme mb-3\"><span class=\"text-white\">There are currently no goals in this categorie.</small></li>");
+
+          }
           });
 
 
