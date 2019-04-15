@@ -31,6 +31,8 @@ Copyright (C) 2019 oxhak <https://github.com/oxhak/Lets-Tip-Me>
 
 This program can exclusively be used on the Torque (XTC) blockchain <https://github.com/contribute-torque>.
 
+To support the Torque Blockchain, any other use over another blockchain is not allowed at this time.
+
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
