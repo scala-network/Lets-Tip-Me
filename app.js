@@ -891,8 +891,8 @@ function Success_Goals_Relay() {
                 cmd.get('curl --digest --user '+config.rpc_login+':'+config.rpc_password+' -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_balance","params":{"account_index":'+goal.wallet_index+'}}\' -H \'Content-Type: application/json\'',
                 function(err, jsonData, stderr){
                   var jsonData=JSON.parse(jsonData);
-                  // console.log(jsonData.result.unlocked_balance/100)
-                  // console.log(jsonData.result.balance/100)
+                  console.log(jsonData.result.unlocked_balance/100)
+                  console.log(jsonData.result.balance/100)
                   if((jsonData.result.unlocked_balance/100)>0){
                         //Found successful goal with positive balance
                         //send all unlocked balance to the redirect address
@@ -975,7 +975,7 @@ function Check_Update_Goals_Balances() {
                     if(index === array.length - 1) {
                       // update if different balance
                        if(balance/100!=goal.last_check_balance){
-                          if(balance/100>=goal.goal){
+                          if(balance/100>=goal.goal&&goal.unlimited==="false"){
                           updateBalance(balance/100, goal.last_check_balance, goal.wallet_index, goal.author_id, goal._id, goal.title, "success");
                           } else {
                           updateBalance(balance/100, goal.last_check_balance, goal.wallet_index, goal.author_id, goal._id, goal.title, goal.status);
