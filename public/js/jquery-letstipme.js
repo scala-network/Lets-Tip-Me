@@ -167,8 +167,7 @@ $( document ).ready(function() {
               }
             });
           } else {
-            $("#funding_goals_index_content"+value.categorie_id).append("<li class=\"list-group-item justify-content-between list-group-item-letstipme mb-3\"><span class=\"text-white\">There are currently no goals in this categorie.</small></li>");
-
+            $("#funding_goals_index_content"+value.categorie_id).append("<li class=\"list-group-item justify-content-between list-group-item-letstipme mb-3\"><span class=\"text-white\">There are yet no goals in this categorie.<br><a href='/my_goals'><i class=\"fas fa-arrow-circle-right\"></i> Add a new goal</a></small></li>");
           }
           });
 
@@ -176,6 +175,27 @@ $( document ).ready(function() {
           $("#funding_goals_index").append("</div>");
         });
       });
+
+      // Get successful goals on load
+      $.get("/goals_successful", function(data){
+      if(data!="no goals"){
+        $.each(data, function (i, value) {
+            const percentage = Math.round((value.balance*100)/value.goal);
+            var progress_bar_bg_color;
+            if(percentage<30){
+              progress_bar_bg_color="bg-danger";
+            } else if((percentage>30)&&(percentage<70)){
+              progress_bar_bg_color="bg-warning";
+            } else if(percentage>70){
+              progress_bar_bg_color="bg-success";
+            }
+            $("#funding_goals_successful_index_content").append("<li class=\"list-group-item justify-content-between list-group-item-letstipme text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"letstipme-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / "+value.goal+" XTC ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></div></li>");
+        });
+      } else {
+        $("#funding_goals_successful_index_content").append("<li class=\"list-group-item justify-content-between list-group-item-letstipme mb-3\"><span class=\"text-white\">There are no successfully reached goals yet.<br><a href='/my_goals'><i class=\"fas fa-arrow-circle-right\"></i> Add a new goal</a></small></li>");
+      }
+      });
+
     });
   }
   else if ( $(location).attr('pathname').includes("/goal/")) {
@@ -232,11 +252,16 @@ $( document ).ready(function() {
           //goal description
           $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-letstipme text-left\"><span class=\"text-white\"><p>"+value.description.replace(/\n/g, "<br>")+"</p></li>");
 
+        if(value.status==="open"){
           //goal donations address
           $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-letstipme goal_donate_copy\" style=\"word-wrap:break-word;\"><span class=\"text-white\"><small><b id=\"addr_to_copy\">"+value.wallet_address+"</b></small><br><small id=\"confirm_addr_to_copy\"><i class=\"far fa-copy\"></i> Copy to donate</small></li>");
 
           //goal address qrcode
           $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-letstipme\" style=\"word-wrap:break-word;\"><span class=\"text-white\"><small><img class=\"rounded\" src=\""+value.address_qrcode+"\"></img></small></li>");
+        } else if(value.status==="success") {
+              //goal successful
+              $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-letstipme bg-success\" style=\"word-wrap:break-word;\"><span class=\"text-white\"><small><b>This goal has been successfully reached! Thanks to all the donators!</b></small></li>");
+        }
 
           //goal by
           $("#funding_goal_progress").append("<li class=\"list-group-item justify-content-between list-group-item-letstipme letstipme-lighter-background low_padding_li\"><span class=\"text-white\"><small>Goal added by "+value.author+" · "+dateformat(value.creation_date)+"</small></li>");
@@ -294,8 +319,13 @@ $( document ).ready(function() {
               } else if(percentage>70){
                 progress_bar_bg_color="bg-success";
               }
-              $("#my_goals_content").append("<ul class=\"list-group mb-4\"><li class=\"list-group-item justify-content-between list-group-item-letstipme text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"letstipme-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / "+value.goal+" XTC ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></div></li></ul>");
-            }
+                if(value.status==="success"){
+                $("#my_goals_content").append("<ul class=\"list-group mb-4\"><li class=\"list-group-item justify-content-between list-group-item-letstipme text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"letstipme-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / "+value.goal+" XTC ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></div></li><li class=\"list-group-item justify-content-between list-group-item-letstipme bg-success low_padding_li\" style=\"word-wrap:break-word;\"><span class=\"text-white\"><small><b>This goal has been successfully reached!</b></small></li><li class=\"list-group-item justify-content-between list-group-item-letstipme letstipme-lighter-background truncate low_padding_li\"><span class=\"text-white\"><small><i class=\"fas fa-directions\"></i> "+value.redirect_address+"</small></li></ul>");
+                } else {
+                $("#my_goals_content").append("<ul class=\"list-group mb-4\"><li class=\"list-group-item justify-content-between list-group-item-letstipme text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"letstipme-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / "+value.goal+" XTC ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></div></li><li class=\"list-group-item justify-content-between list-group-item-letstipme letstipme-lighter-background truncate low_padding_li\"><span class=\"text-white\"><small><i class=\"fas fa-directions\"></i> "+value.redirect_address+"</small></li></ul>");
+                }
+
+              }
           });
         } else {
           $("#my_goals_content").append("<li class=\"list-group-item justify-content-between list-group-item-letstipme mb-4\"><span class=\"text-white\">You have not added a goal yet.</small></li>");
@@ -455,7 +485,7 @@ $( document ).ready(function() {
   //add goal
   $( document ).on( 'click', '#AddGoal', function () {
     $("#AddGoalError").hide();
-    if( $('#add_goal_title').val() && $('#add_goal_description').val() && $('#add_goal_amount_goal').val() && $('#add_goal_amount_goal').val()<21000000001 && ValidateAmount($('#add_goal_amount_goal').val())==true && $('#add_goal_2FA_code').val()  ) {
+    if( $('#add_goal_title').val() && $('#add_goal_description').val() && $('#add_goal_unlimited_address_redirect').val() && $('#add_goal_amount_goal').val() && $('#add_goal_amount_goal').val()<21000000001 && ValidateAmount($('#add_goal_amount_goal').val())==true && $('#add_goal_2FA_code').val()  ) {
       $('#bad_2FA_error').hide();
       $('#bad_address_redirect_error').hide();
       $('#AddGoal').hide();
@@ -476,7 +506,6 @@ $( document ).ready(function() {
       var unlimited;
       if($( "#add_goal_limited" ).prop('checked')===true){
         unlimited="false";
-        redirect_address="none";
       } else if($( "#add_goal_unlimited" ).prop('checked')===true) {
         unlimited="true";
         goal=1;
@@ -528,14 +557,14 @@ $( document ).ready(function() {
     if(this.checked) {
       $('#add_goal_unlimited').prop('checked', false);
       $('#add_goal_limited_amount_needed').show();
-      $('#add_goal_unlimited_address_redirect_needed').hide();
+      $('#add_goal_unlimited_address_redirect_label').text('To which XTC address to widthdraw reached goal fund?');
     }
   });
   $( document ).on( 'change', '#add_goal_unlimited', function () {
     if(this.checked) {
       $('#add_goal_limited').prop('checked', false);
       $('#add_goal_limited_amount_needed').hide();
-      $('#add_goal_unlimited_address_redirect_needed').show();
+      $('#add_goal_unlimited_address_redirect_label').text('To which XTC address to redirect donations?');
     }
   });
 

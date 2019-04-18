@@ -16,6 +16,10 @@ config.rpc_wallet_port = '18082';
 config.rpc_login = 'username';
 config.rpc_password = 'password';
 
+/////
+config.hostname = 'letstip.me';
+config.noreply = 'no-reply@letstip.me'
+
 ////In production sendmail_devPort='' sendmail_devHost='' smtpPort='25'
 config.sendmail_devPort = '25';
 config.sendmail_devHost = 'localhost';

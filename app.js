@@ -33,8 +33,8 @@ const url = 'mongodb://localhost:27017';
 const dbName = 'lets-tip-me';
 
 // Hostname of your hosting
-const hostname = "letstip.me";
-const noreply = "no-reply@letstip.me"
+const hostname = config.hostname;
+const noreply = config.noreply;
 
 //start mongodb connection
 MongoClient.connect(url,function(err, client) {
@@ -299,7 +299,7 @@ app.post('/add', function(req, res) {
         const description = escape(req.body.description);
         const unlimited = req.body.unlimited;
         const goal = escape(req.body.goal);
-        var redirect_address = escape(req.body.redirect_address);
+        const redirect_address = escape(req.body.redirect_address);
         const author = req.user;
         //veryfy 2FA code
         const collection = db.collection('users');
@@ -356,34 +356,20 @@ app.post('/add', function(req, res) {
                   const collection = db.collection('users');
                   collection.find(ObjectId(req.user)).toArray(function(err, data) {
                     // assert.strictEqual(err, null);
-                    if(unlimited==="false"){
-                      if(ValidateAmount(goal)==false){
-                        res.send('Bad Amount');
-                      } else if(title.length>200){
-                        res.send('Title too long');
-                      } else if(description.length>12000){
-                        res.send('Description too long');
-                      } else {
-                        redirect_address= "none";
-                        if((title) && (description) && (unlimited) && (goal) && (redirect_address) && (unlimited === "true" || unlimited === "false")){
-                        addWithUsername(title,description,goal,redirect_address,data[0].username,req.user)
-                        }
-                      }
-                    } else if(unlimited==="true"){
-                      if(ValidateAddressRedirect(escape(redirect_address))==false){
-                        res.send({ status: "Bad redirect address" });
-                      } else if(redirect_address.length>109 || redirect_address.length<95){
-                        res.send({ status: "Bad redirect address" });
-                      } else if(ValidateAmount(goal)==false){
-                        res.send('Bad Amount');
-                      } else if(title.length>200){
-                        res.send('Title too long');
-                      } else if(description.length>12000){
-                        res.send('Description too long');
-                      } else {
-                        if((title) && (description) && (unlimited) && (goal) && (redirect_address) && (unlimited === "true" || unlimited === "false")){
-                        addWithUsername(title,description,goal,redirect_address,data[0].username,req.user)
-                        }
+                    if(ValidateAddressRedirect(escape(redirect_address))==false){
+                      res.send({ status: "Bad redirect address" });
+                    } else if(redirect_address.length>109 || redirect_address.length<95){
+                      res.send({ status: "Bad redirect address" });
+                      console.log("here")
+                    } else if(ValidateAmount(goal)==false){
+                      res.send('Bad Amount');
+                    } else if(title.length>200){
+                      res.send('Title too long');
+                    } else if(description.length>12000){
+                      res.send('Description too long');
+                    } else {
+                      if((title) && (description) && (unlimited) && (goal) && (redirect_address) && (unlimited === "true" || unlimited === "false")){
+                      addWithUsername(title,description,goal,redirect_address,data[0].username,req.user)
                       }
                     }
                   });
@@ -705,6 +691,18 @@ app.post('/goals', function(req, res) {
     });
 });
 
+///// get successful Goals
+app.get('/goals_successful', function(req, res) {
+    const collection = db.collection('goals');
+    collection.find({"status":"success"}).toArray(function(err, data) {
+      if(data[0]){
+        res.send(data);
+      } else {
+        res.send("no goals");
+      }
+    });
+});
+
 app.get('/goal/:id*', function(req, res, next) {
   cmd.get('curl --digest --user '+config.rpc_login+':'+config.rpc_password+' -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_version"}\' -H \'Content-Type: application/json\'',
   function(err, jsonData, stderr){
@@ -879,37 +877,85 @@ function Unlimited_Goals_Relay() {
 //Check and relay unlimited goals every 5 minutes
 setInterval(Unlimited_Goals_Relay,300000);
 
+/// Relay successful goals funds
+function Success_Goals_Relay() {
+ //Check if wallet is online first
+ cmd.get('curl --digest --user '+config.rpc_login+':'+config.rpc_password+' -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_version"}\' -H \'Content-Type: application/json\'',
+ function(err, jsonData, stderr){
+   if(!err){
+        ///Checking for positive unlocked balance on successful goals...
+        const collection = db.collection('goals');
+        collection.find({'status': "success"}).toArray(function(err, data) {
+          if (data[0]){
+            data.forEach(function(goal) {
+                cmd.get('curl --digest --user '+config.rpc_login+':'+config.rpc_password+' -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_balance","params":{"account_index":'+goal.wallet_index+'}}\' -H \'Content-Type: application/json\'',
+                function(err, jsonData, stderr){
+                  var jsonData=JSON.parse(jsonData);
+                  // console.log(jsonData.result.unlocked_balance/100)
+                  // console.log(jsonData.result.balance/100)
+                  if((jsonData.result.unlocked_balance/100)>0){
+                        //Found successful goal with positive balance
+                        //send all unlocked balance to the redirect address
+                        cmd.get('curl --digest --user '+config.rpc_login+':'+config.rpc_password+' -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"sweep_all","params":{"address":"'+goal.redirect_address+'","account_index":'+goal.wallet_index+',"ring_size":8}\' -H \'Content-Type: application/json\'',
+                        function(err, jsonData, stderr){
+                          var jsonData=JSON.parse(jsonData);
+                          // console.log(jsonData);
+                        });
+                  }
+                });
+            });
+          }
+        });
+      }
+    });
+}
+//Check and relay successful goals every 5 minutes
+setInterval(Success_Goals_Relay,300000);
+
 /// Check and update goals balances
 function Check_Update_Goals_Balances() {
  //Check if wallet is online first
  cmd.get('curl --digest --user '+config.rpc_login+':'+config.rpc_password+' -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_version"}\' -H \'Content-Type: application/json\'',
  function(err, jsonData, stderr){
    if(!err){
-         function notifyReceivedFunds(amount, author_id, goal_id, goal_title)
+         function notifyReceivedFunds(amount, author_id, goal_id, goal_title, goal_status)
          {
               db.collection('users').find(ObjectId(author_id)).toArray(function(err, data) {
                 if(data[0]){
-                  //send email notification
-                  sendmail({
-                    from: noreply,
-                    to: data[0].email,
-                    subject: 'Congratulations, you have received funds for one of your goals! - Let\'s Tip Me',
-                    html: 'You have received <b style="color:#28a745;">+'+amount+' XTC</b> for your goal: <b><a style="color:#17a2b8;" href="https://letstip.me/goal/'+goal_id+'" target="_blank">'+goal_title+'</a></b>',
-                  }, function(err, reply) {
-                    // console.log(err && err.stack);
-                    // console.dir(reply);
-                  });
+                    if(goal_status==="success"){
+                      //send email notification
+                      sendmail({
+                        from: noreply,
+                        to: data[0].email,
+                        subject: 'It\'s a success! Congratulations, one of your goals has been reached! - Let\'s Tip Me',
+                        html: '<h4><b>Goal Reached!</b></h4><b><a style="color:#17a2b8;" href="https://letstip.me/goal/'+goal_id+'" target="_blank">'+goal_title+'</a></b><br><h6 style="font-weight:normal;">Funds will be automatically widthdrawed to your XTC address when the balance is unlocked, in 18 blocks.</h6>',
+                      }, function(err, reply) {
+                        // console.log(err && err.stack);
+                        // console.dir(reply);
+                      });
+                    } else {
+                      //send email notification
+                      sendmail({
+                        from: noreply,
+                        to: data[0].email,
+                        subject: 'Congratulations, you have received funds for one of your goals! - Let\'s Tip Me',
+                        html: 'You have received <b style="color:#28a745;">+'+amount+' XTC</b> for your goal: <b><a style="color:#17a2b8;" href="https://letstip.me/goal/'+goal_id+'" target="_blank">'+goal_title+'</a></b>',
+                      }, function(err, reply) {
+                        // console.log(err && err.stack);
+                        // console.dir(reply);
+                      });
+                    }
                 }
               });
          }
 
-         function updateBalance(balance, last_check_balance, wallet_index, author_id, goal_id, goal_title)
+         function updateBalance(balance, last_check_balance, wallet_index, author_id, goal_id, goal_title, goal_status)
          {
            db.collection('goals').updateMany({ wallet_index : parseInt(wallet_index, 10) }
-             , { $set: { balance : parseInt(balance, 10), last_check_balance: parseInt(balance, 10) } }, function(err, result) {
+             , { $set: { balance : parseInt(balance, 10), last_check_balance: parseInt(balance, 10), status: goal_status } }, function(err, result) {
              // goal balance updated
              // notify goal owner of received funds
-             notifyReceivedFunds(balance-last_check_balance, author_id,goal_id, goal_title);
+             notifyReceivedFunds(balance-last_check_balance, author_id,goal_id, goal_title, goal_status);
            });
          }
 
@@ -929,7 +975,11 @@ function Check_Update_Goals_Balances() {
                     if(index === array.length - 1) {
                       // update if different balance
                        if(balance/100!=goal.last_check_balance){
-                       updateBalance(balance/100, goal.last_check_balance, goal.wallet_index, goal.author_id, goal._id, goal.title);
+                          if(balance/100>=goal.goal){
+                          updateBalance(balance/100, goal.last_check_balance, goal.wallet_index, goal.author_id, goal._id, goal.title, "success");
+                          } else {
+                          updateBalance(balance/100, goal.last_check_balance, goal.wallet_index, goal.author_id, goal._id, goal.title, goal.status);
+                          }
                        }
                        balance=0;
                     }
