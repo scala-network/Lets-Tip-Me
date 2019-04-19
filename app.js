@@ -3,9 +3,10 @@ const config = require('./config');
 /////
 var Ddos = require('ddos');
 var express = require('express');
-var ddos = new Ddos({burst:50, limit:55});
+// var ddos = new Ddos({burst:50, limit:55});
 var app = express();
-app.use(ddos.express);
+// app.use(ddos.express);
+// app.use();
 const session = require('express-session');
 const uuid = require('uuid/v4');
 const FileStore = require('session-file-store')(session);
@@ -78,6 +79,19 @@ function ValidateActivationCode(inputText)
 {
   var activationcodeformat = /^([a-zA-Z0-9]+)$/;
   if(inputText.match(activationcodeformat))
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+function ValidateCategory(inputText)
+{
+  var category_id = /^([0-9]+)$/;
+  if(inputText.match(category_id))
   {
     return true;
   }
@@ -230,8 +244,10 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.get('/', function(req, res) {
-  res.sendFile(__dirname + '/index.html');
+  console.log(req.originalUrl)
+res.sendFile(__dirname + '/index.html');
 });
+
 app.get('/login', function(req, res) {
   if(req.isAuthenticated()) {
     res.send('Logged');
@@ -288,6 +304,17 @@ app.get('/add', function(req, res) {
   }
 });
 
+app.get('/categories', function(req, res) {
+    const collection = db.collection('categories');
+    collection.find({}).toArray(function(err, data) {
+      if(err===null){
+        res.send(data);
+      } else {
+        res.status(301).redirect("/error_db");
+      }
+    });
+});
+
 app.post('/add', function(req, res) {
   if(req.isAuthenticated()) {
     //check if 2FA is enabled
@@ -297,6 +324,7 @@ app.post('/add', function(req, res) {
 
         const title = escape(req.body.title);
         const description = escape(req.body.description);
+        const category = req.body.category;
         const unlimited = req.body.unlimited;
         const goal = escape(req.body.goal);
         const redirect_address = escape(req.body.redirect_address);
@@ -321,11 +349,11 @@ app.post('/add', function(req, res) {
               if(!err){
 
                 if(req.isAuthenticated()) {
-                  function addWithUsername(title,description,goal,redirect_address,author,author_id)
+                  function addWithUsername(title,description,category,goal,redirect_address,author,author_id)
                   {
-                    if((title) && (description) && (unlimited) && (goal) && (redirect_address) && (author) && (author_id) && (unlimited === "true" || unlimited === "false")){
+                    if((title) && (description) && (category) && (unlimited) && (goal) && (redirect_address) && (author) && (author_id) && (unlimited === "true" || unlimited === "false")){
                       const collection = db.collection('goals');
-                      collection.insertOne({ title: title, description: description, balance: 0, last_check_balance: 0, unlimited: unlimited, categorie: "3", goal: goal, redirect_address: redirect_address, creation_date: ~~(+new Date / 1000), author: author, status: "open", author_id: author_id, wallet_index: "null", wallet_address: "null", address_qrcode: "null" }, function(err, result) {
+                      collection.insertOne({ title: title, description: description, balance: 0, last_check_balance: 0, unlimited: unlimited, categorie: ""+category+"", goal: goal, redirect_address: redirect_address, creation_date: ~~(+new Date / 1000), author: author, status: "open", author_id: author_id, wallet_index: "null", wallet_address: "null", address_qrcode: "null" }, function(err, result) {
                         // assert.strictEqual(err, null);
                         var goalID = result["ops"][0]["_id"];
 
@@ -367,9 +395,13 @@ app.post('/add', function(req, res) {
                       res.send('Title too long');
                     } else if(description.length>12000){
                       res.send('Description too long');
+                    } else if(ValidateCategory(category)==false){
+                      res.send('Bad category');
+                    } else if(category=="1" || category=="2"){
+                      res.send('Bad category');
                     } else {
-                      if((title) && (description) && (unlimited) && (goal) && (redirect_address) && (unlimited === "true" || unlimited === "false")){
-                      addWithUsername(title,description,goal,redirect_address,data[0].username,req.user)
+                      if((title) && (description) && (category) && (unlimited) && (goal) && (redirect_address) && (unlimited === "true" || unlimited === "false")){
+                      addWithUsername(title,description,category,goal,redirect_address,data[0].username,req.user)
                       }
                     }
                   });
