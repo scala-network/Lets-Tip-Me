@@ -244,7 +244,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.get('/', function(req, res) {
-  console.log(req.originalUrl)
 res.sendFile(__dirname + '/index.html');
 });
 
