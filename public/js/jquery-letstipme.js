@@ -152,7 +152,7 @@ $( document ).ready(function() {
           if(data!="no goals"){
             $.each(data, function (i, value) {
               if(value.unlimited=="true"){
-                $("#funding_goals_index_content"+value.categorie).append("<li class=\"list-group-item justify-content-between list-group-item-letstipme text-left goal_link\" goallink=\"/g/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"letstipme-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / Unlimited</small></span><div class=\"progress\"><div class=\"progress-bar bg-success\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 100%\"></div></div></div></li>");
+                $("#funding_goals_index_content"+value.categorie).append("<li class=\"list-group-item justify-content-between list-group-item-letstipme text-left goal_link\" goallink=\"/g/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"letstipme-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / Unlimited · Goal added by "+value.author+" · "+dateformat(value.creation_date)+" </small></span><div class=\"progress\"><div class=\"progress-bar bg-success\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 100%\"></div></div></div></li>");
               } else {
                 const percentage = Math.round((value.balance*100)/value.goal);
                 var progress_bar_bg_color;
