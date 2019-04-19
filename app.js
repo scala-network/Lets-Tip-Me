@@ -3,10 +3,9 @@ const config = require('./config');
 /////
 var Ddos = require('ddos');
 var express = require('express');
-// var ddos = new Ddos({burst:50, limit:55});
+var ddos = new Ddos({burst:50, limit:55});
 var app = express();
-// app.use(ddos.express);
-// app.use();
+app.use(ddos.express);
 const session = require('express-session');
 const uuid = require('uuid/v4');
 const FileStore = require('session-file-store')(session);
