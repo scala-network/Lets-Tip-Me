@@ -192,7 +192,7 @@ $( document ).ready(function() {
             $("#funding_goals_successful_index_content").append("<li class=\"list-group-item justify-content-between list-group-item-letstipme text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"letstipme-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / "+value.goal+" XTC ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></div></li>");
         });
       } else {
-        $("#funding_goals_successful_index_content").append("<li class=\"list-group-item justify-content-between list-group-item-letstipme mb-3\"><span class=\"text-white\">There are no successfully reached goals yet.<br><a href='/my_goals'><i class=\"fas fa-arrow-circle-right\"></i> Add a new goal</a></small></li>");
+        $("#funding_goals_successful_index_content").append("<li class=\"list-group-item justify-content-between list-group-item-letstipme mb-3\"><span class=\"text-white\">There are no reached goals yet.<br><a href='/my_goals'><i class=\"fas fa-arrow-circle-right\"></i> Add a new goal</a></small></li>");
       }
       });
 
