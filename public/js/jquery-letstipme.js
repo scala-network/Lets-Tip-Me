@@ -152,7 +152,7 @@ $( document ).ready(function() {
           if(data!="no goals"){
             $.each(data, function (i, value) {
               if(value.unlimited=="true"){
-                $("#funding_goals_index_content"+value.categorie).append("<li class=\"list-group-item justify-content-between list-group-item-letstipme text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"letstipme-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / Unlimited</small></span><div class=\"progress\"><div class=\"progress-bar bg-success\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 100%\"></div></div></div></li>");
+                $("#funding_goals_index_content"+value.categorie).append("<li class=\"list-group-item justify-content-between list-group-item-letstipme text-left goal_link\" goallink=\"/g/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"letstipme-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / Unlimited</small></span><div class=\"progress\"><div class=\"progress-bar bg-success\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 100%\"></div></div></div></li>");
               } else {
                 const percentage = Math.round((value.balance*100)/value.goal);
                 var progress_bar_bg_color;
@@ -163,7 +163,7 @@ $( document ).ready(function() {
                 } else if(percentage>70){
                   progress_bar_bg_color="bg-success";
                 }
-                $("#funding_goals_index_content"+value.categorie).append("<li class=\"list-group-item justify-content-between list-group-item-letstipme text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"letstipme-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / "+value.goal+" XTC ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></div></li>");
+                $("#funding_goals_index_content"+value.categorie).append("<li class=\"list-group-item justify-content-between list-group-item-letstipme text-left goal_link\" goallink=\"/g/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"letstipme-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / "+value.goal+" XTC ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></div></li>");
               }
             });
           } else {
@@ -189,7 +189,7 @@ $( document ).ready(function() {
             } else if(percentage>70){
               progress_bar_bg_color="bg-success";
             }
-            $("#funding_goals_successful_index_content").append("<li class=\"list-group-item justify-content-between list-group-item-letstipme text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"letstipme-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / "+value.goal+" XTC ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></div></li>");
+            $("#funding_goals_successful_index_content").append("<li class=\"list-group-item justify-content-between list-group-item-letstipme text-left goal_link\" goallink=\"/g/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"letstipme-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / "+value.goal+" XTC ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></div></li>");
         });
       } else {
         $("#funding_goals_successful_index_content").append("<li class=\"list-group-item justify-content-between list-group-item-letstipme mb-3\"><span class=\"text-white\">There are no reached goals yet.<br><a href='/my_goals'><i class=\"fas fa-arrow-circle-right\"></i> Add a new goal</a></small></li>");
@@ -198,9 +198,69 @@ $( document ).ready(function() {
 
     });
   }
-  else if ( $(location).attr('pathname').includes("/goal/")) {
+  else if ( $(location).attr('pathname') == "/register" ) {
+    $( "#body-load" ).load( "/register.html" );
+  }
+  else if ( $(location).attr('pathname') == "/activate" ) {
+    $( "#body-load" ).load( "/activate.html" );
+  }
+  else if ( $(location).attr('pathname') == "/settings" ) {
+    $( "#body-load" ).load( "/settings.html", function() {
+      $.get( "/user_settings", function( data ) {
+        if(data.enabled_2FA==="true"){
+          $("#ul_2FA").append("<li class=\"list-group-item justify-content-between list-group-item-letstipme bg-success\"><span class=\"text-white\"><i class=\"fas fa-check\"></i> 2FA enabled</span></li>");
+        } else if(data.enabled_2FA==="false"){
+          $("#ul_2FA").append("<li class=\"list-group-item justify-content-between list-group-item-letstipme text-center settings_li\" id=\"settings_2FA\"><span class=\"letstipme-main-color-text\"><span class=\"text-white\"><p class=\"text-danger\"><b>You are strongly advised to enable two-factor authentication for your account security!</b></p><button id=\"Enable2FA\" class=\"btn btn-danger mb-2\"><i class=\"fas fa-exclamation-triangle\"></i> Enable 2FA</button></<span></span></li>");
+        }
+      });
+    });
+  }
+  else if ( $(location).attr('pathname') == "/add" ) {
+    $( "#body-load" ).load( "/add_goal.html" );
+  }
+  else if ( $(location).attr('pathname') == "/my_goals" ) {
+    $( "#body-load" ).load( "/my_goals.html", function() {
+
+      // Get goals on load
+      $.get("/my_goals_index", function(data){
+        if(data==="2FA disabled"){
+          $("#my_goals_content").append("<li class=\"list-group-item justify-content-between list-group-item-letstipme mb-4\"><span class=\"text-warning\"><b>You must enable two-factor authentication before you can add and manage goals.</b></small></li>");
+        } else if(data[0]){
+          $.each(data, function (i, value) {
+            if(value.unlimited=="true"){
+              $("#my_goals_content").append("<ul class=\"list-group mb-4\"><li class=\"list-group-item justify-content-between list-group-item-letstipme text-left goal_link\" goallink=\"/g/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"letstipme-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / Unlimited</small></span><div class=\"progress\"><div class=\"progress-bar bg-success\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 100%\"></div></div></div></li><li class=\"list-group-item justify-content-between list-group-item-letstipme letstipme-lighter-background truncate low_padding_li\"><span class=\"text-white\"><small><i class=\"fas fa-directions\"></i> "+value.redirect_address+"</small></li></ul>");
+            } else {
+              const percentage = Math.round((value.balance*100)/value.goal);
+              var progress_bar_bg_color;
+              if(percentage<30){
+                progress_bar_bg_color="bg-danger";
+              } else if((percentage>30)&&(percentage<70)){
+                progress_bar_bg_color="bg-warning";
+              } else if(percentage>70){
+                progress_bar_bg_color="bg-success";
+              }
+                if(value.status==="success"){
+                $("#my_goals_content").append("<ul class=\"list-group mb-4\"><li class=\"list-group-item justify-content-between list-group-item-letstipme text-left goal_link\" goallink=\"/g/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"letstipme-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / "+value.goal+" XTC ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></div></li><li class=\"list-group-item justify-content-between list-group-item-letstipme bg-success low_padding_li\" style=\"word-wrap:break-word;\"><span class=\"text-white\"><small><b>This goal has been successfully reached!</b></small></li><li class=\"list-group-item justify-content-between list-group-item-letstipme letstipme-lighter-background truncate low_padding_li\"><span class=\"text-white\"><small><i class=\"fas fa-directions\"></i> "+value.redirect_address+"</small></li></ul>");
+                } else {
+                $("#my_goals_content").append("<ul class=\"list-group mb-4\"><li class=\"list-group-item justify-content-between list-group-item-letstipme text-left goal_link\" goallink=\"/g/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"letstipme-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / "+value.goal+" XTC ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></div></li><li class=\"list-group-item justify-content-between list-group-item-letstipme letstipme-lighter-background truncate low_padding_li\"><span class=\"text-white\"><small><i class=\"fas fa-directions\"></i> "+value.redirect_address+"</small></li></ul>");
+                }
+
+              }
+          });
+        } else {
+          $("#my_goals_content").append("<li class=\"list-group-item justify-content-between list-group-item-letstipme mb-4\"><span class=\"text-white\">You have not added a goal yet.</small></li>");
+        }
+        if(data!="2FA disabled"){
+          $("#my_goals_content").append("<button id=\"my_goals_add_goal\" class=\"btn btn-primary\"><i class=\"fas fa-plus\"></i> Add a new goal</button>");
+        } else {
+          $("#my_goals_content").append("<button id=\"my_goals_enable_2FA\" class=\"btn btn-warning\"><i class=\"fas fa-arrow-circle-right\"></i> Settings</button>");
+        }
+      });
+    });
+  }
+  else if ($(location).attr('pathname').includes("/g/")) {
     $( "#body-load" ).load( "/goal.html", function() {
-      $.post("/goal",{_id: escape($(location).attr('pathname').replace("/goal/", ""))}, function(data){
+      $.post("/goal",{_id: escape($(location).attr('pathname').replace("/g/", ""))}, function(data){
         if(data === "Goal not found"){
           alert("Goal not found");
         } else if(data === "Bad ID")  {
@@ -274,66 +334,6 @@ $( document ).ready(function() {
 
           //transactions history end
           $("#funding_goal").append("</ul></div>");
-        }
-      });
-    });
-  }
-  else if ( $(location).attr('pathname') == "/register" ) {
-    $( "#body-load" ).load( "/register.html" );
-  }
-  else if ( $(location).attr('pathname') == "/activate" ) {
-    $( "#body-load" ).load( "/activate.html" );
-  }
-  else if ( $(location).attr('pathname') == "/settings" ) {
-    $( "#body-load" ).load( "/settings.html", function() {
-      $.get( "/user_settings", function( data ) {
-        if(data.enabled_2FA==="true"){
-          $("#ul_2FA").append("<li class=\"list-group-item justify-content-between list-group-item-letstipme bg-success\"><span class=\"text-white\"><i class=\"fas fa-check\"></i> 2FA enabled</span></li>");
-        } else if(data.enabled_2FA==="false"){
-          $("#ul_2FA").append("<li class=\"list-group-item justify-content-between list-group-item-letstipme text-center settings_li\" id=\"settings_2FA\"><span class=\"letstipme-main-color-text\"><span class=\"text-white\"><p class=\"text-danger\"><b>You are strongly advised to enable two-factor authentication for your account security!</b></p><button id=\"Enable2FA\" class=\"btn btn-danger mb-2\"><i class=\"fas fa-exclamation-triangle\"></i> Enable 2FA</button></<span></span></li>");
-        }
-      });
-    });
-  }
-  else if ( $(location).attr('pathname') == "/add" ) {
-    $( "#body-load" ).load( "/add_goal.html" );
-  }
-  else if ( $(location).attr('pathname') == "/my_goals" ) {
-    $( "#body-load" ).load( "/my_goals.html", function() {
-
-      // Get goals on load
-      $.get("/my_goals_index", function(data){
-        if(data==="2FA disabled"){
-          $("#my_goals_content").append("<li class=\"list-group-item justify-content-between list-group-item-letstipme mb-4\"><span class=\"text-warning\"><b>You must enable two-factor authentication before you can add and manage goals.</b></small></li>");
-        } else if(data[0]){
-          $.each(data, function (i, value) {
-            if(value.unlimited=="true"){
-              $("#my_goals_content").append("<ul class=\"list-group mb-4\"><li class=\"list-group-item justify-content-between list-group-item-letstipme text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"letstipme-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / Unlimited</small></span><div class=\"progress\"><div class=\"progress-bar bg-success\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 100%\"></div></div></div></li><li class=\"list-group-item justify-content-between list-group-item-letstipme letstipme-lighter-background truncate low_padding_li\"><span class=\"text-white\"><small><i class=\"fas fa-directions\"></i> "+value.redirect_address+"</small></li></ul>");
-            } else {
-              const percentage = Math.round((value.balance*100)/value.goal);
-              var progress_bar_bg_color;
-              if(percentage<30){
-                progress_bar_bg_color="bg-danger";
-              } else if((percentage>30)&&(percentage<70)){
-                progress_bar_bg_color="bg-warning";
-              } else if(percentage>70){
-                progress_bar_bg_color="bg-success";
-              }
-                if(value.status==="success"){
-                $("#my_goals_content").append("<ul class=\"list-group mb-4\"><li class=\"list-group-item justify-content-between list-group-item-letstipme text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"letstipme-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / "+value.goal+" XTC ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></div></li><li class=\"list-group-item justify-content-between list-group-item-letstipme bg-success low_padding_li\" style=\"word-wrap:break-word;\"><span class=\"text-white\"><small><b>This goal has been successfully reached!</b></small></li><li class=\"list-group-item justify-content-between list-group-item-letstipme letstipme-lighter-background truncate low_padding_li\"><span class=\"text-white\"><small><i class=\"fas fa-directions\"></i> "+value.redirect_address+"</small></li></ul>");
-                } else {
-                $("#my_goals_content").append("<ul class=\"list-group mb-4\"><li class=\"list-group-item justify-content-between list-group-item-letstipme text-left goal_link\" goallink=\"/goal/"+value._id+"\"><div><h5 class=\"text-white\">"+value.title+"</h5><span class=\"letstipme-main-color-text\"><span class=\"text-white\"><small>"+value.balance+" XTC / "+value.goal+" XTC ("+percentage+"%)</small></span><div class=\"progress\"><div class=\"progress-bar "+progress_bar_bg_color+"\" role=\"progressbar\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "+percentage+"%\"></div></div></div></li><li class=\"list-group-item justify-content-between list-group-item-letstipme letstipme-lighter-background truncate low_padding_li\"><span class=\"text-white\"><small><i class=\"fas fa-directions\"></i> "+value.redirect_address+"</small></li></ul>");
-                }
-
-              }
-          });
-        } else {
-          $("#my_goals_content").append("<li class=\"list-group-item justify-content-between list-group-item-letstipme mb-4\"><span class=\"text-white\">You have not added a goal yet.</small></li>");
-        }
-        if(data!="2FA disabled"){
-          $("#my_goals_content").append("<button id=\"my_goals_add_goal\" class=\"btn btn-primary\"><i class=\"fas fa-plus\"></i> Add a new goal</button>");
-        } else {
-          $("#my_goals_content").append("<button id=\"my_goals_enable_2FA\" class=\"btn btn-warning\"><i class=\"fas fa-arrow-circle-right\"></i> Settings</button>");
         }
       });
     });
@@ -512,7 +512,7 @@ $( document ).ready(function() {
       }
       $.post("/add",{title: title,description: description,goal: goal,redirect_address: redirect_address,unlimited: unlimited, add_goal_2FA_code: add_goal_2FA_code}, function(data){
         if(data.status==="success"){
-          $(location).attr('href', '/goal/'+data.goalID);
+          $(location).attr('href', '/g/'+data.goalID);
         }
         else if(data.status==="2FA disabled")  {
           $(location).attr('href', '/my_goals');

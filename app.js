@@ -703,7 +703,7 @@ app.get('/goals_successful', function(req, res) {
     });
 });
 
-app.get('/goal/:id*', function(req, res, next) {
+app.get('/g/:id*', function(req, res, next) {
   cmd.get('curl --digest --user '+config.rpc_login+':'+config.rpc_password+' -X POST http://'+config.rpc_wallet_address+':'+config.rpc_wallet_port+'/json_rpc -d \'{"jsonrpc":"2.0","id":"0","method":"get_version"}\' -H \'Content-Type: application/json\'',
   function(err, jsonData, stderr){
     if(!err){
@@ -714,7 +714,7 @@ app.get('/goal/:id*', function(req, res, next) {
   });
 });
 
-app.post('/goal/', function(req, res) {
+app.post('/goal', function(req, res) {
   if(ValidateID(req.body._id)){
       const collection = db.collection('goals');
       collection.find(ObjectId(req.body._id)).toArray(function(err, data) {
@@ -928,7 +928,7 @@ function Check_Update_Goals_Balances() {
                         from: noreply,
                         to: data[0].email,
                         subject: 'It\'s a success! Congratulations, one of your goals has been reached! - Let\'s Tip Me',
-                        html: '<h4><b>Goal Reached!</b></h4><b><a style="color:#17a2b8;" href="https://letstip.me/goal/'+goal_id+'" target="_blank">'+goal_title+'</a></b><br><h6 style="font-weight:normal;">Funds will be automatically widthdrawed to your XTC address when the balance is unlocked, in 18 blocks.</h6>',
+                        html: '<h4><b>Goal Reached!</b></h4><b><a style="color:#17a2b8;" href="https://letstip.me/g/'+goal_id+'" target="_blank">'+goal_title+'</a></b><br><h6 style="font-weight:normal;">Funds will be automatically widthdrawed to your XTC address when the balance is unlocked, in 18 blocks.</h6>',
                       }, function(err, reply) {
                         // console.log(err && err.stack);
                         // console.dir(reply);
@@ -939,7 +939,7 @@ function Check_Update_Goals_Balances() {
                         from: noreply,
                         to: data[0].email,
                         subject: 'Congratulations, you have received funds for one of your goals! - Let\'s Tip Me',
-                        html: 'You have received <b style="color:#28a745;">+'+amount+' XTC</b> for your goal: <b><a style="color:#17a2b8;" href="https://letstip.me/goal/'+goal_id+'" target="_blank">'+goal_title+'</a></b>',
+                        html: 'You have received <b style="color:#28a745;">+'+amount+' XTC</b> for your goal: <b><a style="color:#17a2b8;" href="https://letstip.me/g/'+goal_id+'" target="_blank">'+goal_title+'</a></b>',
                       }, function(err, reply) {
                         // console.log(err && err.stack);
                         // console.dir(reply);
