@@ -985,7 +985,7 @@ function Check_Update_Goals_Balances() {
              , { $set: { balance : parseInt(balance, 10), last_check_balance: parseInt(balance, 10), status: goal_status } }, function(err, result) {
              // goal balance updated
              // notify goal owner of received funds
-             notifyReceivedFunds(balance-last_check_balance, author_id,goal_id, goal_title, goal_status);
+             notifyReceivedFunds(parseInt(balance-last_check_balance, 10), author_id,goal_id, goal_title, goal_status);
            });
          }
 
@@ -1004,8 +1004,8 @@ function Check_Update_Goals_Balances() {
                     balance+=value.amount;
                     if(index === array.length - 1) {
                       // update if different balance
-                       if(balance/100!=goal.last_check_balance){
-                          if(balance/100>=goal.goal&&goal.unlimited==="false"){
+                       if(parseInt(balance/100, 10)!=goal.last_check_balance){
+                          if(parseInt(balance/100, 10)>=goal.goal&&goal.unlimited==="false"){
                           updateBalance(balance/100, goal.last_check_balance, goal.wallet_index, goal.author_id, goal._id, goal.title, "success");
                           } else {
                           updateBalance(balance/100, goal.last_check_balance, goal.wallet_index, goal.author_id, goal._id, goal.title, goal.status);
