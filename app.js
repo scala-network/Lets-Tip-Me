@@ -775,7 +775,7 @@ app.post('/goal_txs', function(req, res) {
     {
       //update goal Balance
         db.collection('goals').updateOne({ wallet_index : parseInt(req.body.wallet_index, 10) }
-          , { $set: { balance : balance/100 } }, function(err, result) {
+          , { $set: { balance : parseInt(balance/100, 10) } }, function(err, result) {
             // goal balance updated
           });
     }
